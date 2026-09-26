@@ -2,30 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : ObjectCharacter
+namespace ESS.Objects.Enemy
 {
-    public void Start()
+    public class IEnemy : ObjectCharacter
     {
-        InitializeStats();
-    }
-
-    public virtual void InitializeStats()
-    {
-        maxHealth = 150;
-        attackDamage = 15;
-        speed = 4f;
-
-        health = maxHealth;
-        IsDead = false;
-    }
-
-    public override void TakeDamage(int damage)
-    {
-        base.TakeDamage(damage);
-
-        if (IsDead)
+        public void Start()
         {
-            Destroy(gameObject);
+            InitializeStats();
+        }
+
+        public virtual void InitializeStats()
+        {
+            maxHealth = 150;
+            attackDamage = 15;
+            speed = 4f;
+
+            health = maxHealth;
+            IsDead = false;
+        }
+
+        public override void TakeDamage(int damage)
+        {
+            base.TakeDamage(damage);
+
+            if (IsDead)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

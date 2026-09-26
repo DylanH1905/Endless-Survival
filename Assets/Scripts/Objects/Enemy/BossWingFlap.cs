@@ -1,91 +1,94 @@
 using UnityEngine;
 
-public class BossWingFlap : MonoBehaviour
+namespace ESS.Objects.Enemy
 {
-    [SerializeField] private Transform leftWing;
-    [SerializeField] private Transform rightWing;
-    [SerializeField] private float flapAngle = 30f;
-    [SerializeField] private float flapSpeed = 6f;
-    [SerializeField] private float leftWingDirection = 1f;
-    [SerializeField] private float rightWingDirection = -1f;
-    [SerializeField] private SpriteRenderer bodyRenderer;
-    [SerializeField] private Sprite biteSprite;
-    [SerializeField] private float biteDuration = 0.25f;
-
-    private Quaternion leftRestRotation;
-    private Quaternion rightRestRotation;
-    private Sprite restBodySprite;
-    private float biteTimer;
-
-    private void Awake()
+    public class BossWingFlap : MonoBehaviour
     {
-        if (leftWing == null)
-        {
-            leftWing = transform.Find("WingLeft");
-        }
+        [SerializeField] private Transform leftWing;
+        [SerializeField] private Transform rightWing;
+        [SerializeField] private float flapAngle = 30f;
+        [SerializeField] private float flapSpeed = 6f;
+        [SerializeField] private float leftWingDirection = 1f;
+        [SerializeField] private float rightWingDirection = -1f;
+        [SerializeField] private SpriteRenderer bodyRenderer;
+        [SerializeField] private Sprite biteSprite;
+        [SerializeField] private float biteDuration = 0.25f;
 
-        if (rightWing == null)
-        {
-            rightWing = transform.Find("WingRight");
-        }
+        private Quaternion leftRestRotation;
+        private Quaternion rightRestRotation;
+        private Sprite restBodySprite;
+        private float biteTimer;
 
-        if (bodyRenderer == null)
+        private void Awake()
         {
-            Transform body = transform.Find("Body");
-            if (body != null)
+            if (leftWing == null)
             {
-                bodyRenderer = body.GetComponent<SpriteRenderer>();
+                leftWing = transform.Find("WingLeft");
+            }
+
+            if (rightWing == null)
+            {
+                rightWing = transform.Find("WingRight");
+            }
+
+            if (bodyRenderer == null)
+            {
+                Transform body = transform.Find("Body");
+                if (body != null)
+                {
+                    bodyRenderer = body.GetComponent<SpriteRenderer>();
+                }
+            }
+
+            if (leftWing != null)
+            {
+                leftRestRotation = leftWing.localRotation;
+            }
+
+            if (rightWing != null)
+            {
+                rightRestRotation = rightWing.localRotation;
+            }
+
+            if (bodyRenderer != null)
+            {
+                restBodySprite = bodyRenderer.sprite;
             }
         }
 
-        if (leftWing != null)
+        private void Update()
         {
-            leftRestRotation = leftWing.localRotation;
-        }
+            float flap = Mathf.Sin(Time.time * flapSpeed) * flapAngle;
 
-        if (rightWing != null)
-        {
-            rightRestRotation = rightWing.localRotation;
-        }
-
-        if (bodyRenderer != null)
-        {
-            restBodySprite = bodyRenderer.sprite;
-        }
-    }
-
-    private void Update()
-    {
-        float flap = Mathf.Sin(Time.time * flapSpeed) * flapAngle;
-
-        if (leftWing != null)
-        {
-            leftWing.localRotation = leftRestRotation * Quaternion.Euler(0f, 0f, flap * leftWingDirection);
-        }
-
-        if (rightWing != null)
-        {
-            rightWing.localRotation = rightRestRotation * Quaternion.Euler(0f, 0f, flap * rightWingDirection);
-        }
-
-        if (biteTimer > 0f)
-        {
-            biteTimer -= Time.deltaTime;
-            if (biteTimer <= 0f && bodyRenderer != null)
+            if (leftWing != null)
             {
-                bodyRenderer.sprite = restBodySprite;
+                leftWing.localRotation = leftRestRotation * Quaternion.Euler(0f, 0f, flap * leftWingDirection);
+            }
+
+            if (rightWing != null)
+            {
+                rightWing.localRotation = rightRestRotation * Quaternion.Euler(0f, 0f, flap * rightWingDirection);
+            }
+
+            if (biteTimer > 0f)
+            {
+                biteTimer -= Time.deltaTime;
+                if (biteTimer <= 0f && bodyRenderer != null)
+                {
+                    bodyRenderer.sprite = restBodySprite;
+                }
             }
         }
-    }
 
-    public void PlayBite()
-    {
-        if (bodyRenderer == null || biteSprite == null)
+        public void PlayBite()
         {
-            return;
-        }
+            if (bodyRenderer == null || biteSprite == null)
+            {
+                return;
+            }
 
-        bodyRenderer.sprite = biteSprite;
-        biteTimer = biteDuration;
+            bodyRenderer.sprite = biteSprite;
+            biteTimer = biteDuration;
+        }
     }
 }

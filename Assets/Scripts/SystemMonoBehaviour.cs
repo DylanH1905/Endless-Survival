@@ -1,30 +1,33 @@
 using UnityEngine;
 
-public class SystemMonoBehaviour : MonoBehaviour
+namespace ESS
 {
-    protected string className => GetType().Name;
-    public bool isLoggingEnabled = false;
-    protected void Info(string message)
+    public class SystemMonoBehaviour : MonoBehaviour
     {
-        if (isLoggingEnabled)
+        protected string className => GetType().Name;
+        public bool isLoggingEnabled = false;
+        protected void Info(string message)
         {
-            Debug.Log($"[{className}] {message}", this);
+            if (isLoggingEnabled)
+            {
+                Debug.Log($"[{className}] {message}", this);
+            }
         }
-    }
 
-    protected void Error(string message)
-    {
-        if (isLoggingEnabled)
+        protected void Error(string message)
         {
-            Debug.LogError($"[{className}] {message}", this);
+            if (isLoggingEnabled)
+            {
+                Debug.LogError($"[{className}] {message}", this);
+            }
         }
-    }
 
-    protected void Warning(string message)
-    {
-        if (isLoggingEnabled)
+        protected void Warning(string message)
         {
-            Debug.LogWarning($"[{className}] {message}", this);
+            if (isLoggingEnabled)
+            {
+                Debug.LogWarning($"[{className}] {message}", this);
+            }
         }
     }
 }

@@ -1,50 +1,55 @@
 using UnityEngine;
-
-public class AimTarget : MonoBehaviour
+using ESS.Objects.Player;
+namespace ESS.Objects
 {
-    [SerializeField] private Transform aimAxis;
-    [SerializeField] private Transform target;
-    [SerializeField] private float rotationOffset;
 
-    private void Awake()
+    public class AimTarget : MonoBehaviour
     {
-        if (aimAxis == null)
-        {
-            aimAxis = transform;
-        }
-    }
+        [SerializeField] private Transform aimAxis;
+        [SerializeField] private Transform target;
+        [SerializeField] private float rotationOffset;
 
-    private void LateUpdate()
-    {
-        if (aimAxis == null)
+        private void Awake()
         {
-            return;
-        }
-
-        Movement playerMovement = aimAxis.GetComponent<Movement>();
-        if (playerMovement != null)
-        {
-            return;
+            if (aimAxis == null)
+            {
+                aimAxis = transform;
+            }
         }
 
-        Transform currentTarget = target;
-        if (currentTarget == null)
+        private void LateUpdate()
         {
-            return;
+            if (aimAxis == null)
+            {
+                return;
+            }
+
+            PlayerAttack playerAttack = aimAxis.GetComponent<PlayerAttack>();
+            if (playerAttack != null)
+            {
+                target = playerAttack.target.GetComponent<Transform>();
+                return;
+            }
+
+            Transform currentTarget = target;
+            if (currentTarget == null)
+            {
+                return;
+            }
+
+            Vector2 direction = currentTarget.position - aimAxis.position;
+            if (direction.sqrMagnitude <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            aimAxis.rotation = Quaternion.Euler(0f, 0f, angle + rotationOffset);
         }
 
-        Vector2 direction = currentTarget.position - aimAxis.position;
-        if (direction.sqrMagnitude <= Mathf.Epsilon)
+        public void SetTarget(Transform newTarget)
         {
-            return;
+            target = newTarget;
         }
-
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        aimAxis.rotation = Quaternion.Euler(0f, 0f, angle + rotationOffset);
-    }
-
-    public void SetTarget(Transform newTarget)
-    {
-        target = newTarget;
     }
 }

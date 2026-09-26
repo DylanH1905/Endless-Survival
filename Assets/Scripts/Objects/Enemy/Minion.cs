@@ -1,3 +1,6 @@
-public class Minion : Enemy
+namespace ESS.Objects.Enemy
 {
+    public class Minion : IEnemy
+    {
+    }
 }

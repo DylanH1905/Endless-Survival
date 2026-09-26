@@ -2,28 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectCharacter : SystemMonoBehaviour
+namespace ESS.Objects
 {
-    public int health;
-    public int maxHealth;
-    public int attackDamage;
-    public float speed;
-    public bool IsDead { get; protected set; }
-
-    public virtual void TakeDamage(int damage)
+    public class ObjectCharacter : SystemMonoBehaviour
     {
-        if (IsDead || damage <= 0)
-        {
-            Info($"{name} is already dead or received non-positive damage.");
-            return;
-        }
+        public int health;
+        public int maxHealth;
+        public int attackDamage;
+        public float speed;
+        public bool IsDead { get; protected set; }
 
-        health = Mathf.Max(health - damage, 0);
-        Info($"{name} took {damage} damage, remaining health: {health}");
-        if (health == 0)
+        public virtual void TakeDamage(int damage)
         {
-            IsDead = true;
-            Info($"{name} has died.");
+            if (IsDead || damage <= 0)
+            {
+                Info($"{name} is already dead or received non-positive damage.");
+                return;
+            }
+
+            health = Mathf.Max(health - damage, 0);
+            Info($"{name} took {damage} damage, remaining health: {health}");
+            if (health == 0)
+            {
+                IsDead = true;
+                Info($"{name} has died.");
+            }
         }
     }
 }

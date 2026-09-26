@@ -1,57 +1,99 @@
 using UnityEngine;
+using ESS.Objects.Player;
 
-public class BossPowerProjectile : MonoBehaviour
+namespace ESS.Objects.Enemy
 {
-    [SerializeField] private float hitDistance = 0.2f;
-
-    private Player target;
-    private int damage;
-    private float speed;
-    private Vector3 aimDirection;
-    private float spriteRotationOffset;
-
-    public void Initialize(Player newTarget, int newDamage, float newSpeed, Vector3 aimVector)
+    public class BossPowerProjectile : MonoBehaviour
     {
-        target = newTarget;
-        damage = newDamage;
-        speed = newSpeed;
-        aimDirection = aimVector.sqrMagnitude > Mathf.Epsilon
-            ? aimVector.normalized
-            : Vector3.right;
+        [SerializeField] private float hitDistance = 0.2f;
+        [SerializeField] private float openingDuration = 0.25f;
+        [SerializeField, Range(0f, 1f)] private float initialScaleMultiplier = 0.25f;
+        [SerializeField, Range(0f, 1f)] private float initialBrightness = 0.2f;
 
-        float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        spriteRotationOffset = transform.eulerAngles.z - aimAngle;
-    }
+        private IPlayer target;
+        private int damage;
+        private float speed;
+        private Vector3 aimDirection;
+        private float spriteRotationOffset;
+        private Vector3 fullScale;
+        private SpriteRenderer spriteRenderer;
+        private Color fullColor;
+        private float openingTimer;
 
-    private void Update()
-    {
-        if (target == null || target.IsDead)
+        public void Initialize(IPlayer newTarget, int newDamage, float newSpeed, Vector3 aimVector)
         {
-            Destroy(gameObject);
-            return;
+            target = newTarget;
+            damage = newDamage;
+            speed = newSpeed;
+            fullScale = transform.localScale;
+            openingTimer = Mathf.Max(openingDuration, 0f);
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                fullColor = spriteRenderer.color;
+                spriteRenderer.color = Color.Lerp(Color.clear, fullColor, initialBrightness);
+            }
+
+            transform.localScale = fullScale * initialScaleMultiplier;
+            aimDirection = aimVector.sqrMagnitude > Mathf.Epsilon
+                ? aimVector.normalized
+                : Vector3.right;
+
+            float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+            spriteRotationOffset = transform.eulerAngles.z - aimAngle;
         }
 
-        Vector3 aimVector = target.transform.position - transform.position;
-        float distance = aimVector.magnitude;
-        if (distance <= hitDistance)
+        private void Update()
         {
-            target.TakeDamage(damage);
-            Destroy(gameObject);
-            return;
+            if (target == null || target.IsDead)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            UpdateOpeningEffect();
+
+            Vector3 aimVector = target.transform.position - transform.position;
+            float distance = aimVector.magnitude;
+            if (distance <= hitDistance)
+            {
+                target.TakeDamage(damage);
+                Destroy(gameObject);
+                return;
+            }
+
+            aimDirection = aimVector / distance;
+            float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, aimAngle + spriteRotationOffset);
+
+            float travelDistance = speed * Time.deltaTime;
+            if (distance <= travelDistance + hitDistance)
+            {
+                target.TakeDamage(damage);
+                Destroy(gameObject);
+                return;
+            }
+
+            transform.position += aimDirection * travelDistance;
         }
 
-        aimDirection = aimVector / distance;
-        float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, aimAngle + spriteRotationOffset);
-
-        float travelDistance = speed * Time.deltaTime;
-        if (distance <= travelDistance + hitDistance)
+        private void UpdateOpeningEffect()
         {
-            target.TakeDamage(damage);
-            Destroy(gameObject);
-            return;
-        }
+            if (openingTimer <= 0f)
+            {
+                return;
+            }
 
-        transform.position += aimDirection * travelDistance;
+            openingTimer = Mathf.Max(openingTimer - Time.deltaTime, 0f);
+            float progress = openingDuration > 0f ? 1f - openingTimer / openingDuration : 1f;
+            progress = Mathf.SmoothStep(0f, 1f, progress);
+            transform.localScale = Vector3.Lerp(fullScale * initialScaleMultiplier, fullScale, progress);
+
+            if (spriteRenderer != null)
+            {
+                Color startingColor = Color.Lerp(Color.clear, fullColor, initialBrightness);
+                spriteRenderer.color = Color.Lerp(startingColor, fullColor, progress);
+            }
+        }
     }
 }
