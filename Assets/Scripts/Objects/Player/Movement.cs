@@ -8,6 +8,12 @@ public class Movement : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private float moveSpeed = 5f;
 
+    [Header("Visuals")]
+    [SerializeField] private SpriteRenderer headRenderer;
+    [SerializeField] private Transform bowTransform;
+    [SerializeField] private Transform arrowTransform;
+    private Transform aimPivot;
+
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 12f;
     [SerializeField] private float dashLength = 0.5f;
@@ -22,6 +28,7 @@ public class Movement : MonoBehaviour
     private float dashCounter;
     private float dashCooldownCounter;
     private bool dashRequested;
+    private bool headFacesLeftByDefault;
 
     private void Awake()
     {
@@ -38,6 +45,45 @@ public class Movement : MonoBehaviour
         if (skillHandler == null)
         {
             skillHandler = GetComponent<SkillHandler>();
+        }
+
+        if (headRenderer == null)
+        {
+            Transform head = transform.Find("Head");
+            if (head != null)
+            {
+                headRenderer = head.GetComponent<SpriteRenderer>();
+            }
+        }
+
+        if (bowTransform == null)
+        {
+            bowTransform = transform.Find("Bow");
+        }
+
+        if (arrowTransform == null)
+        {
+            arrowTransform = transform.Find("Arrow");
+        }
+
+        headFacesLeftByDefault = headRenderer != null && headRenderer.flipX;
+        if (bowTransform != null || arrowTransform != null)
+        {
+            GameObject pivotObject = new GameObject("AimPivot");
+            aimPivot = pivotObject.transform;
+            aimPivot.SetParent(transform, false);
+            aimPivot.position = headRenderer != null ? headRenderer.bounds.center : transform.position;
+            aimPivot.rotation = transform.rotation;
+
+            if (bowTransform != null)
+            {
+                bowTransform.SetParent(aimPivot, true);
+            }
+
+            if (arrowTransform != null)
+            {
+                arrowTransform.SetParent(aimPivot, true);
+            }
         }
 
         activeMoveSpeed = player != null && player.speed > 0f ? player.speed : moveSpeed;
@@ -89,6 +135,7 @@ public class Movement : MonoBehaviour
     private void Update()
     {
         Move();
+        RotateHeadToMovement();
         RotateToClosestEnemy();
         UpdateDash();
     }
@@ -123,6 +170,14 @@ public class Movement : MonoBehaviour
         if (rb != null)
         {
             rb.velocity = movement * activeMoveSpeed;
+        }
+    }
+
+    private void RotateHeadToMovement()
+    {
+        if (headRenderer != null && movement.x != 0f)
+        {
+            headRenderer.flipX = headFacesLeftByDefault ^ (movement.x < 0f);
         }
     }
 
@@ -174,8 +229,14 @@ public class Movement : MonoBehaviour
 
         Vector3 direction = closestEnemy.transform.position - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+        Quaternion aimRotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        if (aimPivot != null)
+        {
+            aimPivot.rotation = Quaternion.Slerp(
+                aimPivot.rotation,
+                aimRotation,
+                Time.deltaTime * 10f);
+        }
     }
 
     public void AddSpeed()
