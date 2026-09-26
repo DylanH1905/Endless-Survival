@@ -72,15 +72,27 @@ public class BasicAttack : MonoBehaviour
 
     private void LaunchProjectile(Enemy target)
     {
-        PlayBowDraw();
+        GameObject projectileSource = arrowTransform != null
+            ? arrowTransform.gameObject
+            : projectilePrefab;
+        Vector3 spawnPosition = arrowTransform != null
+            ? arrowTransform.position
+            : transform.position;
+        Quaternion spawnRotation = arrowTransform != null
+            ? arrowTransform.rotation
+            : Quaternion.identity;
 
-        GameObject projectileObject = projectilePrefab != null
-            ? Instantiate(projectilePrefab, transform.position, Quaternion.identity)
+        GameObject projectileObject = projectileSource != null
+            ? Instantiate(projectileSource, spawnPosition, spawnRotation)
             : new GameObject("BasicProjectile");
 
-        if (projectilePrefab == null)
+        if (projectileSource == null)
         {
-            projectileObject.transform.position = transform.position;
+            projectileObject.transform.position = spawnPosition;
+        }
+        else if (arrowTransform != null)
+        {
+            projectileObject.transform.localScale = arrowTransform.lossyScale;
         }
 
         BasicProjectile projectile = projectileObject.GetComponent<BasicProjectile>();
@@ -90,6 +102,7 @@ public class BasicAttack : MonoBehaviour
         }
 
         projectile.Initialize(target, player.attackDamage, projectileSpeed, projectileColor);
+        PlayBowDraw();
     }
 
     private void PlayBowDraw()

@@ -332,14 +332,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 430888076}
-  m_LocalRotation: {x: -0, y: -0, z: 0.11662435, w: 0.9931761}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.088, y: -0.21400005, z: 0}
   m_LocalScale: {x: 0.45886993, y: 0.45886993, z: 0.45886993}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1780608487}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 13.395}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &430888078
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -381,7 +381,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1210857639, guid: 9adc36dc056731340aeb89e0dcf7a2b4, type: 3}
+  m_Sprite: {fileID: -914609444, guid: 35e224c43fbba77438cd873a19e8b108, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -389,7 +389,7 @@ SpriteRenderer:
   m_Size: {x: 1.62, y: 3.77}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &635181504
@@ -500,14 +500,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 663574928}
-  m_LocalRotation: {x: -0.11685314, y: -0.213768, z: 0.8430017, w: 0.47957966}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 1.165, y: -0.276, z: 0.184}
   m_LocalScale: {x: 0.36728492, y: 0.36728492, z: 0.36728492}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1780608487}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 14.379, y: -24.523, z: 117.589}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!212 &663574930
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -549,7 +549,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0b7756c0e47430f488caf6f637d9d1f4, type: 3}
+  m_Sprite: {fileID: -1578823312, guid: 35e224c43fbba77438cd873a19e8b108, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -557,7 +557,7 @@ SpriteRenderer:
   m_Size: {x: 1.95, y: 2.71}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &926672877
@@ -906,7 +906,7 @@ MonoBehaviour:
   projectileSpeed: 12
   projectileColor: {r: 1, g: 0.85, b: 0.2, a: 1}
   projectilePrefab: {fileID: 0}
-  drawingBowSprite: {fileID: 21300000, guid: 47347800059331e48be934ec7e3741c7, type: 3}
+  drawingBowSprite: {fileID: -2065829609, guid: 35e224c43fbba77438cd873a19e8b108, type: 3}
   bowDrawDuration: 0.15
   arrowPullbackDistance: 0.3
 --- !u!1 &2077960350

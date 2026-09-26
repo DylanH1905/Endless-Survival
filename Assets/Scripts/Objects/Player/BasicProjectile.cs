@@ -7,6 +7,8 @@ public class BasicProjectile : MonoBehaviour
     private float speed;
     private float trailLength;
     private LineRenderer lineRenderer;
+    private SpriteRenderer spriteRenderer;
+    private float spriteRotationOffset;
 
     public void Initialize(Enemy newTarget, int newDamage, float newSpeed, Color color)
     {
@@ -14,12 +16,25 @@ public class BasicProjectile : MonoBehaviour
         damage = newDamage;
         speed = newSpeed;
 
-        SetupLineRenderer(color);
+        if (spriteRenderer == null)
+        {
+            SetupLineRenderer(color);
+        }
+        else
+        {
+            Vector3 initialDirection = (target.transform.position - transform.position).normalized;
+            float directionAngle = Mathf.Atan2(initialDirection.y, initialDirection.x) * Mathf.Rad2Deg;
+            spriteRotationOffset = transform.eulerAngles.z - directionAngle;
+        }
     }
 
     private void Awake()
     {
-        SetupLineRenderer(Color.yellow);
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            SetupLineRenderer(Color.yellow);
+        }
     }
 
     private void Update()
@@ -37,8 +52,16 @@ public class BasicProjectile : MonoBehaviour
             targetPosition,
             speed * Time.deltaTime);
 
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, transform.position - direction * trailLength);
+        if (spriteRenderer != null)
+        {
+            float directionAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, directionAngle + spriteRotationOffset);
+        }
+        else if (lineRenderer != null)
+        {
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, transform.position - direction * trailLength);
+        }
 
         if (Vector2.Distance(transform.position, targetPosition) <= 0.05f)
         {
