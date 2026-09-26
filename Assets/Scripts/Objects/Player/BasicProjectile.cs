@@ -8,7 +8,6 @@ public class BasicProjectile : MonoBehaviour
     private float trailLength;
     private LineRenderer lineRenderer;
     private SpriteRenderer spriteRenderer;
-    private float spriteRotationOffset;
 
     public void Initialize(Enemy newTarget, int newDamage, float newSpeed, Color color)
     {
@@ -23,8 +22,7 @@ public class BasicProjectile : MonoBehaviour
         else
         {
             Vector3 initialDirection = (target.transform.position - transform.position).normalized;
-            float directionAngle = Mathf.Atan2(initialDirection.y, initialDirection.x) * Mathf.Rad2Deg;
-            spriteRotationOffset = transform.eulerAngles.z - directionAngle;
+            RotateArrowAlong(initialDirection);
         }
     }
 
@@ -54,8 +52,7 @@ public class BasicProjectile : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            float directionAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, 0f, directionAngle + spriteRotationOffset);
+            RotateArrowAlong(direction);
         }
         else if (lineRenderer != null)
         {
@@ -68,6 +65,12 @@ public class BasicProjectile : MonoBehaviour
             target.TakeDamage(damage);
             Destroy(gameObject);
         }
+    }
+
+    private void RotateArrowAlong(Vector3 direction)
+    {
+        float directionAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, directionAngle - 90f);
     }
 
     private void SetupLineRenderer(Color color)

@@ -29,6 +29,7 @@ public class Movement : MonoBehaviour
     private float dashCooldownCounter;
     private bool dashRequested;
     private bool headFacesLeftByDefault;
+    private Quaternion arrowRestLocalRotation;
 
     private void Awake()
     {
@@ -83,6 +84,7 @@ public class Movement : MonoBehaviour
             if (arrowTransform != null)
             {
                 arrowTransform.SetParent(aimPivot, true);
+                arrowRestLocalRotation = arrowTransform.localRotation;
             }
         }
 
@@ -224,6 +226,19 @@ public class Movement : MonoBehaviour
 
         if (closestEnemy == null)
         {
+            if (aimPivot != null)
+            {
+                aimPivot.rotation = Quaternion.Slerp(
+                    aimPivot.rotation,
+                    transform.rotation,
+                    Time.deltaTime * 10f);
+            }
+
+            if (arrowTransform != null)
+            {
+                arrowTransform.localRotation = arrowRestLocalRotation;
+            }
+
             return;
         }
 
@@ -236,6 +251,11 @@ public class Movement : MonoBehaviour
                 aimPivot.rotation,
                 aimRotation,
                 Time.deltaTime * 10f);
+        }
+
+        if (arrowTransform != null)
+        {
+            arrowTransform.localRotation = Quaternion.identity;
         }
     }
 

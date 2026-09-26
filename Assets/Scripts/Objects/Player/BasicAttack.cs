@@ -16,6 +16,7 @@ public class BasicAttack : MonoBehaviour
     private float attackTimer;
     private SpriteRenderer bowRenderer;
     private Sprite defaultBowSprite;
+    private Transform headTransform;
     private Transform arrowTransform;
     private Coroutine bowDrawRoutine;
     private Vector3 arrowRestLocalPosition;
@@ -28,6 +29,7 @@ public class BasicAttack : MonoBehaviour
             player = GetComponent<Player>();
         }
 
+        headTransform = transform.Find("Head");
         foreach (SpriteRenderer spriteRenderer in GetComponentsInChildren<SpriteRenderer>(true))
         {
             if (spriteRenderer.transform.name == "Bow")
@@ -72,6 +74,115 @@ public class BasicAttack : MonoBehaviour
 
     private void LaunchProjectile(Enemy target)
     {
+        if (bowDrawRoutine != null)
+        {
+            StopCoroutine(bowDrawRoutine);
+            if (bowRenderer != null)
+            {
+                bowRenderer.sprite = defaultBowSprite;
+            }
+
+            if (arrowTransform != null && hasArrowRestPosition)
+            {
+                arrowTransform.localPosition = arrowRestLocalPosition;
+            }
+        }
+
+        if (arrowTransform != null && !hasArrowRestPosition)
+        {
+            arrowRestLocalPosition = arrowTransform.localPosition;
+            hasArrowRestPosition = true;
+        }
+
+        bowDrawRoutine = StartCoroutine(DrawAndFire(target));
+    }
+
+    private IEnumerator DrawAndFire(Enemy target)
+    {
+        float duration = Mathf.Max(bowDrawDuration, 0.01f);
+        float pullbackDuration = duration * 0.6f;
+        Vector3 pulledBackLocalPosition = arrowRestLocalPosition;
+        if (arrowTransform != null)
+        {
+            Transform aimTransform = arrowTransform.parent;
+            Vector3 pullDirection = headTransform != null
+                ? arrowTransform.position - headTransform.position
+                : aimTransform != null ? aimTransform.up : arrowTransform.up;
+            if (pullDirection.sqrMagnitude <= Mathf.Epsilon)
+            {
+                pullDirection = aimTransform != null ? aimTransform.up : arrowTransform.up;
+            }
+
+            pullDirection.Normalize();
+            Vector3 pullbackOffset = aimTransform != null
+                ? aimTransform.InverseTransformVector(pullDirection * arrowPullbackDistance)
+                : pullDirection * arrowPullbackDistance;
+            pulledBackLocalPosition -= pullbackOffset;
+        }
+
+        if (bowRenderer != null && drawingBowSprite != null)
+        {
+            bowRenderer.sprite = drawingBowSprite;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < pullbackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / pullbackDuration));
+            if (arrowTransform != null)
+            {
+                arrowTransform.localPosition = Vector3.Lerp(
+                    arrowRestLocalPosition,
+                    pulledBackLocalPosition,
+                    progress);
+            }
+
+            yield return null;
+        }
+
+        if (arrowTransform != null)
+        {
+            arrowTransform.localPosition = pulledBackLocalPosition;
+        }
+
+        if (target != null && !target.IsDead)
+        {
+            SpawnProjectile(target);
+        }
+
+        if (arrowTransform != null)
+        {
+            elapsed = 0f;
+            float releaseDuration = duration - pullbackDuration;
+            while (elapsed < releaseDuration)
+            {
+                elapsed += Time.deltaTime;
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / releaseDuration));
+                arrowTransform.localPosition = Vector3.Lerp(
+                    pulledBackLocalPosition,
+                    arrowRestLocalPosition,
+                    progress);
+                yield return null;
+            }
+
+            arrowTransform.localPosition = arrowRestLocalPosition;
+        }
+        else
+        {
+            yield return new WaitForSeconds(duration - pullbackDuration);
+        }
+
+        if (bowRenderer != null)
+        {
+            bowRenderer.sprite = defaultBowSprite;
+        }
+
+        bowDrawRoutine = null;
+    }
+
+    private void SpawnProjectile(Enemy target)
+    {
         GameObject projectileSource = arrowTransform != null
             ? arrowTransform.gameObject
             : projectilePrefab;
@@ -102,82 +213,6 @@ public class BasicAttack : MonoBehaviour
         }
 
         projectile.Initialize(target, player.attackDamage, projectileSpeed, projectileColor);
-        PlayBowDraw();
-    }
-
-    private void PlayBowDraw()
-    {
-        if (bowRenderer == null || drawingBowSprite == null)
-        {
-            return;
-        }
-
-        if (bowDrawRoutine != null)
-        {
-            StopCoroutine(bowDrawRoutine);
-            bowRenderer.sprite = defaultBowSprite;
-            if (arrowTransform != null && hasArrowRestPosition)
-            {
-                arrowTransform.localPosition = arrowRestLocalPosition;
-            }
-        }
-
-        if (arrowTransform != null && !hasArrowRestPosition)
-        {
-            arrowRestLocalPosition = arrowTransform.localPosition;
-            hasArrowRestPosition = true;
-        }
-
-        bowDrawRoutine = StartCoroutine(ShowDrawingBow());
-    }
-
-    private IEnumerator ShowDrawingBow()
-    {
-        float duration = Mathf.Max(bowDrawDuration, 0.01f);
-        bowRenderer.sprite = drawingBowSprite;
-
-        if (arrowTransform != null)
-        {
-            Vector3 pulledBackPosition = arrowRestLocalPosition - Vector3.up * arrowPullbackDistance;
-            float elapsed = 0f;
-            const float pullbackPortion = 0.65f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float progress = Mathf.Clamp01(elapsed / duration);
-                if (progress < pullbackPortion)
-                {
-                    float pullbackProgress = Mathf.SmoothStep(0f, 1f, progress / pullbackPortion);
-                    arrowTransform.localPosition = Vector3.Lerp(
-                        arrowRestLocalPosition,
-                        pulledBackPosition,
-                        pullbackProgress);
-                }
-                else
-                {
-                    float releaseProgress = Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        (progress - pullbackPortion) / (1f - pullbackPortion));
-                    arrowTransform.localPosition = Vector3.Lerp(
-                        pulledBackPosition,
-                        arrowRestLocalPosition,
-                        releaseProgress);
-                }
-
-                yield return null;
-            }
-
-            arrowTransform.localPosition = arrowRestLocalPosition;
-        }
-        else
-        {
-            yield return new WaitForSeconds(duration);
-        }
-
-        bowRenderer.sprite = defaultBowSprite;
-        bowDrawRoutine = null;
     }
 
     private Enemy FindClosestEnemy()
