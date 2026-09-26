@@ -6,13 +6,16 @@ public class FocusPlayer : MonoBehaviour
     [SerializeField] private float attackRange = 0.8f;
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private bool ignoreOtherEnemies = true;
+    [SerializeField] private bool spriteFacesRight = true;
 
     private Enemy enemy;
+    private SpriteRenderer spriteRenderer;
     private float attackTimer;
 
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
         FindPlayer();
 
         if (ignoreOtherEnemies)
@@ -35,10 +38,14 @@ public class FocusPlayer : MonoBehaviour
             return;
         }
 
-        Vector2 direction = (player.position - transform.position).normalized;
+        Vector2 toPlayer = player.position - transform.position;
+        Vector2 direction = toPlayer.normalized;
         float distance = Vector2.Distance(transform.position, player.position);
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        if (spriteRenderer != null && Mathf.Abs(toPlayer.x) > Mathf.Epsilon)
+        {
+            spriteRenderer.flipX = toPlayer.x < 0f ? spriteFacesRight : !spriteFacesRight;
+        }
 
         if (distance > attackRange)
         {
