@@ -70,16 +70,15 @@ namespace ESS.Objects.Player
             }
 
             float distance = Vector2.Distance(transform.position, closestEnemy.transform.position);
-            if (distance <= attackRange)
-            {
-                target = closestEnemy;
-            }
-            else
+            if (distance > attackRange)
             {
                 target = null;
-                LaunchProjectile(closestEnemy);
-                attackTimer = Mathf.Max(attackCooldown, 0.1f);
+                return;
             }
+
+            target = closestEnemy;
+            LaunchProjectile(closestEnemy);
+            attackTimer = Mathf.Max(attackCooldown, 0.1f);
         }
 
         private void LaunchProjectile(IEnemy target)
@@ -109,6 +108,7 @@ namespace ESS.Objects.Player
 
         private IEnumerator DrawAndFire(IEnemy target)
         {
+             Info("DrawAndFire coroutine started for bow");
             float duration = Mathf.Max(bowDrawDuration, 0.01f);
             float pullbackDuration = duration * 0.6f;
             Vector3 pulledBackLocalPosition = arrowRestLocalPosition;
@@ -133,6 +133,7 @@ namespace ESS.Objects.Player
             if (bowRenderer != null && drawingBowSprite != null)
             {
                 bowRenderer.sprite = drawingBowSprite;
+                Info("Drawing bow");
             }
 
             float elapsed = 0f;
