@@ -8,9 +8,9 @@ public class HealthBarUI : SystemMonoBehaviour
     [SerializeField] private ObjectCharacter target;
 
     [Header("Size")]
-    [SerializeField] private Vector2 playerScreenSize = new Vector2(220f, 24f);
+    [SerializeField] private Vector2 playerScreenSize = new Vector2(150f, 15f);
     [SerializeField] private Vector2 enemyScreenSize = new Vector2(60f, 8f);
-    [SerializeField] private Vector2 playerWorldSize = new Vector2(2.5f, 0.25f);
+    [SerializeField] private Vector2 playerWorldSize = new Vector2(1.5f, 0.15f);
     [SerializeField] private Vector2 enemyWorldSize = new Vector2(1.2f, 0.12f);
     [SerializeField, Range(0.1f, 1f)] private float playerSizeMultiplier = 0.5f;
 
