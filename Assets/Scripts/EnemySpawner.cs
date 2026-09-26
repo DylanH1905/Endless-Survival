@@ -4,6 +4,8 @@ public class EnemySpawner : SystemMonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private Sprite minionSprite;
+    [SerializeField] private Vector3 minionScale = new Vector3(0.15f, 0.15f, 1f);
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Transform player;
 
@@ -37,7 +39,7 @@ public class EnemySpawner : SystemMonoBehaviour
 
     private void Update()
     {
-        if (enemyPrefab == null || targetCamera == null || EnemyCount() >= maxEnemies || player == null || player.GetComponent<Player>().IsDead)
+        if ((enemyPrefab == null && minionSprite == null) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || player.GetComponent<Player>().IsDead)
         {
             return;
         }
@@ -52,14 +54,41 @@ public class EnemySpawner : SystemMonoBehaviour
 
     public void SpawnEnemy()
     {
-        if (enemyPrefab == null || targetCamera == null || EnemyCount() >= maxEnemies)
+        if ((enemyPrefab == null && minionSprite == null) || targetCamera == null || EnemyCount() >= maxEnemies)
         {
             return;
         }
 
         Vector2 spawnPosition = GetSpawnPosition();
         float zPosition = player != null ? player.position.z : 0f;
-        Instantiate(enemyPrefab, new Vector3(spawnPosition.x, spawnPosition.y, zPosition), Quaternion.identity);
+        Vector3 worldPosition = new Vector3(spawnPosition.x, spawnPosition.y, zPosition);
+        GameObject spawnedEnemy = enemyPrefab != null
+            ? Instantiate(enemyPrefab, worldPosition, Quaternion.identity)
+            : CreateMinion(worldPosition);
+
+        if (minionSprite != null)
+        {
+            SpriteRenderer spriteRenderer = spawnedEnemy.GetComponentInChildren<SpriteRenderer>(true);
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = minionSprite;
+            }
+        }
+    }
+
+    private GameObject CreateMinion(Vector3 position)
+    {
+        GameObject minionObject = new GameObject("Minion");
+        minionObject.transform.position = position;
+        minionObject.transform.localScale = minionScale;
+
+        SpriteRenderer spriteRenderer = minionObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = minionSprite;
+        minionObject.AddComponent<CircleCollider2D>();
+        minionObject.AddComponent<Minion>();
+        minionObject.AddComponent<FocusPlayer>();
+
+        return minionObject;
     }
 
     private Vector2 GetSpawnPosition()
