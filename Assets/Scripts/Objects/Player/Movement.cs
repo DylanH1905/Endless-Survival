@@ -211,12 +211,13 @@ public class Movement : MonoBehaviour
 
     private void RotateToClosestEnemy()
     {
+        Vector3 aimOrigin = headRenderer != null ? headRenderer.bounds.center : transform.position;
         Enemy closestEnemy = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (Enemy enemy in FindObjectsOfType<Enemy>())
         {
-            float distance = (enemy.transform.position - transform.position).sqrMagnitude;
+            float distance = (enemy.transform.position - aimOrigin).sqrMagnitude;
             if (distance > 0f && distance < closestDistance)
             {
                 closestDistance = distance;
@@ -242,7 +243,7 @@ public class Movement : MonoBehaviour
             return;
         }
 
-        Vector3 direction = closestEnemy.transform.position - transform.position;
+        Vector3 direction = closestEnemy.transform.position - aimOrigin;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
         Quaternion aimRotation = Quaternion.AngleAxis(angle, Vector3.forward);
         if (aimPivot != null)
