@@ -118,11 +118,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 417
-        y: 38
+        y: 37
         width: 350
         height: 350
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.49191248, y: 0.49191338}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -176,6 +176,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: boss_lv1_power
+      rect:
+        serializedVersion: 2
+        x: 1814
+        y: 97
+        width: 500
+        height: 240
+      alignment: 9
+      pivot: {x: 0.8113452, y: 0.47641334}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f1c48677d03a414799f0e8168438811
+      internalID: 299922320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -189,6 +210,7 @@ TextureImporter:
     nameFileIdTable:
       boss_lv1_body: -555873897
       boss_lv1_body_bitch: -1085109994
+      boss_lv1_power: 299922320
       boss_lv1_wing_left: 64941195
       boss_lv1_wing_right: -1693096160
   spritePackingTag: 

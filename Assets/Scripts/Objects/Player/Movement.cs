@@ -30,6 +30,7 @@ public class Movement : MonoBehaviour
     private bool dashRequested;
     private bool headFacesLeftByDefault;
     private Quaternion arrowRestLocalRotation;
+    public Transform CurrentAimTarget { get; private set; }
 
     private void Awake()
     {
@@ -137,8 +138,8 @@ public class Movement : MonoBehaviour
     private void Update()
     {
         Move();
-        RotateHeadToMovement();
         RotateToClosestEnemy();
+        RotateHeadToMovement();
         UpdateDash();
     }
 
@@ -177,7 +178,20 @@ public class Movement : MonoBehaviour
 
     private void RotateHeadToMovement()
     {
-        if (headRenderer != null && movement.x != 0f)
+        if (headRenderer == null)
+        {
+            return;
+        }
+
+        if (CurrentAimTarget != null)
+        {
+            float directionX = CurrentAimTarget.position.x - transform.position.x;
+            if (Mathf.Abs(directionX) > Mathf.Epsilon)
+            {
+                headRenderer.flipX = headFacesLeftByDefault ^ (directionX < 0f);
+            }
+        }
+        else if (movement.x != 0f)
         {
             headRenderer.flipX = headFacesLeftByDefault ^ (movement.x < 0f);
         }
@@ -224,6 +238,8 @@ public class Movement : MonoBehaviour
                 closestEnemy = enemy;
             }
         }
+
+        CurrentAimTarget = closestEnemy != null ? closestEnemy.transform : null;
 
         if (closestEnemy == null)
         {

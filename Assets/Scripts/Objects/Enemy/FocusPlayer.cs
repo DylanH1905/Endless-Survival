@@ -6,26 +6,50 @@ public class FocusPlayer : MonoBehaviour
     [SerializeField] private float attackRange = 0.8f;
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private bool ignoreOtherEnemies = true;
-    [SerializeField] private bool spriteFacesRight = true;
+    [SerializeField] private bool spriteFacesRight;
     [SerializeField] private Sprite biteSprite;
     [SerializeField] private float biteDuration = 0.2f;
+    [SerializeField] private float powerProjectileSpeed = 8f;
 
     private Enemy enemy;
     private SpriteRenderer spriteRenderer;
+    private Transform bodyTransform;
+    private Transform powerTransform;
+    private SpriteRenderer powerRenderer;
     private BossWingFlap bossWingFlap;
     private Sprite defaultSprite;
+    private Vector3 powerRestBodyLocalPosition;
     private float attackTimer;
     private float biteTimer;
 
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
         bossWingFlap = GetComponent<BossWingFlap>();
+        Transform body = transform.Find("Body");
+        bodyTransform = body != null ? body : transform;
+        if (body != null)
+        {
+            spriteRenderer = body.GetComponent<SpriteRenderer>();
+            powerTransform = body.Find("Power");
+        }
+
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+        }
+
         if (spriteRenderer != null)
         {
             defaultSprite = spriteRenderer.sprite;
         }
+
+        CachePowerRenderer();
 
         FindPlayer();
 
@@ -60,6 +84,8 @@ public class FocusPlayer : MonoBehaviour
             spriteRenderer.flipX = toPlayer.x < 0f ? spriteFacesRight : !spriteFacesRight;
         }
 
+        SyncPowerWithBody();
+
         if (distance > attackRange)
         {
             float enemySpeed = enemy != null ? enemy.speed : 0f;
@@ -83,18 +109,83 @@ public class FocusPlayer : MonoBehaviour
             return;
         }
 
-        playerCharacter.TakeDamage(enemy.attackDamage);
         attackTimer = Mathf.Max(attackCooldown, 0.1f);
         if (bossWingFlap != null)
         {
             bossWingFlap.PlayBite();
         }
 
+        if (powerTransform != null)
+        {
+            SpawnPowerProjectile(playerCharacter);
+            return;
+        }
+
+        playerCharacter.TakeDamage(enemy.attackDamage);
         if (spriteRenderer != null && biteSprite != null)
         {
             spriteRenderer.sprite = biteSprite;
             biteTimer = biteDuration;
         }
+    }
+
+    public void ConfigurePowerAttack(float range, float projectileSpeed)
+    {
+        attackRange = range;
+        powerProjectileSpeed = projectileSpeed;
+        if (powerTransform == null)
+        {
+            Transform body = transform.Find("Body");
+            bodyTransform = body != null ? body : transform;
+            powerTransform = body != null ? body.Find("Power") : transform.Find("Power");
+            CachePowerRenderer();
+        }
+    }
+
+    private void CachePowerRenderer()
+    {
+        if (powerTransform == null)
+        {
+            return;
+        }
+
+        powerRenderer = powerTransform.GetComponent<SpriteRenderer>();
+        powerRestBodyLocalPosition = bodyTransform.InverseTransformPoint(powerTransform.position);
+    }
+
+    private void SyncPowerWithBody()
+    {
+        if (powerTransform == null || spriteRenderer == null)
+        {
+            return;
+        }
+
+        Vector3 localPosition = powerRestBodyLocalPosition;
+        if (spriteRenderer.flipX)
+        {
+            localPosition.x = -localPosition.x;
+        }
+
+        powerTransform.position = bodyTransform.TransformPoint(localPosition);
+        if (powerRenderer != null)
+        {
+            powerRenderer.flipX = spriteRenderer.flipX;
+        }
+    }
+
+    private void SpawnPowerProjectile(Player playerCharacter)
+    {
+        SyncPowerWithBody();
+        GameObject projectileObject = Instantiate(
+            powerTransform.gameObject,
+            powerTransform.position,
+            powerTransform.rotation);
+        projectileObject.transform.SetParent(null, true);
+        projectileObject.transform.localScale = powerTransform.lossyScale;
+
+        BossPowerProjectile projectile = projectileObject.AddComponent<BossPowerProjectile>();
+        Vector3 aimVector = playerCharacter.transform.position - powerTransform.position;
+        projectile.Initialize(playerCharacter, enemy.attackDamage, powerProjectileSpeed, aimVector);
     }
 
     public void SetSprites(Sprite idleSprite, Sprite attackSprite)

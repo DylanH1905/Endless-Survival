@@ -8,6 +8,8 @@ public class BasicProjectile : MonoBehaviour
     private float trailLength;
     private LineRenderer lineRenderer;
     private SpriteRenderer spriteRenderer;
+    private Vector3 aimDirection;
+    private float spriteRotationOffset;
 
     public void Initialize(Enemy newTarget, int newDamage, float newSpeed, Color color)
     {
@@ -21,8 +23,11 @@ public class BasicProjectile : MonoBehaviour
         }
         else
         {
-            Vector3 initialDirection = (target.transform.position - transform.position).normalized;
-            RotateArrowAlong(initialDirection);
+            Vector3 aimVector = target.transform.position - transform.position;
+            aimDirection = aimVector.sqrMagnitude > Mathf.Epsilon ? aimVector.normalized : Vector3.up;
+            float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+            spriteRotationOffset = transform.eulerAngles.z - aimAngle;
+            RotateArrowAlong(aimDirection);
         }
     }
 
@@ -44,23 +49,31 @@ public class BasicProjectile : MonoBehaviour
         }
 
         Vector3 targetPosition = target.transform.position;
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetPosition,
-            speed * Time.deltaTime);
+        Vector3 aimVector = targetPosition - transform.position;
+        float distance = aimVector.magnitude;
+        if (distance <= 0.05f)
+        {
+            target.TakeDamage(damage);
+            Destroy(gameObject);
+            return;
+        }
+
+        aimDirection = aimVector / distance;
+        float travelDistance = speed * Time.deltaTime;
+        Vector3 nextPosition = transform.position + aimDirection * Mathf.Min(travelDistance, distance);
 
         if (spriteRenderer != null)
         {
-            RotateArrowAlong(direction);
+            RotateArrowAlong(aimDirection);
         }
         else if (lineRenderer != null)
         {
-            lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, transform.position - direction * trailLength);
+            lineRenderer.SetPosition(0, nextPosition);
+            lineRenderer.SetPosition(1, nextPosition - aimDirection * trailLength);
         }
 
-        if (Vector2.Distance(transform.position, targetPosition) <= 0.05f)
+        transform.position = nextPosition;
+        if (distance <= travelDistance + 0.05f)
         {
             target.TakeDamage(damage);
             Destroy(gameObject);
@@ -70,7 +83,7 @@ public class BasicProjectile : MonoBehaviour
     private void RotateArrowAlong(Vector3 direction)
     {
         float directionAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, directionAngle - 90f);
+        transform.rotation = Quaternion.Euler(0f, 0f, directionAngle + spriteRotationOffset);
     }
 
     private void SetupLineRenderer(Color color)

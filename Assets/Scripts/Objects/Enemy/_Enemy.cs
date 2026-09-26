@@ -9,7 +9,7 @@ public class Enemy : ObjectCharacter
         InitializeStats();
     }
 
-    public void InitializeStats()
+    public virtual void InitializeStats()
     {
         maxHealth = 150;
         attackDamage = 15;
