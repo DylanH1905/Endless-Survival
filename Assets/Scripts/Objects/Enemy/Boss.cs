@@ -2,7 +2,7 @@ public class Boss : Enemy
 {
     public new void InitializeStats()
     {
-        maxHealth = 500;
+        maxHealth = 5000;
         attackDamage = 50;
         speed = 3f;
 

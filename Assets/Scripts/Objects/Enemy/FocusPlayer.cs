@@ -12,6 +12,7 @@ public class FocusPlayer : MonoBehaviour
 
     private Enemy enemy;
     private SpriteRenderer spriteRenderer;
+    private BossWingFlap bossWingFlap;
     private Sprite defaultSprite;
     private float attackTimer;
     private float biteTimer;
@@ -20,6 +21,7 @@ public class FocusPlayer : MonoBehaviour
     {
         enemy = GetComponent<Enemy>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+        bossWingFlap = GetComponent<BossWingFlap>();
         if (spriteRenderer != null)
         {
             defaultSprite = spriteRenderer.sprite;
@@ -83,6 +85,11 @@ public class FocusPlayer : MonoBehaviour
 
         playerCharacter.TakeDamage(enemy.attackDamage);
         attackTimer = Mathf.Max(attackCooldown, 0.1f);
+        if (bossWingFlap != null)
+        {
+            bossWingFlap.PlayBite();
+        }
+
         if (spriteRenderer != null && biteSprite != null)
         {
             spriteRenderer.sprite = biteSprite;
