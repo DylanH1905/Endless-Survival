@@ -239,7 +239,7 @@ RectTransform:
   m_Children:
   - {fileID: 2077960351}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -660,7 +660,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLoggingEnabled: 0
   enemyPrefab: {fileID: 0}
-  minionSprite: {fileID: 21300000, guid: 7e104335fcfdf404bac1be69ffe566c3, type: 3}
+  minionSprite: {fileID: -2076194459, guid: 7e104335fcfdf404bac1be69ffe566c3, type: 3}
+  minionBiteSprite: {fileID: 458184831, guid: 7e104335fcfdf404bac1be69ffe566c3, type: 3}
   minionScale: {x: 0.15, y: 0.15, z: 1}
   targetCamera: {fileID: 926672879}
   player: {fileID: 1780608487}

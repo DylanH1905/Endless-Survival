@@ -5,6 +5,7 @@ public class EnemySpawner : SystemMonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private Sprite minionSprite;
+    [SerializeField] private Sprite minionBiteSprite;
     [SerializeField] private Vector3 minionScale = new Vector3(0.15f, 0.15f, 1f);
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Transform player;
@@ -73,6 +74,12 @@ public class EnemySpawner : SystemMonoBehaviour
             {
                 spriteRenderer.sprite = minionSprite;
             }
+        }
+
+        FocusPlayer focusPlayer = spawnedEnemy.GetComponentInChildren<FocusPlayer>(true);
+        if (focusPlayer != null)
+        {
+            focusPlayer.SetSprites(minionSprite, minionBiteSprite);
         }
     }
 

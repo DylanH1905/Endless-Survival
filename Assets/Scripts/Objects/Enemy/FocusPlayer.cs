@@ -7,15 +7,24 @@ public class FocusPlayer : MonoBehaviour
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private bool ignoreOtherEnemies = true;
     [SerializeField] private bool spriteFacesRight = true;
+    [SerializeField] private Sprite biteSprite;
+    [SerializeField] private float biteDuration = 0.2f;
 
     private Enemy enemy;
     private SpriteRenderer spriteRenderer;
+    private Sprite defaultSprite;
     private float attackTimer;
+    private float biteTimer;
 
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+        if (spriteRenderer != null)
+        {
+            defaultSprite = spriteRenderer.sprite;
+        }
+
         FindPlayer();
 
         if (ignoreOtherEnemies)
@@ -26,6 +35,8 @@ public class FocusPlayer : MonoBehaviour
 
     private void Update()
     {
+        UpdateBiteAnimation();
+
         if (player == null)
         {
             FindPlayer();
@@ -72,6 +83,38 @@ public class FocusPlayer : MonoBehaviour
 
         playerCharacter.TakeDamage(enemy.attackDamage);
         attackTimer = Mathf.Max(attackCooldown, 0.1f);
+        if (spriteRenderer != null && biteSprite != null)
+        {
+            spriteRenderer.sprite = biteSprite;
+            biteTimer = biteDuration;
+        }
+    }
+
+    public void SetSprites(Sprite idleSprite, Sprite attackSprite)
+    {
+        biteSprite = attackSprite;
+        if (idleSprite != null)
+        {
+            defaultSprite = idleSprite;
+            if (spriteRenderer != null && biteTimer <= 0f)
+            {
+                spriteRenderer.sprite = idleSprite;
+            }
+        }
+    }
+
+    private void UpdateBiteAnimation()
+    {
+        if (biteTimer <= 0f)
+        {
+            return;
+        }
+
+        biteTimer -= Time.deltaTime;
+        if (biteTimer <= 0f && spriteRenderer != null)
+        {
+            spriteRenderer.sprite = defaultSprite;
+        }
     }
 
     private void FindPlayer()
