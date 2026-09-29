@@ -1,3 +1,4 @@
+using ESS.Objects;
 using ESS.Objects.Enemy;
 using ESS.Objects.Player;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace ESS
     {
         [Header("References")]
         [SerializeField] private GameObject enemyPrefab;
+        [SerializeField] private GameObject minionObject;
         [SerializeField] private Sprite minionSprite;
         [SerializeField] private Sprite minionBiteSprite;
         [SerializeField] private Vector3 minionScale = new Vector3(0.15f, 0.15f, 1f);
@@ -45,7 +47,7 @@ namespace ESS
 
         private void Update()
         {
-            if ((enemyPrefab == null && minionSprite == null) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || player.GetComponent<IPlayer>().IsDead)
+            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || player.GetComponent<IPlayer>().IsDead)
             {
                 return;
             }
@@ -60,7 +62,7 @@ namespace ESS
 
         public void SpawnEnemy()
         {
-            if ((enemyPrefab == null && minionSprite == null) || targetCamera == null || EnemyCount() >= maxEnemies)
+            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies)
             {
                 return;
             }
@@ -90,17 +92,65 @@ namespace ESS
 
         private GameObject CreateMinion(Vector3 position)
         {
-            GameObject minionObject = new GameObject("Minion");
-            minionObject.transform.position = position;
-            minionObject.transform.localScale = minionScale;
+            GameObject newMinionObject = Instantiate(minionObject, position, Quaternion.identity);
+            newMinionObject.transform.localScale = minionScale;
 
-            SpriteRenderer spriteRenderer = minionObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer spriteRenderer = newMinionObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = minionSprite;
-            minionObject.AddComponent<CircleCollider2D>();
-            minionObject.AddComponent<Minion>();
-            minionObject.AddComponent<FocusPlayer>();
+            newMinionObject.AddComponent<CircleCollider2D>();
+            newMinionObject.AddComponent<Minion>();
+            newMinionObject.AddComponent<FocusPlayer>();
 
-            return minionObject;
+            Transform canvasTransform = newMinionObject.transform.Find("Canvas");
+            if (canvasTransform == null)
+            {
+                canvasTransform = newMinionObject.transform.Find("MinionHealthBar");
+                if (canvasTransform != null)
+                {
+                    canvasTransform.name = "Canvas";
+                }
+                else
+                {
+                    GameObject canvasObject = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas));
+                    canvasTransform = canvasObject.transform;
+                    canvasTransform.SetParent(newMinionObject.transform, false);
+                }
+            }
+
+            canvasTransform.gameObject.SetActive(true);
+            Canvas healthBarCanvas = canvasTransform.GetComponent<Canvas>();
+            if (healthBarCanvas == null)
+            {
+                healthBarCanvas = canvasTransform.gameObject.AddComponent<Canvas>();
+            }
+
+            healthBarCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+            healthBarCanvas.worldCamera = targetCamera;
+
+            HealthBarUI canvasHealthBar = canvasTransform.GetComponent<HealthBarUI>();
+            if (canvasHealthBar != null)
+            {
+                canvasHealthBar.enabled = false;
+                Destroy(canvasHealthBar);
+            }
+
+            Transform healthBarUITransform = canvasTransform.Find("HealthBarUI");
+            if (healthBarUITransform == null)
+            {
+                GameObject healthBarUIObject = new GameObject("HealthBarUI", typeof(RectTransform));
+                healthBarUITransform = healthBarUIObject.transform;
+                healthBarUITransform.SetParent(canvasTransform, false);
+            }
+
+            HealthBarUI healthBar = healthBarUITransform.GetComponent<HealthBarUI>();
+            if (healthBar == null)
+            {
+                healthBar = healthBarUITransform.gameObject.AddComponent<HealthBarUI>();
+            }
+
+            healthBar.SetTarget(newMinionObject.GetComponent<Minion>());
+
+            return newMinionObject;
         }
 
         private Vector2 GetSpawnPosition()

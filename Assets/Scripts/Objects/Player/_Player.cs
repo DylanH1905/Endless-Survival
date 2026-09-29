@@ -12,7 +12,7 @@ namespace ESS.Objects.Player
 
         public void InitializeStats()
         {
-            maxHealth = 20000;
+            maxHealth = 2000;
             attackDamage = 20;
             speed = 4f;
 
