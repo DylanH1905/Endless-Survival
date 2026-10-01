@@ -27,12 +27,11 @@ namespace ESS.Objects
         Obstruction // Movement blocking effect,
     }
 
-    // Pairs an EnvironmentObjectType with the prefab/UI icon used to represent it (e.g. in EnvironmentSpawner or a minimap legend).
+    // Pairs an EnvironmentObjectType with the UI icon used to represent and render it (e.g. in EnvironmentSpawner or a minimap legend).
     [System.Serializable]
     public class EnvironmentObjectHandle
     {
         public EnvironmentObjectType type;
-        public GameObject prefab;
         public Sprite icon;
     }
 

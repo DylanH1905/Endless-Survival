@@ -836,7 +836,6 @@ GameObject:
   - component: {fileID: 926672878}
   - component: {fileID: 926672881}
   - component: {fileID: 926672882}
-  - component: {fileID: 926672883}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -951,30 +950,65 @@ MonoBehaviour:
   smoothTime: 0.15
   focusOnlyWhileHoldingKey: 1
   focusKey: 32
---- !u!114 &926672883
+--- !u!1 &948532720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 948532722}
+  - component: {fileID: 948532721}
+  m_Layer: 0
+  m_Name: Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &948532721
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 926672877}
+  m_GameObject: {fileID: 948532720}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 200e13a44971c9541a15153264dee0a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLoggingEnabled: 0
+  isLoggingEnabled: 1
   environmentObjects:
-  - type: 0
+  - type: 1
     prefab: {fileID: 0}
-    icon: {fileID: 0}
-  targetCamera: {fileID: 926672879}
-  player: {fileID: 1780608487}
+    icon: {fileID: 21300000, guid: b721817f8430a64428af21e086801daf, type: 3}
+  - type: 6
+    prefab: {fileID: 0}
+    icon: {fileID: 21300000, guid: 5fa5ac47c947a764aa22a77d4efeb723, type: 3}
+  targetCamera: {fileID: 0}
+  player: {fileID: 0}
   spawnInterval: 1
   maxObjects: 40
   screenMargin: 0.1
   minimumDistanceFromPlayer: 2
   minimumDistanceBetweenObjects: 1.5
+--- !u!4 &948532722
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948532720}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.6822568, y: 0.48276368, z: -0.50454444}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &985595758
 GameObject:
   m_ObjectHideFlags: 0

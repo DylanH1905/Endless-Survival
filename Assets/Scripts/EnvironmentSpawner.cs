@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ESS.Objects;
+using ESS.Objects.Terrain;
 using UnityEngine;
 
 namespace ESS
@@ -26,6 +27,16 @@ namespace ESS
             if (targetCamera == null)
             {
                 targetCamera = Camera.main;
+            }
+
+            if (targetCamera == null)
+            {
+                Warning("No camera found - assign Target Camera or tag a camera 'MainCamera'.");
+            }
+
+            if (environmentObjects == null || environmentObjects.Length == 0)
+            {
+                Warning("No environment objects configured - nothing will spawn.");
             }
 
             if (player == null)
@@ -65,27 +76,50 @@ namespace ESS
             Vector2? spawnPosition = GetSpawnPosition();
             if (spawnPosition == null)
             {
+                Warning("Could not find a valid spawn position - check screenMargin/minimumDistanceFromPlayer/minimumDistanceBetweenObjects.");
                 return;
             }
 
             EnvironmentObjectHandle handle = environmentObjects[Random.Range(0, environmentObjects.Length)];
-            if (handle.prefab == null)
+            if (handle.icon == null)
             {
+                Warning($"EnvironmentObjectHandle for {handle.type} has no icon assigned.");
                 return;
             }
 
-            float zPosition = handle.prefab.transform.position.z;
+            float zPosition = player != null ? player.position.z : 0f;
             Vector3 worldPosition = new Vector3(spawnPosition.Value.x, spawnPosition.Value.y, zPosition);
-            GameObject spawned = Instantiate(handle.prefab, worldPosition, Quaternion.identity);
+            GameObject spawned = CreateEnvironmentObject(handle, worldPosition);
             spawnedObjects.Add(spawned.transform);
 
-            EnvironmentCharacter environmentCharacter = spawned.GetComponent<EnvironmentCharacter>();
-            if (environmentCharacter != null)
+            Info($"Spawned {handle.type} at {worldPosition}");
+        }
+
+        private GameObject CreateEnvironmentObject(EnvironmentObjectHandle handle, Vector3 position)
+        {
+            GameObject spawned = new GameObject(handle.type.ToString());
+            spawned.transform.position = position;
+
+            SpriteRenderer spriteRenderer = spawned.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = handle.icon;
+
+            BoxCollider2D collider = spawned.AddComponent<BoxCollider2D>();
+            collider.size = handle.icon.bounds.size;
+            collider.isTrigger = handle.type == EnvironmentObjectType.Bush;
+
+            EnvironmentCharacter environmentCharacter = handle.type == EnvironmentObjectType.Bush
+                ? spawned.AddComponent<Bush>()
+                : spawned.AddComponent<EnvironmentCharacter>();
+
+            environmentCharacter.objectType = handle.type;
+            if (handle.type != EnvironmentObjectType.Bush)
             {
-                environmentCharacter.objectType = handle.type;
+                environmentCharacter.blocksMovement = handle.type == EnvironmentObjectType.Terrain
+                    || handle.type == EnvironmentObjectType.Stone
+                    || handle.type == EnvironmentObjectType.Wall;
             }
 
-            Info($"Spawned {handle.type} at {worldPosition}");
+            return spawned;
         }
 
         private Vector2? GetSpawnPosition()
