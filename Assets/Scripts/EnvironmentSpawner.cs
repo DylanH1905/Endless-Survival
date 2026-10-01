@@ -23,7 +23,6 @@ namespace ESS
 
         private void Awake()
         {
-            environmentObjects = new EnvironmentObjectHandle[0];
             if (targetCamera == null)
             {
                 targetCamera = Camera.main;
