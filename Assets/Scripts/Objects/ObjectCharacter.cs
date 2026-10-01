@@ -28,5 +28,37 @@ namespace ESS.Objects
                 Info($"{name} has died.");
             }
         }
+
+        public virtual void Heal(int amount)
+        {
+            if (IsDead || amount <= 0)
+            {
+                return;
+            }
+
+            health = Mathf.Min(health + amount, maxHealth);
+            Info($"{name} healed {amount}, current health: {health}");
+        }
+
+        public virtual void Stun(float duration)
+        {
+            if (IsDead)
+            {
+                return;
+            }
+
+            // Implement stun logic here (e.g., disable movement for the duration)
+            StartCoroutine(StunCoroutine(duration));
+        }
+
+        private IEnumerator StunCoroutine(float duration)
+        {
+            // Disable movement or other actions here
+            float originalSpeed = speed;
+            speed = 0f;
+            yield return new WaitForSeconds(duration);
+            // Re-enable movement or other actions here
+            speed = originalSpeed;
+        }
     }
 }

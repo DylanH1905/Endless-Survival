@@ -836,6 +836,7 @@ GameObject:
   - component: {fileID: 926672878}
   - component: {fileID: 926672881}
   - component: {fileID: 926672882}
+  - component: {fileID: 926672883}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -950,6 +951,30 @@ MonoBehaviour:
   smoothTime: 0.15
   focusOnlyWhileHoldingKey: 1
   focusKey: 32
+--- !u!114 &926672883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 926672877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 200e13a44971c9541a15153264dee0a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isLoggingEnabled: 0
+  environmentObjects:
+  - type: 0
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
+  targetCamera: {fileID: 926672879}
+  player: {fileID: 1780608487}
+  spawnInterval: 1
+  maxObjects: 40
+  screenMargin: 0.1
+  minimumDistanceFromPlayer: 2
+  minimumDistanceBetweenObjects: 1.5
 --- !u!1 &985595758
 GameObject:
   m_ObjectHideFlags: 0

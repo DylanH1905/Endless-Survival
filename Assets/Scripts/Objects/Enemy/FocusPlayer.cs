@@ -69,7 +69,7 @@ namespace ESS.Objects.Enemy
             }
 
             IPlayer playerCharacter = player;
-            if (playerCharacter == null || playerCharacter.IsDead)
+            if (playerCharacter == null || playerCharacter.IsDead || playerCharacter.IsHidden)
             {
                 return;
             }

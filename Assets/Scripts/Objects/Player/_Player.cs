@@ -5,6 +5,8 @@ namespace ESS.Objects.Player
 {
     public class IPlayer : ObjectCharacter
     {
+        public bool IsHidden { get; set; }
+
         private void Awake()
         {
             InitializeStats();
@@ -20,14 +22,5 @@ namespace ESS.Objects.Player
             IsDead = false;
         }
 
-        public void Heal(int amount)
-        {
-            if (IsDead || amount <= 0)
-            {
-                return;
-            }
-
-            health = Mathf.Min(health + amount, maxHealth);
-        }
     }
 }
