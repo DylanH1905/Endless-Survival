@@ -33,6 +33,8 @@ namespace ESS.Objects
     {
         public EnvironmentObjectType type;
         public Sprite icon;
+        [Tooltip("Uniform render/collider scale applied when this object is spawned")]
+        public float size = 0.3f;
     }
 
     public class EnvironmentCharacter : SystemMonoBehaviour

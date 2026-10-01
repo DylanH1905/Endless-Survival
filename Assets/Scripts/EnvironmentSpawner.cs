@@ -112,7 +112,7 @@ namespace ESS
             float zPosition = player != null ? player.position.z : 0f;
             Vector3 worldPosition = new Vector3(spawnPosition.Value.x, spawnPosition.Value.y, zPosition);
             GameObject spawned = CreateEnvironmentObject(handle, worldPosition);
-            spawned.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
+            spawned.transform.localScale = Vector3.one * handle.size;
             spawnedObjects.Add(spawned.transform);
 
             Info($"Spawned {handle.type} at {worldPosition}");
