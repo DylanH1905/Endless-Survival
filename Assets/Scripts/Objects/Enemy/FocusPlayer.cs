@@ -13,6 +13,7 @@ namespace ESS.Objects.Enemy
         [SerializeField] private Sprite biteSprite;
         [SerializeField] private float biteDuration = 0.2f;
         [SerializeField] private float powerProjectileSpeed = 8f;
+        [SerializeField] private float wanderInterval = 1.5f;
 
         private IEnemy enemy;
         private SpriteRenderer spriteRenderer;
@@ -21,6 +22,8 @@ namespace ESS.Objects.Enemy
         private Sprite defaultSprite;
         private float attackTimer;
         private float biteTimer;
+        private Vector2 wanderDirection;
+        private float wanderTimer;
 
         private void Awake()
         {
@@ -69,8 +72,16 @@ namespace ESS.Objects.Enemy
             }
 
             IPlayer playerCharacter = player;
-            if (playerCharacter == null || playerCharacter.IsDead || playerCharacter.IsHidden)
+            if (playerCharacter == null || playerCharacter.IsDead)
             {
+                return;
+            }
+
+            bool canSeePlayer = !playerCharacter.IsHidden || (enemy != null && enemy.IsHidden);
+            if (!canSeePlayer)
+            {
+                Wander();
+                attackTimer -= Time.deltaTime;
                 return;
             }
 
@@ -97,6 +108,24 @@ namespace ESS.Objects.Enemy
             }
 
             attackTimer -= Time.deltaTime;
+        }
+
+        private void Wander()
+        {
+            wanderTimer -= Time.deltaTime;
+            if (wanderTimer <= 0f)
+            {
+                wanderDirection = Random.insideUnitCircle.normalized;
+                wanderTimer = Mathf.Max(wanderInterval, 0.1f);
+            }
+
+            float enemySpeed = enemy != null ? enemy.speed : 0f;
+            transform.position = (Vector2)transform.position + wanderDirection * enemySpeed * Time.deltaTime;
+
+            if (spriteRenderer != null && Mathf.Abs(wanderDirection.x) > Mathf.Epsilon)
+            {
+                spriteRenderer.flipX = wanderDirection.x < 0f ? spriteFacesRight : !spriteFacesRight;
+            }
         }
 
         private void Attack(IPlayer playerCharacter)

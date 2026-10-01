@@ -1,17 +1,16 @@
-using ESS.Objects.Player;
 using UnityEngine;
 
-namespace ESS.Objects.Terrain
+namespace ESS.Objects.Environment
 {
-    // Walkable terrain that hides the Player from enemies while they stand inside its trigger area.
+    // Walkable terrain that hides any Character (Player/Enemy) from focus logic while they stand inside its trigger area.
     [RequireComponent(typeof(Collider2D))]
     public class Bush : EnvironmentCharacter
     {
-        [SerializeField] private float hiddenAlpha = 0.5f;
+        [SerializeField] private float hiddenAlpha = 0.3f;
 
         private SpriteRenderer spriteRenderer;
         private float defaultAlpha = 1f;
-        private int playersInside;
+        private int charactersInside;
 
         private void Awake()
         {
@@ -28,28 +27,28 @@ namespace ESS.Objects.Terrain
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            IPlayer player = other.GetComponent<IPlayer>();
-            if (player == null)
+            ObjectCharacter character = other.GetComponent<ObjectCharacter>();
+            if (character == null)
             {
                 return;
             }
 
-            player.IsHidden = true;
-            playersInside++;
+            character.IsHidden = true;
+            charactersInside++;
             SetAlpha(hiddenAlpha);
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            IPlayer player = other.GetComponent<IPlayer>();
-            if (player == null)
+            ObjectCharacter character = other.GetComponent<ObjectCharacter>();
+            if (character == null)
             {
                 return;
             }
 
-            player.IsHidden = false;
-            playersInside = Mathf.Max(playersInside - 1, 0);
-            if (playersInside == 0)
+            character.IsHidden = false;
+            charactersInside = Mathf.Max(charactersInside - 1, 0);
+            if (charactersInside == 0)
             {
                 SetAlpha(defaultAlpha);
             }

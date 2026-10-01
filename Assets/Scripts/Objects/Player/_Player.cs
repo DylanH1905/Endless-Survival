@@ -5,8 +5,6 @@ namespace ESS.Objects.Player
 {
     public class IPlayer : ObjectCharacter
     {
-        public bool IsHidden { get; set; }
-
         private void Awake()
         {
             InitializeStats();

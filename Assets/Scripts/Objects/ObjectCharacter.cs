@@ -11,6 +11,7 @@ namespace ESS.Objects
         public int attackDamage;
         public float speed;
         public bool IsDead { get; protected set; }
+        public bool IsHidden { get; set; }
 
         public virtual void TakeDamage(int damage)
         {

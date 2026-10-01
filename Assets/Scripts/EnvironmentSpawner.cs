@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ESS.Objects;
-using ESS.Objects.Terrain;
+using ESS.Objects.Environment;
 using UnityEngine;
 
 namespace ESS
@@ -15,12 +15,13 @@ namespace ESS
         [Header("Spawn Settings")]
         [SerializeField] private float spawnInterval = 1f;
         [SerializeField] private int maxObjects = 40;
-        [SerializeField] private float screenMargin = 0.1f;
+        [SerializeField] private float areaSizeMultiplier = 2f;
         [SerializeField] private float minimumDistanceFromPlayer = 2f;
         [SerializeField] private float minimumDistanceBetweenObjects = 1.5f;
 
         private readonly List<Transform> spawnedObjects = new List<Transform>();
         private float spawnTimer;
+        private Rect spawnArea;
 
         private void Awake()
         {
@@ -47,6 +48,27 @@ namespace ESS
                     player = playerObject.transform;
                 }
             }
+
+            if (targetCamera != null)
+            {
+                ComputeSpawnArea();
+            }
+        }
+
+        // Fixed region (2x camera width/height, centered on the camera's starting position) that bounds all spawning
+        // so objects don't keep generating forever as the camera/player moves.
+        private void ComputeSpawnArea()
+        {
+            Vector2 center = targetCamera.transform.position;
+            float halfHeight = targetCamera.orthographic
+                ? targetCamera.orthographicSize
+                : Mathf.Abs(targetCamera.transform.position.z) * Mathf.Tan(targetCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            float halfWidth = halfHeight * targetCamera.aspect;
+
+            float areaWidth = halfWidth * 2f * areaSizeMultiplier;
+            float areaHeight = halfHeight * 2f * areaSizeMultiplier;
+
+            spawnArea = new Rect(center.x - areaWidth * 0.5f, center.y - areaHeight * 0.5f, areaWidth, areaHeight);
         }
 
         private void Update()
@@ -76,7 +98,7 @@ namespace ESS
             Vector2? spawnPosition = GetSpawnPosition();
             if (spawnPosition == null)
             {
-                Warning("Could not find a valid spawn position - check screenMargin/minimumDistanceFromPlayer/minimumDistanceBetweenObjects.");
+                Warning("Could not find a valid spawn position - check areaSizeMultiplier/minimumDistanceFromPlayer/minimumDistanceBetweenObjects.");
                 return;
             }
 
@@ -90,6 +112,7 @@ namespace ESS
             float zPosition = player != null ? player.position.z : 0f;
             Vector3 worldPosition = new Vector3(spawnPosition.Value.x, spawnPosition.Value.y, zPosition);
             GameObject spawned = CreateEnvironmentObject(handle, worldPosition);
+            spawned.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
             spawnedObjects.Add(spawned.transform);
 
             Info($"Spawned {handle.type} at {worldPosition}");
@@ -102,17 +125,29 @@ namespace ESS
 
             SpriteRenderer spriteRenderer = spawned.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = handle.icon;
+            // "Environment" sorting layer renders behind the Default layer used by Player/Enemy
+            spriteRenderer.sortingLayerName = "Environment";
 
             BoxCollider2D collider = spawned.AddComponent<BoxCollider2D>();
             collider.size = handle.icon.bounds.size;
-            collider.isTrigger = handle.type == EnvironmentObjectType.Bush;
+            collider.isTrigger = handle.type == EnvironmentObjectType.Bush || handle.type == EnvironmentObjectType.Shoes;
 
-            EnvironmentCharacter environmentCharacter = handle.type == EnvironmentObjectType.Bush
-                ? spawned.AddComponent<Bush>()
-                : spawned.AddComponent<EnvironmentCharacter>();
+            EnvironmentCharacter environmentCharacter;
+            if (handle.type == EnvironmentObjectType.Bush)
+            {
+                environmentCharacter = spawned.AddComponent<Bush>();
+            }
+            else if (handle.type == EnvironmentObjectType.Shoes)
+            {
+                environmentCharacter = spawned.AddComponent<Shoes>();
+            }
+            else
+            {
+                environmentCharacter = spawned.AddComponent<EnvironmentCharacter>();
+            }
 
             environmentCharacter.objectType = handle.type;
-            if (handle.type != EnvironmentObjectType.Bush)
+            if (handle.type != EnvironmentObjectType.Bush && handle.type != EnvironmentObjectType.Shoes)
             {
                 environmentCharacter.blocksMovement = handle.type == EnvironmentObjectType.Terrain
                     || handle.type == EnvironmentObjectType.Stone
@@ -124,18 +159,11 @@ namespace ESS
 
         private Vector2? GetSpawnPosition()
         {
-            float margin = Mathf.Clamp(screenMargin, 0f, 0.45f);
-            float cameraDistance = Mathf.Abs(targetCamera.transform.position.z);
-
             for (int attempt = 0; attempt < 10; attempt++)
             {
-                Vector3 viewportPosition = new Vector3(
-                    Random.Range(margin, 1f - margin),
-                    Random.Range(margin, 1f - margin),
-                    cameraDistance);
-
-                Vector3 worldPosition = targetCamera.ViewportToWorldPoint(viewportPosition);
-                Vector2 spawnPosition = new Vector2(worldPosition.x, worldPosition.y);
+                Vector2 spawnPosition = new Vector2(
+                    Random.Range(spawnArea.xMin, spawnArea.xMax),
+                    Random.Range(spawnArea.yMin, spawnArea.yMax));
 
                 if (player != null && Vector2.Distance(spawnPosition, player.position) < minimumDistanceFromPlayer)
                 {
