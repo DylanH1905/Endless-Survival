@@ -107,6 +107,10 @@ namespace ESS.Objects
         public Sprite icon;
         [Tooltip("Uniform render/collider scale applied when this object is spawned")]
         public float size = 0.3f;
+        [Tooltip("Minimum distance required from another object of this same type when spawning")]
+        public float minDistanceToSameType = 1.5f;
+        [Tooltip("Maximum number of this type allowed on the map at once. 0 or less means unlimited")]
+        public int maxCount = 0;
     }
 
     public class EnvironmentCharacter : SystemMonoBehaviour

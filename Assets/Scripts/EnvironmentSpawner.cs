@@ -19,7 +19,19 @@ namespace ESS
         [SerializeField] private float minimumDistanceFromPlayer = 2f;
         [SerializeField] private float minimumDistanceBetweenObjects = 1.5f;
 
-        private readonly List<Transform> spawnedObjects = new List<Transform>();
+        private readonly struct SpawnedObject
+        {
+            public readonly Transform transform;
+            public readonly EnvironmentObjectType type;
+
+            public SpawnedObject(Transform transform, EnvironmentObjectType type)
+            {
+                this.transform = transform;
+                this.type = type;
+            }
+        }
+
+        private readonly List<SpawnedObject> spawnedObjects = new List<SpawnedObject>();
         private float spawnTimer;
         private Rect spawnArea;
 
@@ -55,11 +67,11 @@ namespace ESS
             }
         }
 
-        // Fixed region (2x camera width/height, centered on the camera's starting position) that bounds all spawning
-        // so objects don't keep generating forever as the camera/player moves.
+        // Region (2x camera width/height, re-centered on the player's current position every frame) that bounds all
+        // spawning so objects never generate outside the player's reachable surroundings.
         private void ComputeSpawnArea()
         {
-            Vector2 center = targetCamera.transform.position;
+            Vector2 center = player != null ? (Vector2)player.position : (Vector2)targetCamera.transform.position;
             float halfHeight = targetCamera.orthographic
                 ? targetCamera.orthographicSize
                 : Mathf.Abs(targetCamera.transform.position.z) * Mathf.Tan(targetCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
@@ -78,7 +90,9 @@ namespace ESS
                 return;
             }
 
-            spawnedObjects.RemoveAll(existing => existing == null);
+            ComputeSpawnArea();
+
+            spawnedObjects.RemoveAll(existing => existing.transform == null);
 
             spawnTimer -= Time.deltaTime;
             if (spawnTimer <= 0f)
@@ -95,17 +109,22 @@ namespace ESS
                 DespawnFarthestObject();
             }
 
-            Vector2? spawnPosition = GetSpawnPosition();
-            if (spawnPosition == null)
+            EnvironmentObjectHandle handle = SelectSpawnableHandle();
+            if (handle == null)
             {
-                Warning("Could not find a valid spawn position - check areaSizeMultiplier/minimumDistanceFromPlayer/minimumDistanceBetweenObjects.");
                 return;
             }
 
-            EnvironmentObjectHandle handle = environmentObjects[Random.Range(0, environmentObjects.Length)];
             if (handle.icon == null)
             {
                 Warning($"EnvironmentObjectHandle for {handle.type} has no icon assigned.");
+                return;
+            }
+
+            Vector2? spawnPosition = GetSpawnPosition(handle);
+            if (spawnPosition == null)
+            {
+                Warning("Could not find a valid spawn position - check areaSizeMultiplier/minimumDistanceFromPlayer/minimumDistanceBetweenObjects/minDistanceToSameType.");
                 return;
             }
 
@@ -113,9 +132,39 @@ namespace ESS
             Vector3 worldPosition = new Vector3(spawnPosition.Value.x, spawnPosition.Value.y, zPosition);
             GameObject spawned = CreateEnvironmentObject(handle, worldPosition);
             spawned.transform.localScale = Vector3.one * handle.size;
-            spawnedObjects.Add(spawned.transform);
+            spawnedObjects.Add(new SpawnedObject(spawned.transform, handle.type));
 
             Info($"Spawned {handle.type} at {worldPosition}");
+        }
+
+        // Picks a random handle whose per-type maxCount (if any) hasn't been reached yet.
+        private EnvironmentObjectHandle SelectSpawnableHandle()
+        {
+            int startIndex = Random.Range(0, environmentObjects.Length);
+            for (int i = 0; i < environmentObjects.Length; i++)
+            {
+                EnvironmentObjectHandle candidate = environmentObjects[(startIndex + i) % environmentObjects.Length];
+                if (candidate.maxCount <= 0 || CountOfType(candidate.type) < candidate.maxCount)
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        private int CountOfType(EnvironmentObjectType type)
+        {
+            int count = 0;
+            foreach (SpawnedObject existing in spawnedObjects)
+            {
+                if (existing.transform != null && existing.type == type)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private GameObject CreateEnvironmentObject(EnvironmentObjectHandle handle, Vector3 position)
@@ -157,7 +206,7 @@ namespace ESS
             return spawned;
         }
 
-        private Vector2? GetSpawnPosition()
+        private Vector2? GetSpawnPosition(EnvironmentObjectHandle handle)
         {
             for (int attempt = 0; attempt < 10; attempt++)
             {
@@ -170,7 +219,7 @@ namespace ESS
                     continue;
                 }
 
-                if (IsTooCloseToExisting(spawnPosition))
+                if (IsTooCloseToExisting(spawnPosition, handle.type, handle.minDistanceToSameType))
                 {
                     continue;
                 }
@@ -181,11 +230,19 @@ namespace ESS
             return null;
         }
 
-        private bool IsTooCloseToExisting(Vector2 position)
+        // Objects of the same type must respect minDistanceToSameType; objects of different types only
+        // need to respect the general minimumDistanceBetweenObjects.
+        private bool IsTooCloseToExisting(Vector2 position, EnvironmentObjectType type, float minDistanceToSameType)
         {
-            foreach (Transform existing in spawnedObjects)
+            foreach (SpawnedObject existing in spawnedObjects)
             {
-                if (existing != null && Vector2.Distance(position, existing.position) < minimumDistanceBetweenObjects)
+                if (existing.transform == null)
+                {
+                    continue;
+                }
+
+                float requiredDistance = existing.type == type ? minDistanceToSameType : minimumDistanceBetweenObjects;
+                if (Vector2.Distance(position, existing.transform.position) < requiredDistance)
                 {
                     return true;
                 }
@@ -201,10 +258,11 @@ namespace ESS
                 return;
             }
 
-            Transform farthest = null;
+            int farthestIndex = -1;
             float farthestDistance = -1f;
-            foreach (Transform existing in spawnedObjects)
+            for (int i = 0; i < spawnedObjects.Count; i++)
             {
+                Transform existing = spawnedObjects[i].transform;
                 if (existing == null)
                 {
                     continue;
@@ -214,13 +272,14 @@ namespace ESS
                 if (distance > farthestDistance)
                 {
                     farthestDistance = distance;
-                    farthest = existing;
+                    farthestIndex = i;
                 }
             }
 
-            if (farthest != null)
+            if (farthestIndex >= 0)
             {
-                spawnedObjects.Remove(farthest);
+                Transform farthest = spawnedObjects[farthestIndex].transform;
+                spawnedObjects.RemoveAt(farthestIndex);
                 Destroy(farthest.gameObject);
             }
         }
