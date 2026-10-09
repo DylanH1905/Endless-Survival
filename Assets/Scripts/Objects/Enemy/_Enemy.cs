@@ -6,6 +6,8 @@ namespace ESS.Objects.Enemy
 {
     public class IEnemy : ObjectCharacter
     {
+        public static event System.Action<IEnemy> OnDeath;
+
         public void Start()
         {
             InitializeStats();
@@ -27,6 +29,7 @@ namespace ESS.Objects.Enemy
 
             if (IsDead)
             {
+                OnDeath?.Invoke(this);
                 Destroy(gameObject);
             }
         }

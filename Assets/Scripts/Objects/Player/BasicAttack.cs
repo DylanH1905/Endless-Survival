@@ -26,6 +26,8 @@ namespace ESS.Objects.Player
         private Vector3 arrowRestLocalPosition;
         private bool hasArrowRestPosition;
 
+        public float AttacksPerSecond => attackCooldown > 0f ? 1f / attackCooldown : 0f;
+
         private void Awake()
         {
             if (player == null)
