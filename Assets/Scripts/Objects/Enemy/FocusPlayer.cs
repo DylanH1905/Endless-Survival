@@ -14,6 +14,7 @@ namespace ESS.Objects.Enemy
         [SerializeField] private float biteDuration = 0.2f;
         [SerializeField] private float powerProjectileSpeed = 8f;
         [SerializeField] private float wanderInterval = 1.5f;
+        [SerializeField] private float hiddenDetectionRange = 1.5f;
 
         private IEnemy enemy;
         private SpriteRenderer spriteRenderer;
@@ -77,7 +78,8 @@ namespace ESS.Objects.Enemy
                 return;
             }
 
-            bool canSeePlayer = !playerCharacter.IsHidden || (enemy != null && enemy.IsHidden);
+            float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
+            bool canSeePlayer = !playerCharacter.IsHidden || distanceToPlayer <= hiddenDetectionRange;
             if (!canSeePlayer)
             {
                 Wander();
@@ -87,7 +89,7 @@ namespace ESS.Objects.Enemy
 
             Vector2 toPlayer = player.transform.position - transform.position;
             Vector2 direction = toPlayer.normalized;
-            float distance = Vector2.Distance(transform.position, player.transform.position);
+            float distance = distanceToPlayer;
 
             if (spriteRenderer != null && Mathf.Abs(toPlayer.x) > Mathf.Epsilon)
             {
