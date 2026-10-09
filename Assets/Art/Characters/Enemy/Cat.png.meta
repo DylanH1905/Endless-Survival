@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 85a379a42d14d3e499488c99beb127a2
+guid: d8d24451d8172724cafc940af84272bb
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -93,13 +93,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: boss_lv1_body
+      name: Cat
       rect:
         serializedVersion: 2
-        x: 54
-        y: 37
-        width: 350
-        height: 350
+        x: 44
+        y: 86
+        width: 275
+        height: 274
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -107,92 +107,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cd43678963cdb9248be0920957cc8488
-      internalID: -555873897
+      spriteID: 8e1a0d8546a3e694a8b17471863f00ac
+      internalID: 1880482262
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: boss_lv1_body_bitch
+      name: Cat_Bitch
       rect:
         serializedVersion: 2
-        x: 417
-        y: 37
-        width: 350
-        height: 350
-      alignment: 9
-      pivot: {x: 0.49191248, y: 0.49191338}
+        x: 345
+        y: 88
+        width: 275
+        height: 276
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 11949553c81e6bd4e8a797a51ea418bd
-      internalID: -1085109994
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: boss_lv1_wing_left
-      rect:
-        serializedVersion: 2
-        x: 807
-        y: 93
-        width: 430
-        height: 240
-      alignment: 8
-      pivot: {x: 1, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 01491bd9f4816ee4bbbb793238776e5d
-      internalID: 64941195
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: boss_lv1_wing_right
-      rect:
-        serializedVersion: 2
-        x: 1289
-        y: 92
-        width: 430
-        height: 240
-      alignment: 6
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 7f6a4fdf778466e4a81afd6ae2451c15
-      internalID: -1693096160
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: boss_lv1_power
-      rect:
-        serializedVersion: 2
-        x: 1814
-        y: 97
-        width: 500
-        height: 240
-      alignment: 9
-      pivot: {x: 0.8113452, y: 0.47641334}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2f1c48677d03a414799f0e8168438811
-      internalID: 299922320
+      spriteID: 4fa96a08122688e44973f5f6d57b91ef
+      internalID: -1482042804
       vertices: []
       indices: 
       edges: []
@@ -208,11 +145,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      boss_lv1_body: -555873897
-      boss_lv1_body_bitch: -1085109994
-      boss_lv1_power: 299922320
-      boss_lv1_wing_left: 64941195
-      boss_lv1_wing_right: -1693096160
+      Cat: 1880482262
+      Cat_0: 185248614
+      Cat_1: -345743571
+      Cat_2: 1118146718
+      Cat_Bitch: -1482042804
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
