@@ -5,26 +5,98 @@ namespace ESS.Objects
 {
     public enum EnvironmentObjectType
     {
+		/// <summary>
+		/// Environment object types that can exist in the game world.
+		/// </summary>
         Terrain,
+
+		/// <summary>
+		/// Player can hide on bushes. Enemy cannot see through if not nearby.
+		/// </summary>
         Bush,
+
+		/// <summary>
+		/// Player can move the stone slowly.
+		/// </summary>
         Stone,
+		
+		/// <summary>
+		/// Impassable obstacle for both Player and Enemy.
+		/// </summary>
         Wall,
+
+		/// <summary>
+		/// Player can swim or be slowed down in water.
+		/// </summary>
         Water,
-        Wild,
+
+		/// <summary>
+		/// Wind can push the player or affect movement.
+		/// </summary>
+        Wind,
+
+		/// <summary>
+		/// Provides a speed boost or special movement ability.
+		/// </summary>
         Shoes,
+
+		/// <summary>
+		/// Restores health or provides temporary buffs.
+		/// </summary>
         Food,
+
+		/// <summary>
+		/// Triggers a harmful effect when the player interacts with it.
+		/// </summary>
+        Trap
     }
 
     public enum EnvironmentEffectType
     {
+		/// <summary>
+		/// Environment effect types that can be applied to characters.
+		/// </summary>
         None,
+
+		/// <summary>
+		/// Instantly restores the character's health.
+		/// </summary>
         Heal,
+
+		/// <summary>
+		/// Increases the character's movement speed temporarily.
+		/// </summary>
         SpeedBuff,
+
+		/// <summary>
+		/// Inflicts damage to the character.
+		/// </summary>
         Damaged,
+
+		/// <summary>
+		/// Temporarily increases the character's attack damage.
+		/// </summary>
         ScaleDamage,
+
+		/// <summary>
+		/// Stuns the character, preventing movement and actions.
+		/// </summary>
         Stun,
+
+		/// <summary>
+		/// Reduces the character's movement speed temporarily.
+		/// </summary>
         Slow,
-        Obstruction // Movement blocking effect,
+
+		/// <summary>
+		/// Blocks the character's movement.
+		/// </summary>
+        Obstruction,
+		
+		/// <summary>
+		/// Blocks the character's movement.
+		/// </summary>
+        Freeze,
     }
 
     // Pairs an EnvironmentObjectType with the UI icon used to represent and render it (e.g. in EnvironmentSpawner or a minimap legend).

@@ -982,10 +982,10 @@ MonoBehaviour:
   isLoggingEnabled: 1
   environmentObjects:
   - type: 1
-    icon: {fileID: 21300000, guid: b721817f8430a64428af21e086801daf, type: 3}
+    icon: {fileID: 638150435, guid: 4e48681432654fb46bc9a7085cfe3368, type: 3}
     size: 0.28
   - type: 6
-    icon: {fileID: 21300000, guid: 5fa5ac47c947a764aa22a77d4efeb723, type: 3}
+    icon: {fileID: 1976135845, guid: 4e48681432654fb46bc9a7085cfe3368, type: 3}
     size: 0.12
   targetCamera: {fileID: 0}
   player: {fileID: 0}
