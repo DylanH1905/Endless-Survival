@@ -9,7 +9,7 @@ namespace ESS.Objects.Player
     {
         [Header("Target")]
         [SerializeField] private IPlayer player;
-        [SerializeField] private BasicAttack basicAttack;
+        [SerializeField] private IBasicAttack basicAttack;
 
         [Header("Layout")]
         [SerializeField] private Vector2 panelSize = new Vector2(480f, 108f);
@@ -48,7 +48,7 @@ namespace ESS.Objects.Player
 
             if (basicAttack == null && player != null)
             {
-                basicAttack = player.GetComponent<BasicAttack>();
+                basicAttack = player.GetComponent<IBasicAttack>();
             }
 
             defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");

@@ -1,12 +1,14 @@
 using UnityEngine;
-using ESS.Objects;
 using ESS.Objects.Enemy;
 
 namespace ESS.Objects.Player
 {
     public class IPlayer : ObjectCharacter
     {
+        [Header("Collider")]
         [SerializeField] private float colliderRadius = 0.4f;
+
+        [Header("Experience")]
         [SerializeField] private int scorePerKill = 10;
         [SerializeField] private int experiencePerKill = 25;
         [SerializeField] private int baseExperienceToNextLevel = 100;
@@ -17,7 +19,7 @@ namespace ESS.Objects.Player
         public int experience { get; private set; }
         public int experienceToNextLevel { get; private set; }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             InitializeStats();
             EnsureCollider();
@@ -33,14 +35,21 @@ namespace ESS.Objects.Player
             IEnemy.OnDeath -= HandleEnemyDeath;
         }
 
-        public void InitializeStats()
+        protected virtual void ConfigureBaseStats()
         {
             maxHealth = 2000;
             attackDamage = 20;
             speed = 4f;
+        }
+
+        public void InitializeStats()
+        {
+            ConfigureBaseStats();
 
             health = maxHealth;
             IsDead = false;
+            IsHidden = false;
+
             score = 0;
             level = 1;
             experience = 0;
@@ -49,6 +58,11 @@ namespace ESS.Objects.Player
 
         private void HandleEnemyDeath(IEnemy enemy)
         {
+            if (IsDead)
+            {
+                return;
+            }
+
             score += scorePerKill;
             AddExperience(experiencePerKill);
         }
@@ -61,6 +75,7 @@ namespace ESS.Objects.Player
             }
 
             experience += amount;
+
             while (experience >= experienceToNextLevel)
             {
                 experience -= experienceToNextLevel;
@@ -68,19 +83,20 @@ namespace ESS.Objects.Player
             }
         }
 
-        // Growing stats + full heal reward the player for surviving long enough to level up.
         private void LevelUp()
         {
             level++;
             maxHealth += 200;
             attackDamage += 5;
             speed += 0.2f;
+
             health = maxHealth;
-            experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * experienceToNextLevelGrowth);
+
+            experienceToNextLevel = Mathf.RoundToInt(
+                experienceToNextLevel * experienceToNextLevelGrowth
+            );
         }
 
-        // Environment pickups/obstacles (Shoes, Bush, Terrain, ...) rely on OnTrigger/OnCollision callbacks,
-        // which never fire without a Collider2D on the Player.
         private void EnsureCollider()
         {
             if (GetComponent<Collider2D>() != null)
@@ -88,9 +104,10 @@ namespace ESS.Objects.Player
                 return;
             }
 
-            CircleCollider2D collider = gameObject.AddComponent<CircleCollider2D>();
-            collider.radius = colliderRadius;
-        }
+            CircleCollider2D playerCollider =
+                gameObject.AddComponent<CircleCollider2D>();
 
+            playerCollider.radius = colliderRadius;
+        }
     }
 }

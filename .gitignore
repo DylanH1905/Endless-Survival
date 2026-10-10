@@ -36,3 +36,7 @@ Assets/AssetStoreTools*
 # OS files
 .DS_Store
 Thumbs.db
+
+
+# TextMesh Pro generated files
+Assets/TextMesh Pro/

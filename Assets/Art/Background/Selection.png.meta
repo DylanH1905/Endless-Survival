@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 35e224c43fbba77438cd873a19e8b108
+guid: 0fa22e76d0049724981fd3a52d1594b5
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -42,9 +42,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -70,7 +70,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -91,91 +91,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: ancher_head
-      rect:
-        serializedVersion: 2
-        x: 45
-        y: 26
-        width: 350
-        height: 350
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 86b38957a976b4742b9ac6023278c7b1
-      internalID: -1955504869
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ancher_bow
-      rect:
-        serializedVersion: 2
-        x: 457
-        y: 15
-        width: 120
-        height: 400
-      alignment: 9
-      pivot: {x: -1, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: fca2246d4ce27e649be556ef661b4223
-      internalID: -914609444
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ancher_drawing_bow
-      rect:
-        serializedVersion: 2
-        x: 617
-        y: 14
-        width: 180
-        height: 400
-      alignment: 9
-      pivot: {x: -0.333333, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: fa2ec2d934f0cba4b9855130867ab8a4
-      internalID: -2065829609
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ancher_arrow
-      rect:
-        serializedVersion: 2
-        x: 865
-        y: 194
-        width: 249
-        height: 43
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0196e3ad517174c489091c165bc65654
-      internalID: -1578823312
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -186,11 +102,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      ancher_arrow: -1578823312
-      ancher_bow: -914609444
-      ancher_drawing_bow: -2065829609
-      ancher_head: -1955504869
+    nameFileIdTable: {}
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
