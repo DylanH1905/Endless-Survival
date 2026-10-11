@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab9b4c943d6b77142b395ddeb6cc1326, type: 3}
+  m_Name: Basic Archer
+  m_EditorClassIdentifier: 
+  characterId: basic_archer
+  characterName: Archer
+  description: 
+  portrait: {fileID: -105207311, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
+  maxHealth: 100
+  damage: 10
+  attackSpeed: 2
+  attackRange: 3
+  gameplayPrefab: {fileID: 0}

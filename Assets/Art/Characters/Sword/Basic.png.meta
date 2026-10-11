@@ -96,10 +96,10 @@ TextureImporter:
       name: Basic_Head
       rect:
         serializedVersion: 2
-        x: 38
-        y: 145
-        width: 129
-        height: 127
+        x: 27
+        y: 133
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
