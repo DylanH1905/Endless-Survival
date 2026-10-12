@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ESS.Managers
+namespace ESS.Manager
 {
 	public class MusicManager : MonoBehaviour
 	{

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using ESS;
 using ESS.Objects.Player;
+using ESS.Manager.Audio;
 
 namespace ESS.UI.Selection
 {
@@ -215,7 +216,8 @@ namespace ESS.UI.Selection
 				typeof(RectTransform),
 				typeof(Image),
 				typeof(Button),
-				typeof(LayoutElement)
+				typeof(LayoutElement),
+				typeof(SFXTrigger)
 			);
 
 			card.transform.SetParent(cardContainer, false);

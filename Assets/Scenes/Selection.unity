@@ -373,6 +373,7 @@ GameObject:
   - component: {fileID: 391314612}
   - component: {fileID: 391314611}
   - component: {fileID: 391314613}
+  - component: {fileID: 391314614}
   m_Layer: 0
   m_Name: SceneLoader
   m_TagString: Untagged
@@ -422,12 +423,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneMusics:
   - sceneName: Selection
-    music: {fileID: 8300000, guid: c256e368ce6b4854a8977e66738d7532, type: 3}
+    music: {fileID: 8300000, guid: 9bbd23a11ce2d3244b95503529212420, type: 3}
     volume: 0.83
   - sceneName: GamePlay
-    music: {fileID: 8300000, guid: c256e368ce6b4854a8977e66738d7532, type: 3}
+    music: {fileID: 8300000, guid: 9bbd23a11ce2d3244b95503529212420, type: 3}
     volume: 0.3
   fadeDuration: 1
+--- !u!114 &391314614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391314610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 120621379b461bf469a3b7e714d0ab8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSound: {fileID: 8300000, guid: d69724ad228f6e541bb4c5acbab721ca, type: 3}
+  clickSound: {fileID: 8300000, guid: 38fa4ca8a1da60f4fb834fa0b79eb3d5, type: 3}
+  clickWoodSound: {fileID: 8300000, guid: 700fc5bcf4604d24f885f2e0effda8e5, type: 3}
+  shotSound: {fileID: 0}
+  flapSound: {fileID: 0}
+  masterVolume: 1
 --- !u!1 &837842762
 GameObject:
   m_ObjectHideFlags: 0
@@ -1096,6 +1115,7 @@ GameObject:
   - component: {fileID: 1225566935}
   - component: {fileID: 1225566934}
   - component: {fileID: 1225566933}
+  - component: {fileID: 1225566936}
   m_Layer: 5
   m_Name: PlayButton
   m_TagString: Untagged
@@ -1218,6 +1238,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1225566930}
   m_CullTransparentMesh: 1
+--- !u!114 &1225566936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225566930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 045a29faca51ae14fab5f3466a928f75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWood: 1
 --- !u!1 &1230256435
 GameObject:
   m_ObjectHideFlags: 0
