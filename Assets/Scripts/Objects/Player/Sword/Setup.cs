@@ -7,8 +7,8 @@ namespace ESS.Objects.Player.Sword
 		protected override void ConfigureBaseStats()
 		{
 			maxHealth = 2500;
-			attackDamage = 40;
-			speed = 3.5f;
+			attackDamage = 12;
+			speed = 1f;
 		}
 	}
 }

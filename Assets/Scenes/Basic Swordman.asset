@@ -19,7 +19,7 @@ MonoBehaviour:
   maxHealth: 150
   damage: 12
   attackSpeed: 1
-  attackRange: 2
+  attackRange: 1
   combat:
     basicAttack: {fileID: 11500000, guid: cd554af037492b44899429f6f455f4d2, type: 3}
     skills: []

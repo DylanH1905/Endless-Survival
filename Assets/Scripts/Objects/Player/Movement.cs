@@ -140,6 +140,7 @@ namespace ESS.Objects.Player
 
         private void Update()
         {
+			Debug.Log($"Keyboard: {Input.anyKey}");
             Move();
             RotateToClosestEnemy();
             RotateHeadToMovement();
