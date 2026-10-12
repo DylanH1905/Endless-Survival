@@ -47,7 +47,11 @@ namespace ESS
 
         private void Update()
         {
-            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || player.GetComponent<IPlayer>().IsDead)
+			IPlayer playerComponent = player.GetComponent<IPlayer>();
+			
+			Info($"Player is dead: {playerComponent.IsDead}");
+
+            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || playerComponent.IsDead)
             {
                 return;
             }

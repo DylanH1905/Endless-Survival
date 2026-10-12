@@ -23,7 +23,7 @@ Use the exact Unity version above when opening the project. Other Unity versions
 3. Select **Add** or **Open** and choose the cloned `Endless Survival` folder.
 4. Open the project with Unity `2021.3.45f2`.
 5. Wait for Unity to import assets and restore packages from `Packages/manifest.json`.
-6. Open a scene from `Assets/Scenes/`, such as `Map1.unity` or `SampleScene.unity`.
+6. Open a scene from `Assets/Scenes/`, such as `Selection.unity` or `GamePlay.unity`.
 7. Press **Play** in the Unity Editor to run the game.
 
 ## Project Structure

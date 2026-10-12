@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ESS.Objects;
 using ESS.Objects.Environment;
+using ESS.Objects.Player;
 using UnityEngine;
 
 namespace ESS
@@ -67,8 +68,7 @@ namespace ESS
             }
         }
 
-        // Region (2x camera width/height, re-centered on the player's current position every frame) that bounds all
-        // spawning so objects never generate outside the player's reachable surroundings.
+
         private void ComputeSpawnArea()
         {
             Vector2 center = player != null ? (Vector2)player.position : (Vector2)targetCamera.transform.position;
@@ -85,7 +85,7 @@ namespace ESS
 
         private void Update()
         {
-            if (targetCamera == null || environmentObjects == null || environmentObjects.Length == 0)
+            if (targetCamera == null || environmentObjects == null || environmentObjects.Length == 0 || player.GetComponent<IPlayer>().IsDead == true)
             {
                 return;
             }

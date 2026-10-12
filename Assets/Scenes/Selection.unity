@@ -372,6 +372,7 @@ GameObject:
   m_Component:
   - component: {fileID: 391314612}
   - component: {fileID: 391314611}
+  - component: {fileID: 391314613}
   m_Layer: 0
   m_Name: SceneLoader
   m_TagString: Untagged
@@ -407,6 +408,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &391314613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391314610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf166e40f488914787229d8185a3470, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneMusics:
+  - sceneName: Selection
+    music: {fileID: 8300000, guid: c256e368ce6b4854a8977e66738d7532, type: 3}
+    volume: 0.83
+  - sceneName: GamePlay
+    music: {fileID: 8300000, guid: c256e368ce6b4854a8977e66738d7532, type: 3}
+    volume: 0.3
+  fadeDuration: 1
 --- !u!1 &837842762
 GameObject:
   m_ObjectHideFlags: 0
@@ -948,7 +969,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1007807776}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!20 &1007807778
 Camera:
   m_ObjectHideFlags: 0

@@ -20,4 +20,9 @@ MonoBehaviour:
   damage: 12
   attackSpeed: 1
   attackRange: 2
-  gameplayPrefab: {fileID: 0}
+  combat:
+    basicAttack: {fileID: 11500000, guid: cd554af037492b44899429f6f455f4d2, type: 3}
+    skills: []
+  head: {fileID: -125378704, guid: 8170d2b7411966a408527fe4f3c1cc41, type: 3}
+  power: {fileID: 0}
+  weapon: {fileID: -1747880104, guid: 8170d2b7411966a408527fe4f3c1cc41, type: 3}
