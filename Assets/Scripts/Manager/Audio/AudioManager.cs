@@ -61,6 +61,11 @@ namespace ESS.Manager.Audio
 			PlaySFX(flapSound);
 		}
 
+		public void PlayClip(AudioClip clip, float volume = 1f)
+		{
+			PlaySFX(clip, volume);
+		}
+
 		private void PlaySFX(AudioClip clip, float volume = 1f)
 		{
 			if (clip == null) return;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using ESS.Objects.Enemy;
+using ESS.Manager.Audio;
 
 namespace ESS.Objects.Player
 {
@@ -32,6 +33,8 @@ namespace ESS.Objects.Player
 			}
 
 			Attack(target);
+
+			AudioManager.Instance?.PlayClip(SelectedCharacter.Current?.baseAttack);
 
 			attackTimer = Mathf.Max(attackCooldown, 0.1f);
 		}

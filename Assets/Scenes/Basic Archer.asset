@@ -26,3 +26,7 @@ MonoBehaviour:
   head: {fileID: -105207311, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
   power: {fileID: 2008791373, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
   weapon: {fileID: 590842197, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
+  baseAttack: {fileID: 8300000, guid: 72e7594a5d7b0f24ab6f3ee352599e57, type: 3}
+  FistSkill: {fileID: 0}
+  SecondSkill: {fileID: 0}
+  ThirdSkill: {fileID: 0}

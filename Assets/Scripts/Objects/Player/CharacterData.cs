@@ -28,5 +28,11 @@ namespace ESS.Objects.Player
 		public Sprite head;
 		public Sprite power = null;
 		public Sprite weapon = null;
+
+		[Header("Audio")]
+		public AudioClip baseAttack;
+		public AudioClip FistSkill = null;
+		public AudioClip SecondSkill = null;
+		public AudioClip ThirdSkill = null;
 	}
 }
