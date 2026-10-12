@@ -257,7 +257,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 633726659, guid: 8170d2b7411966a408527fe4f3c1cc41, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -265,7 +265,7 @@ SpriteRenderer:
   m_Size: {x: 1.77, y: 1.78}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &380463725
@@ -838,8 +838,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd554af037492b44899429f6f455f4d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLoggingEnabled: 0
-  player: {fileID: 0}
+  isLoggingEnabled: 1
+  player: {fileID: 1077313499}
   attackRange: 3
   attackCooldown: 0.5
   weaponPivot: {fileID: 1913637010}
@@ -974,7 +974,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc9749a60587ecc46a1a888cc46da6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1077313501}
   smoothTime: 0.15
   focusOnlyWhileHoldingKey: 1
   focusKey: 32

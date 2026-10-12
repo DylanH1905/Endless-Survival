@@ -69,17 +69,13 @@ namespace ESS.Objects.Player.Sword
 		{
 			if (weaponPivot == null)
 			{
-				Debug.LogError(
-					"BasicAttack: WeaponPivot chưa được gán trong Inspector.",
-					this
-				);
+				Error("BasicAttack: WeaponPivot chưa được gán trong Inspector.");
 				slashRoutine = null;
 				yield break;
 			}
 
 			Vector2 direction = GetAttackDirection(initialTarget);
 
-			// Chuyển hướng mục tiêu sang góc local của Player.
 			float worldAngle = Mathf.Atan2(
 				direction.y,
 				direction.x
@@ -116,15 +112,12 @@ namespace ESS.Objects.Player.Sword
 
 				float localAngle = baseLocalAngle + currentAngle;
 
-				// Chỉ xoay WeaponPivot, không xoay Player hoặc Head.
 				weaponPivot.localRotation = Quaternion.Euler(
 					0f,
 					0f,
 					localAngle
 				);
 
-				// AttackEffect là child của WeaponPivot,
-				// nên tự đi theo pivot, không cần gán rotation riêng.
 				if (!hasHit && elapsed >= hitDelay)
 				{
 					DealSlashDamage(direction);
