@@ -34,6 +34,24 @@ namespace ESS.Objects.Player.Sword
 		{
 			base.Awake();
 
+			Transform characterRoot = player != null
+				? player.transform
+				: transform.root;
+
+			if (weaponPivot == null && characterRoot != null)
+			{
+				weaponPivot = characterRoot.Find("WeaponPivot");
+			}
+
+			Transform headPivot = characterRoot != null
+				? characterRoot.Find("Head")
+				: null;
+
+			if (weaponPivot != null && headPivot != null)
+			{
+				weaponPivot.position = headPivot.position;
+			}
+
 			if (weaponPivot != null)
 			{
 				weaponRestRotation = weaponPivot.localRotation;
@@ -75,7 +93,7 @@ namespace ESS.Objects.Player.Sword
 			}
 
 			float effectiveRange = Mathf.Min(attackRange, hitRadius);
-			return (enemy.transform.position - transform.position).sqrMagnitude
+			return ((Vector2)enemy.transform.position - GetAttackOrigin()).sqrMagnitude
 				<= effectiveRange * effectiveRange;
 		}
 
@@ -157,7 +175,7 @@ namespace ESS.Objects.Player.Sword
 			if (target != null && !target.IsDead)
 			{
 				Vector2 direction =
-					target.transform.position - transform.position;
+					(Vector2)target.transform.position - GetAttackOrigin();
 
 				if (direction.sqrMagnitude > Mathf.Epsilon)
 				{
@@ -165,7 +183,16 @@ namespace ESS.Objects.Player.Sword
 				}
 			}
 
-			return transform.right.normalized;
+			return weaponPivot != null
+				? (Vector2)weaponPivot.right
+				: (Vector2)transform.right;
+		}
+
+		private Vector2 GetAttackOrigin()
+		{
+			return weaponPivot != null
+				? (Vector2)weaponPivot.position
+				: (Vector2)transform.position;
 		}
 
 		private void DealSlashDamage(Vector2 direction)
@@ -180,7 +207,7 @@ namespace ESS.Objects.Player.Sword
 				}
 
 				Vector2 toEnemy =
-					enemy.transform.position - transform.position;
+					(Vector2)enemy.transform.position - GetAttackOrigin();
 
 				if (toEnemy.sqrMagnitude > hitRadius * hitRadius)
 				{
@@ -230,8 +257,12 @@ namespace ESS.Objects.Player.Sword
 
 		private void OnDrawGizmosSelected()
 		{
+			Vector3 origin = weaponPivot != null
+				? weaponPivot.position
+				: transform.position;
+
 			Gizmos.color = Color.red;
-			Gizmos.DrawWireSphere(transform.position, hitRadius);
+			Gizmos.DrawWireSphere(origin, hitRadius);
 
 			Vector2 direction = transform.right;
 
@@ -241,7 +272,6 @@ namespace ESS.Objects.Player.Sword
 			}
 
 			float halfAngle = hitAngle * 0.5f;
-			Vector3 origin = transform.position;
 
 			Vector3 left = Quaternion.Euler(
 				0f, 0f, -halfAngle

@@ -73,6 +73,16 @@ namespace ESS.Objects.Player.Archer
 			bowDrawRoutine = StartCoroutine(DrawAndFire(enemy));
 		}
 
+		public void ConfigureBowAnimation(
+			Sprite attackSprite,
+			float drawDuration,
+			float pullbackDistance)
+		{
+			drawingBowSprite = attackSprite;
+			bowDrawDuration = Mathf.Max(drawDuration, 0.01f);
+			arrowPullbackDistance = Mathf.Max(pullbackDistance, 0f);
+		}
+
 		private IEnumerator DrawAndFire(IEnemy enemy)
 		{
 			Info("DrawAndFire coroutine started for bow");
@@ -86,10 +96,10 @@ namespace ESS.Objects.Player.Archer
 			{
 				Transform aimTransform = arrowTransform.parent;
 
-				Vector3 pullDirection = headTransform != null
-					? arrowTransform.position - headTransform.position
-					: aimTransform != null
-						? aimTransform.up
+				Vector3 pullDirection = aimTransform != null
+					? aimTransform.right
+					: headTransform != null
+						? arrowTransform.position - headTransform.position
 						: arrowTransform.up;
 
 				if (pullDirection.sqrMagnitude <= Mathf.Epsilon)

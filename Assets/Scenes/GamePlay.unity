@@ -1351,6 +1351,7 @@ MonoBehaviour:
   player: {fileID: 1077313499}
   moveSpeed: 5
   headRenderer: {fileID: 0}
+  weaponRenderer: {fileID: 0}
   bowTransform: {fileID: 0}
   arrowTransform: {fileID: 0}
   dashSpeed: 12
@@ -1468,7 +1469,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087107642}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.98, y: -0.51, z: 0}
+  m_LocalPosition: {x: 2.926, y: -0.65, z: 0}
   m_LocalScale: {x: 1.7045873, y: 1.7046282, z: 1.7045872}
   m_ConstrainProportionsScale: 0
   m_Children: []

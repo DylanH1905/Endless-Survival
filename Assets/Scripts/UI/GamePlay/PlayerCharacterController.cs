@@ -14,6 +14,7 @@ namespace ESS.UI.GamePlay
 		[SerializeField] private SpriteRenderer powerRenderer;
 
 		[SerializeField] private PlayerCombatController combatController;
+		private Movement movementController;
 
 		private void Start()
 		{
@@ -38,6 +39,12 @@ namespace ESS.UI.GamePlay
 
 			if (powerRenderer != null)
 				powerRenderer.sprite = character.power;
+
+			if (movementController == null)
+				movementController = GetComponent<Movement>();
+
+			if (movementController != null)
+				movementController.ApplyVisualConfig(character.visuals);
 
 			combatController.ApplyCombat(character);
 		}

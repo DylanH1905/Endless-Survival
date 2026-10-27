@@ -7,7 +7,8 @@ namespace ESS.UI.GamePlay
 {
 	public class PlayerCombatController : MonoBehaviour
     {
-        private Component activeBasicAttack;
+        private Behaviour activeBasicAttack;
+        private bool ownsActiveBasicAttack;
         private readonly System.Collections.Generic.List<Component>
             activeSkills = new();
 
@@ -19,11 +20,55 @@ namespace ESS.UI.GamePlay
                 return;
             }
 
+            Component previousOwnedBasicAttack = ownsActiveBasicAttack
+                ? activeBasicAttack
+                : null;
             ClearCombat();
 
-            activeBasicAttack = AddCombatComponent(
-                character.combat.basicAttack
-            );
+            Type basicAttackType = character.combat.basicAttack != null
+                ? character.combat.basicAttack.GetClass()
+                : null;
+
+            Component configuredBasicAttack = null;
+            foreach (MonoBehaviour component
+                     in GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (component == previousOwnedBasicAttack
+                    || !(component is IPlayerAttack))
+                {
+                    continue;
+                }
+
+                bool matchesSelectedAttack = basicAttackType != null
+                    && basicAttackType.IsInstanceOfType(component)
+                    && configuredBasicAttack == null;
+
+                component.enabled = matchesSelectedAttack;
+                if (matchesSelectedAttack)
+                {
+                    configuredBasicAttack = component;
+                }
+            }
+
+            if (configuredBasicAttack != null)
+            {
+                activeBasicAttack = configuredBasicAttack as Behaviour;
+            }
+            else
+            {
+                activeBasicAttack = AddCombatComponent(
+                    character.combat.basicAttack) as Behaviour;
+                ownsActiveBasicAttack = activeBasicAttack != null;
+            }
+
+            if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack
+                && character.visuals != null)
+            {
+                archerAttack.ConfigureBowAnimation(
+                    character.visuals.weaponAttackSprite,
+                    character.visuals.weaponDrawDuration,
+                    character.visuals.arrowPullbackDistance);
+            }
 
             if (character.combat.skills == null)
                 return;
@@ -61,8 +106,11 @@ namespace ESS.UI.GamePlay
 
         private void ClearCombat()
         {
-            if (activeBasicAttack != null)
+            if (activeBasicAttack != null && ownsActiveBasicAttack)
+            {
+                activeBasicAttack.enabled = false;
                 Destroy(activeBasicAttack);
+            }
 
             foreach (Component skill in activeSkills)
             {
@@ -71,6 +119,7 @@ namespace ESS.UI.GamePlay
             }
 
             activeBasicAttack = null;
+            ownsActiveBasicAttack = false;
             activeSkills.Clear();
         }
 	}

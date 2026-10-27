@@ -23,6 +23,13 @@ MonoBehaviour:
   combat:
     basicAttack: {fileID: 11500000, guid: 235dc20cac3e9ae438f7516416bba789, type: 3}
     skills: []
+  visuals:
+    flipHeadTowardTarget: 1
+    weaponAimMode: 2
+    weaponAngleOffset: 0
+    weaponAttackSprite: {fileID: 791684174, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
+    weaponDrawDuration: 0.15
+    arrowPullbackDistance: 0.3
   head: {fileID: -105207311, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
   power: {fileID: 2008791373, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
   weapon: {fileID: 590842197, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
