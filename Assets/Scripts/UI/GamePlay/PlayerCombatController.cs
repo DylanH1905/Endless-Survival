@@ -61,13 +61,17 @@ namespace ESS.UI.GamePlay
                 ownsActiveBasicAttack = activeBasicAttack != null;
             }
 
-            if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack
-                && character.visuals != null)
+			if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack)
             {
-                archerAttack.ConfigureBowAnimation(
-                    character.visuals.weaponAttackSprite,
-                    character.visuals.weaponDrawDuration,
-                    character.visuals.arrowPullbackDistance);
+				archerAttack.ConfigureAttackRange(character.attackRange);
+
+				if (character.visuals != null)
+				{
+					archerAttack.ConfigureBowAnimation(
+						character.visuals.weaponAttackSprite,
+						character.visuals.weaponDrawDuration,
+						character.visuals.arrowPullbackDistance);
+				}
             }
 
             if (character.combat.skills == null)

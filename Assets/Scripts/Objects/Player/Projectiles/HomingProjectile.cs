@@ -108,7 +108,7 @@ namespace ESS.Objects.Player.Projectiles
             lineRenderer.endColor = new Color(color.r, color.g, color.b, 0f);
             lineRenderer.numCapVertices = 4;
             lineRenderer.sortingLayerName = "Default";
-            lineRenderer.sortingOrder = 10;
+            lineRenderer.sortingOrder = 100;
 
             if (lineRenderer.material == null)
             {

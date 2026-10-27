@@ -11,6 +11,7 @@ namespace ESS.Objects.Player.Archer
 	{
 		[Header("Projectile")]
 		[SerializeField] private float projectileSpeed = 12f;
+		[SerializeField, Min(0.1f)] private float projectileScaleMultiplier = 3f;
 		[SerializeField]
 		private Color projectileColor =
 			new Color(1f, 0.85f, 0.2f, 1f);
@@ -81,6 +82,11 @@ namespace ESS.Objects.Player.Archer
 			drawingBowSprite = attackSprite;
 			bowDrawDuration = Mathf.Max(drawDuration, 0.01f);
 			arrowPullbackDistance = Mathf.Max(pullbackDistance, 0f);
+		}
+
+		public void ConfigureAttackRange(float range)
+		{
+			attackRange = Mathf.Max(range, 0f);
 		}
 
 		private IEnumerator DrawAndFire(IEnemy enemy)
@@ -216,6 +222,9 @@ namespace ESS.Objects.Player.Archer
 					spawnRotation)
 				: new GameObject("HomingProjectile");
 
+			projectileObject.name = "ArrowProjectile";
+			projectileObject.transform.SetParent(null, true);
+
 			if (projectileSource == null)
 			{
 				projectileObject.transform.position = spawnPosition;
@@ -223,8 +232,30 @@ namespace ESS.Objects.Player.Archer
 			else if (arrowTransform != null)
 			{
 				projectileObject.transform.localScale =
-					arrowTransform.lossyScale;
+					arrowTransform.lossyScale * projectileScaleMultiplier;
+
+				SpriteRenderer sourceRenderer =
+					arrowTransform.GetComponent<SpriteRenderer>();
+				SpriteRenderer projectileRenderer =
+					projectileObject.GetComponent<SpriteRenderer>();
+
+				if (sourceRenderer != null && projectileRenderer != null)
+				{
+					projectileRenderer.sprite = sourceRenderer.sprite;
+					projectileRenderer.sortingLayerID = sourceRenderer.sortingLayerID;
+					projectileRenderer.sortingOrder = Mathf.Max(
+						sourceRenderer.sortingOrder + 1,
+						100);
+				}
 			}
+
+			foreach (ESS.Objects.AimTarget aimTarget
+					 in projectileObject.GetComponentsInChildren<ESS.Objects.AimTarget>(true))
+			{
+				aimTarget.enabled = false;
+			}
+
+			projectileObject.SetActive(true);
 
 			HomingProjectile projectile =
 				projectileObject.GetComponent<HomingProjectile>();
