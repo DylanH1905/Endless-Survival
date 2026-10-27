@@ -48,12 +48,14 @@ namespace ESS.Objects.Player.Sword
 
 		protected override void Attack(IEnemy enemy)
 		{
-			if (enemy == null || enemy.IsDead)
+			// The shared attack controller selects targets using attackRange.
+			// A sword slash should only animate when a target is actually close
+			// enough to be hit by the slash.
+			if (!IsNearbyEnemy(enemy))
 			{
 				return;
 			}
 
-			// Không để hai nhát chém chạy đồng thời.
 			if (slashRoutine != null)
 			{
 				StopCoroutine(slashRoutine);
@@ -63,6 +65,18 @@ namespace ESS.Objects.Player.Sword
 			ResetSlash();
 
 			slashRoutine = StartCoroutine(SlashRoutine(enemy));
+		}
+
+		private bool IsNearbyEnemy(IEnemy enemy)
+		{
+			if (enemy == null || enemy.IsDead)
+			{
+				return false;
+			}
+
+			float effectiveRange = Mathf.Min(attackRange, hitRadius);
+			return (enemy.transform.position - transform.position).sqrMagnitude
+				<= effectiveRange * effectiveRange;
 		}
 
 		private IEnumerator SlashRoutine(IEnemy initialTarget)
@@ -99,6 +113,13 @@ namespace ESS.Objects.Player.Sword
 
 			while (elapsed < duration)
 			{
+				if (!IsNearbyEnemy(initialTarget))
+				{
+					ResetSlash();
+					slashRoutine = null;
+					yield break;
+				}
+
 				elapsed += Time.deltaTime;
 
 				float progress = Mathf.Clamp01(elapsed / duration);
@@ -144,7 +165,6 @@ namespace ESS.Objects.Player.Sword
 				}
 			}
 
-			// Fallback nếu mục tiêu không còn hợp lệ.
 			return transform.right.normalized;
 		}
 

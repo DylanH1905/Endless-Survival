@@ -13,9 +13,11 @@ namespace ESS.Objects.Player
 
         [Header("Visuals")]
         [SerializeField] private SpriteRenderer headRenderer;
+        [SerializeField] private SpriteRenderer weaponRenderer;
         [SerializeField] private Transform bowTransform;
         [SerializeField] private Transform arrowTransform;
         private Transform aimPivot;
+        private Transform weaponPivot;
 
         [Header("Dash")]
         [SerializeField] private float dashSpeed = 12f;
@@ -32,6 +34,8 @@ namespace ESS.Objects.Player
         private float dashCooldownCounter;
         private bool dashRequested;
         private bool headFacesLeftByDefault;
+        private Vector3 weaponBaseLocalPosition;
+        private bool weaponFlipXByDefault;
         private Quaternion arrowRestLocalRotation;
         public Transform CurrentAimTarget { get; private set; }
 
@@ -72,6 +76,35 @@ namespace ESS.Objects.Player
             }
 
             headFacesLeftByDefault = headRenderer != null && headRenderer.flipX;
+
+            if (weaponRenderer == null)
+            {
+                foreach (SpriteRenderer renderer
+                         in GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    if (renderer.transform.name == "Weapon")
+                    {
+                        weaponRenderer = renderer;
+                        break;
+                    }
+                }
+            }
+
+            if (weaponRenderer != null)
+            {
+                weaponPivot = weaponRenderer.transform.parent;
+                weaponBaseLocalPosition = weaponRenderer.transform.localPosition;
+                weaponFlipXByDefault = weaponRenderer.flipX;
+
+                if (weaponPivot != null && weaponPivot.name == "WeaponPivot")
+                {
+                    if (headRenderer != null)
+                    {
+                        weaponPivot.position = headRenderer.bounds.center;
+                    }
+                }
+            }
+
             if (bowTransform != null || arrowTransform != null)
             {
                 GameObject pivotObject = new GameObject("AimPivot");
@@ -182,22 +215,40 @@ namespace ESS.Objects.Player
 
         private void RotateHeadToMovement()
         {
-            if (headRenderer == null)
+            float directionX;
+            if (CurrentAimTarget != null)
+            {
+                directionX = CurrentAimTarget.position.x - transform.position.x;
+            }
+            else if (movement.x != 0f)
+            {
+                directionX = movement.x;
+            }
+            else
             {
                 return;
             }
 
-            if (CurrentAimTarget != null)
+            if (Mathf.Abs(directionX) <= Mathf.Epsilon)
             {
-                float directionX = CurrentAimTarget.position.x - transform.position.x;
-                if (Mathf.Abs(directionX) > Mathf.Epsilon)
-                {
-                    headRenderer.flipX = headFacesLeftByDefault ^ (directionX < 0f);
-                }
+                return;
             }
-            else if (movement.x != 0f)
+
+            bool facesLeft = directionX < 0f;
+            if (headRenderer != null)
             {
-                headRenderer.flipX = headFacesLeftByDefault ^ (movement.x < 0f);
+                headRenderer.flipX = headFacesLeftByDefault ^ facesLeft;
+            }
+
+            if (weaponRenderer != null)
+            {
+                if (weaponPivot != null && weaponPivot.name == "WeaponPivot")
+                {
+                    Vector3 weaponPosition = weaponBaseLocalPosition;
+                    weaponPosition.x *= facesLeft ? -1f : 1f;
+                    weaponRenderer.transform.localPosition = weaponPosition;
+                    weaponRenderer.flipX = weaponFlipXByDefault ^ facesLeft;
+                }
             }
         }
 
@@ -235,6 +286,11 @@ namespace ESS.Objects.Player
 
             foreach (IEnemy enemy in FindObjectsOfType<IEnemy>())
             {
+                if (enemy == null || enemy.IsDead)
+                {
+                    continue;
+                }
+
                 float distance = (enemy.transform.position - aimOrigin).sqrMagnitude;
                 if (distance > 0f && distance < closestDistance)
                 {
@@ -268,10 +324,7 @@ namespace ESS.Objects.Player
             Quaternion aimRotation = Quaternion.AngleAxis(angle, Vector3.forward);
             if (aimPivot != null)
             {
-                aimPivot.rotation = Quaternion.Slerp(
-                    aimPivot.rotation,
-                    aimRotation,
-                    Time.deltaTime * 10f);
+                aimPivot.rotation = aimRotation;
             }
 
             if (arrowTransform != null)

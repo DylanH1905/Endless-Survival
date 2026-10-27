@@ -124,7 +124,7 @@ namespace ESS
             Vector2? spawnPosition = GetSpawnPosition(handle);
             if (spawnPosition == null)
             {
-                Warning("Could not find a valid spawn position - check areaSizeMultiplier/minimumDistanceFromPlayer/minimumDistanceBetweenObjects/minDistanceToSameType.");
+                Warning("Could not find a valid spawn position");
                 return;
             }
 
