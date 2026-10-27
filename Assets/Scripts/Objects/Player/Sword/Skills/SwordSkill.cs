@@ -36,6 +36,7 @@ namespace ESS.Objects.Player.Sword.Skills
 			}
 
 			cooldownRemaining = cooldown;
+			PlayCharacterSkillSound();
 			return true;
 		}
 

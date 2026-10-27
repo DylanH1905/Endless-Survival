@@ -12,6 +12,14 @@ namespace ESS.UI.GamePlay
         private readonly System.Collections.Generic.List<Component>
             activeSkills = new();
 
+        public ISkill[] GetActiveSkills()
+        {
+            System.Collections.Generic.List<ISkill> result = new();
+            foreach (Component component in activeSkills)
+                if (component is ISkill skill) result.Add(skill);
+            return result.ToArray();
+        }
+
         public void ApplyCombat(CharacterData character)
         {
             if (character == null || character.combat == null)
@@ -74,15 +82,33 @@ namespace ESS.UI.GamePlay
 				}
             }
 
-            if (character.combat.skills == null)
-                return;
-
-            foreach (MonoScript skillScript in character.combat.skills)
+            CharacterSkillConfig[] configuredSkills = character.combat.skillConfigs;
+            if (configuredSkills != null && configuredSkills.Length > 0)
             {
-                Component skill = AddCombatComponent(skillScript);
+                foreach (CharacterSkillConfig skillConfig in configuredSkills)
+                {
+                    if (skillConfig == null) continue;
+                    Component skillComponent = AddCombatComponent(skillConfig.skill);
+                    if (skillComponent is ISkill skill)
+                    {
+                        skill.ConfigureCharacterPresentation(skillConfig.icon, skillConfig.soundEffect);
+                        activeSkills.Add(skillComponent);
+                    }
+                    else if (skillComponent != null)
+                    {
+                        Debug.LogError($"Configured skill {skillConfig.skill.name} does not inherit from ISkill.", this);
+                        Destroy(skillComponent);
+                    }
+                }
+                return;
+            }
 
-                if (skill != null)
-                    activeSkills.Add(skill);
+            // Keep existing CharacterData assets working until their skill list is migrated.
+            if (character.combat.skills == null) return;
+            foreach (MonoScript legacySkill in character.combat.skills)
+            {
+                Component skill = AddCombatComponent(legacySkill);
+                if (skill != null) activeSkills.Add(skill);
             }
         }
 

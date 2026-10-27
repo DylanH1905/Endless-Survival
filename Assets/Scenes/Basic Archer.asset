@@ -23,6 +23,7 @@ MonoBehaviour:
   combat:
     basicAttack: {fileID: 11500000, guid: 235dc20cac3e9ae438f7516416bba789, type: 3}
     skills: []
+    skillConfigs: []
   visuals:
     flipHeadTowardTarget: 1
     weaponAimMode: 2

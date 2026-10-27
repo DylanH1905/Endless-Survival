@@ -47,6 +47,10 @@ namespace ESS.UI.GamePlay
 				movementController.ApplyVisualConfig(character.visuals);
 
 			combatController.ApplyCombat(character);
+
+			PlayerHUD hud = FindObjectOfType<PlayerHUD>();
+			if (hud != null)
+				hud.ApplyCharacter(GetComponent<IPlayer>(), combatController.GetActiveSkills());
 		}
 	}
 }

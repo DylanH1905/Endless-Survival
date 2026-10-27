@@ -1,503 +1,335 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 namespace ESS.Objects.Player
 {
-	// Builds a League-of-Legends-style stat bar (Health / Point / Speed / Attack / Attack Speed) entirely at runtime.
-	// Attach to the Main Camera (or any scene object); it creates its own Canvas so no prefab wiring is required.
+	/// <summary>Connects the editor-built HUD objects to the active player and skills.</summary>
 	public class PlayerHUD : SystemMonoBehaviour
 	{
-		[Header("Target")]
+		[Header("Optional references (auto-found by child name when empty)")]
 		[SerializeField] private IPlayer player;
-		[SerializeField] private IBasicAttack basicAttack;
-
-		[Header("Layout")]
-		[SerializeField] private Vector2 panelSize = new Vector2(480f, 108f);
-		[SerializeField] private Vector2 bottomOffset = new Vector2(0f, 20f);
-
-		[Header("Colors")]
-		[SerializeField] private Color panelBackgroundColor = new Color(0.05f, 0.05f, 0.05f, 0.75f);
-		[SerializeField] private Color healthBackgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.95f);
+		[SerializeField] private Image healthFillImage;
+		[SerializeField] private Text healthText;
+		[SerializeField] private Image expFillImage;
+		[SerializeField] private Text expText;
+		[SerializeField] private Text levelText;
+		[SerializeField] private Text pointText;
+		[SerializeField] private Text speedText;
+		[SerializeField] private Text attackText;
+		[SerializeField] private Text attackSpeedText;
+		[SerializeField] private Button[] skillButtonSlots = new Button[4];
 		[SerializeField] private Color healthFillColor = new Color(0.85f, 0.12f, 0.12f, 1f);
-		[SerializeField] private Color expBackgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.95f);
 		[SerializeField] private Color expFillColor = new Color(0.25f, 0.55f, 0.95f, 1f);
-		[SerializeField] private Color pointColor = new Color(1f, 0.85f, 0.2f, 1f);
-		[SerializeField] private Color speedColor = new Color(0.3f, 0.8f, 1f, 1f);
-		[SerializeField] private Color attackColor = new Color(1f, 0.5f, 0.2f, 1f);
-		[SerializeField] private Color attackSpeedColor = new Color(0.7f, 0.4f, 1f, 1f);
 
-		private static Sprite fillSprite;
-
-		private Font defaultFont;
-		private Image healthFillImage;
-		private Text healthText;
-		private Image expFillImage;
-		private Text expText;
-		private Text levelText;
-		private Text pointText;
-		private Text speedText;
-		private Text attackText;
-		private Text attackSpeedText;
-		private RectTransform hudCanvasRect;
+		private IBasicAttack basicAttack;
+		private ISkill[] characterSkills;
 		private readonly List<SkillButtonView> skillButtons = new List<SkillButtonView>();
 		private static readonly string[] skillKeys = { "Q", "W", "E", "R" };
+		private static Sprite cooldownCircleSprite;
+		private static Sprite fillSprite;
 
 		private void Awake()
 		{
-			if (player == null)
-			{
-				player = FindObjectOfType<IPlayer>();
-			}
-
-			if (basicAttack == null && player != null)
-			{
-				basicAttack = player.GetComponent<IBasicAttack>();
-			}
-
-			defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
-
-			hudCanvasRect = BuildCanvas();
-			BuildHud(hudCanvasRect);
+			Canvas canvas = GetComponentInParent<Canvas>();
+			if (canvas != null && canvas.transform.localScale.sqrMagnitude < 0.0001f)
+				canvas.transform.localScale = Vector3.one;
+			ResolveHudReferences();
+			FindPlayer();
+			RefreshSkillButtons();
 			RefreshStats();
 		}
 
 		private void Update()
 		{
-			if (player == null)
-			{
-				player = FindObjectOfType<IPlayer>();
-			}
-
-			if (player != null && basicAttack == null)
-			{
-				basicAttack = player.GetComponent<IBasicAttack>();
-			}
-
+			if (player == null) FindPlayer();
+			if (player != null && basicAttack == null) basicAttack = player.GetComponent<IBasicAttack>();
 			RefreshSkillButtons();
 			RefreshSkillButtonStates();
 			RefreshStats();
 		}
 
-		private void RefreshSkillButtons()
+		private void FindPlayer()
 		{
-			if (player == null || hudCanvasRect == null)
-			{
-				return;
-			}
+			if (player == null) player = FindObjectOfType<IPlayer>();
+			if (player != null) basicAttack = player.GetComponent<IBasicAttack>();
+		}
 
-			ISkill[] skills = player.GetComponents<ISkill>();
-			bool unchanged = skills.Length == skillButtons.Count;
-			for (int index = 0; unchanged && index < skills.Length; index++)
-			{
-				unchanged = skillButtons[index].Skill == skills[index];
-			}
+		public void ApplyCharacter(IPlayer selectedPlayer, ISkill[] selectedSkills)
+		{
+			player = selectedPlayer;
+			characterSkills = selectedSkills ?? System.Array.Empty<ISkill>();
+			basicAttack = player != null ? player.GetComponent<IBasicAttack>() : null;
+			ResolveHudReferences();
+			RefreshSkillButtons();
+			RefreshSkillButtonStates();
+			RefreshStats();
+		}
 
-			if (unchanged)
-			{
-				return;
-			}
+		private void ResolveHudReferences()
+		{
+			healthFillImage = healthFillImage != null ? healthFillImage : FindComponent<Image>("StatsPanel/HealthBar/Fill");
+			healthText = healthText != null ? healthText : FindComponent<Text>("HealthText");
+			expFillImage = expFillImage != null ? expFillImage : FindComponent<Image>("StatsPanel/ExperienceBar/Fill");
+			expText = expText != null ? expText : FindComponent<Text>("ExperienceText");
+			levelText = levelText != null ? levelText : FindComponent<Text>("LevelText");
+			pointText = pointText != null ? pointText : FindComponent<Text>("PointText");
+			speedText = speedText != null ? speedText : FindComponent<Text>("SpeedText");
+			attackText = attackText != null ? attackText : FindComponent<Text>("AttackText");
+			attackSpeedText = attackSpeedText != null ? attackSpeedText : FindComponent<Text>("AttackSpeedText");
+			ConfigureFillImage(healthFillImage, healthFillColor);
+			ConfigureFillImage(expFillImage, expFillColor);
+			ConfigureBackground(FindComponent<Image>("StatsPanel"), new Color(0.04f, 0.05f, 0.08f, 0.82f));
+			ConfigureBackground(FindComponent<Image>("StatsPanel/HealthBar/Background"), new Color(0.08f, 0.08f, 0.08f, 0.95f));
+			ConfigureBackground(FindComponent<Image>("StatsPanel/ExperienceBar/Background"), new Color(0.08f, 0.08f, 0.08f, 0.95f));
+			ConfigureText(healthText, TextAnchor.MiddleCenter, 15);
+			ConfigureText(expText, TextAnchor.MiddleCenter, 12);
+			ConfigureText(levelText, TextAnchor.MiddleCenter, 16);
+			ConfigureText(pointText, TextAnchor.MiddleCenter, 14);
+			ConfigureText(speedText, TextAnchor.MiddleCenter, 14);
+			ConfigureText(attackText, TextAnchor.MiddleCenter, 14);
+			ConfigureText(attackSpeedText, TextAnchor.MiddleCenter, 14);
 
-			foreach (SkillButtonView view in skillButtons)
+			if (skillButtonSlots == null || skillButtonSlots.Length != 4)
+				skillButtonSlots = new Button[4];
+			for (int i = 0; i < skillButtonSlots.Length; i++)
 			{
-				if (view.Root != null) Destroy(view.Root);
-			}
-			skillButtons.Clear();
-
-			for (int index = 0; index < skills.Length; index++)
-			{
-				ISkill skill = skills[index];
-				if (skill == null) continue;
-				skillButtons.Add(CreateSkillButton(skill, index));
+				if (skillButtonSlots[i] == null)
+					skillButtonSlots[i] = FindComponent<Button>($"SkillArc/SkillButton{i + 1}");
 			}
 		}
 
-		private SkillButtonView CreateSkillButton(ISkill skill, int index)
+		private static void ConfigureFillImage(Image image, Color color)
 		{
-			GameObject root = new GameObject(
-				$"SkillButton_{index + 1}", typeof(RectTransform), typeof(Image), typeof(Button));
-			RectTransform rootRect = root.GetComponent<RectTransform>();
-			rootRect.SetParent(hudCanvasRect, false);
-			rootRect.anchorMin = new Vector2(1f, 0f);
-			rootRect.anchorMax = new Vector2(1f, 0f);
-			rootRect.pivot = new Vector2(1f, 0f);
-			rootRect.anchoredPosition = new Vector2(-24f - (3 - index) * 78f, 28f);
-			rootRect.sizeDelta = new Vector2(68f, 68f);
+			if (image == null) return;
+			if (fillSprite == null)
+			{
+				Texture2D texture = Texture2D.whiteTexture;
+				fillSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+			}
+			if (image.sprite == null) image.sprite = fillSprite;
+			image.type = Image.Type.Filled;
+			image.fillMethod = Image.FillMethod.Horizontal;
+			image.fillOrigin = (int)Image.OriginHorizontal.Left;
+			image.color = color;
+			image.raycastTarget = false;
+		}
 
-			Image background = root.GetComponent<Image>();
-			background.color = new Color(0.08f, 0.1f, 0.14f, 0.95f);
-			Button button = root.GetComponent<Button>();
-			button.targetGraphic = background;
-			button.onClick.AddListener(skill.Execute);
+		private static void ConfigureBackground(Image image, Color color)
+		{
+			if (image == null) return;
+			image.color = color;
+			image.raycastTarget = false;
+		}
 
-			GameObject iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-			RectTransform iconRect = iconObject.GetComponent<RectTransform>();
-			iconRect.SetParent(rootRect, false);
-			iconRect.anchorMin = new Vector2(0.08f, 0.22f);
-			iconRect.anchorMax = new Vector2(0.92f, 0.92f);
-			iconRect.offsetMin = Vector2.zero;
-			iconRect.offsetMax = Vector2.zero;
-			Image icon = iconObject.GetComponent<Image>();
-			icon.sprite = skill.SkillIcon != null ? skill.SkillIcon.sprite : null;
-			icon.color = icon.sprite != null ? Color.white : new Color(0.25f, 0.42f, 0.58f, 1f);
-			icon.preserveAspect = true;
-			icon.raycastTarget = false;
+		private static void ConfigureText(Text text, TextAnchor alignment, int size)
+		{
+			if (text == null) return;
+			text.color = Color.white;
+			text.alignment = alignment;
+			text.fontSize = size;
+			text.raycastTarget = false;
+		}
 
-			GameObject cooldownObject = new GameObject("CooldownOverlay", typeof(RectTransform), typeof(Image));
-			RectTransform cooldownRect = cooldownObject.GetComponent<RectTransform>();
-			cooldownRect.SetParent(rootRect, false);
-			StretchFull(cooldownRect);
-			Image cooldownOverlay = cooldownObject.GetComponent<Image>();
-			cooldownOverlay.color = new Color(0f, 0f, 0f, 0.7f);
-			cooldownOverlay.type = Image.Type.Filled;
-			cooldownOverlay.fillMethod = Image.FillMethod.Radial360;
-			cooldownOverlay.fillOrigin = (int)Image.Origin360.Top;
-			cooldownOverlay.raycastTarget = false;
+		private T FindComponent<T>(string relativePath) where T : Component
+		{
+			Transform root = transform;
+			bool hasPath = relativePath.IndexOf('/') >= 0;
+			int slash = relativePath.IndexOf('/');
+			while (slash >= 0)
+			{
+				string segment = relativePath.Substring(0, slash);
+				root = FindDirectChild(root, segment);
+				if (root == null) return null;
+				relativePath = relativePath.Substring(slash + 1);
+				slash = relativePath.IndexOf('/');
+			}
 
-			GameObject labelObject = new GameObject("KeyLabel", typeof(RectTransform), typeof(Text));
-			RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-			labelRect.SetParent(rootRect, false);
-			labelRect.anchorMin = new Vector2(0f, 0f);
-			labelRect.anchorMax = new Vector2(1f, 0.34f);
-			labelRect.offsetMin = Vector2.zero;
-			labelRect.offsetMax = Vector2.zero;
-			Text label = labelObject.GetComponent<Text>();
-			label.font = defaultFont;
-			label.fontSize = 11;
-			label.alignment = TextAnchor.MiddleCenter;
-			label.color = Color.white;
-			label.text = $"{GetSkillKey(index)}  {skill.SkillName}";
-			label.raycastTarget = false;
+			Transform target = FindDirectChild(root, relativePath);
+			if (target != null) return target.GetComponent<T>();
+			if (hasPath) return null;
 
-			GameObject cooldownTextObject = new GameObject("CooldownText", typeof(RectTransform), typeof(Text));
-			RectTransform cooldownTextRect = cooldownTextObject.GetComponent<RectTransform>();
-			cooldownTextRect.SetParent(rootRect, false);
-			StretchFull(cooldownTextRect);
-			Text cooldownText = cooldownTextObject.GetComponent<Text>();
-			cooldownText.font = defaultFont;
-			cooldownText.fontSize = 19;
-			cooldownText.fontStyle = FontStyle.Bold;
-			cooldownText.alignment = TextAnchor.MiddleCenter;
-			cooldownText.color = Color.white;
-			cooldownText.raycastTarget = false;
+			foreach (T component in GetComponentsInChildren<T>(true))
+				if (component.name == relativePath) return component;
+			return null;
+		}
 
-			return new SkillButtonView(skill, root, button, icon, cooldownOverlay, cooldownText);
+		private static Transform FindDirectChild(Transform parent, string childName)
+		{
+			if (parent == null) return null;
+			for (int i = 0; i < parent.childCount; i++)
+			{
+				if (parent.GetChild(i).name == childName) return parent.GetChild(i);
+			}
+			return null;
+		}
+
+		private void RefreshSkillButtons()
+		{
+			if (player == null) return;
+			ISkill[] skills = characterSkills ?? player.GetComponents<ISkill>();
+			int expectedCount = Mathf.Min(skills.Length, skillButtonSlots.Length);
+			bool unchanged = expectedCount == skillButtons.Count;
+			for (int i = 0; unchanged && i < skills.Length; i++)
+				if (i < expectedCount) unchanged = skillButtons[i].Skill == skills[i];
+			if (unchanged) return;
+
+			skillButtons.Clear();
+			foreach (Button slot in skillButtonSlots)
+			{
+				if (slot == null) continue;
+				slot.onClick.RemoveAllListeners();
+				slot.interactable = false;
+			}
+			for (int i = 0; i < skills.Length && i < skillButtonSlots.Length; i++)
+			{
+				ISkill skill = skills[i];
+				Button button = skillButtonSlots[i];
+				if (skill == null || button == null) continue;
+
+				button.onClick.RemoveAllListeners();
+				button.onClick.AddListener(skill.Execute);
+				Image buttonImage = button.GetComponent<Image>();
+				Image icon = FindInChildren<Image>(button.transform, "Icon");
+				Image overlay = FindInChildren<Image>(button.transform, "CooldownOverlay");
+				Text cooldownText = FindInChildren<Text>(button.transform, "CooldownText");
+				if (overlay == null) overlay = CreateCooldownOverlay(button.transform);
+				if (cooldownText == null) cooldownText = CreateCooldownText(button.transform);
+				if (overlay.sprite == null) overlay.sprite = GetCooldownCircleSprite();
+				Sprite skillSprite = skill.CharacterIcon != null
+					? skill.CharacterIcon
+					: skill.SkillIcon != null ? skill.SkillIcon.sprite : null;
+				if (icon != null && skillSprite != null) icon.sprite = skillSprite;
+				else if (buttonImage != null && skillSprite != null) buttonImage.sprite = skillSprite;
+				foreach (Graphic graphic in button.GetComponentsInChildren<Graphic>(true))
+					if (graphic != buttonImage) graphic.raycastTarget = false;
+				overlay.type = Image.Type.Filled;
+				overlay.fillMethod = Image.FillMethod.Radial360;
+				overlay.fillOrigin = (int)Image.Origin360.Top;
+				overlay.raycastTarget = false;
+				skillButtons.Add(new SkillButtonView(skill, button, overlay, cooldownText, i));
+			}
+		}
+
+		private static T FindInChildren<T>(Transform parent, string childName) where T : Component
+		{
+			foreach (T component in parent.GetComponentsInChildren<T>(true))
+				if (component.transform != parent && component.name == childName) return component;
+			return null;
+		}
+
+		private static Image CreateCooldownOverlay(Transform parent)
+		{
+			GameObject overlayObject = new GameObject("CooldownOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+			RectTransform rect = overlayObject.GetComponent<RectTransform>();
+			rect.SetParent(parent, false);
+			rect.anchorMin = Vector2.zero;
+			rect.anchorMax = Vector2.one;
+			rect.offsetMin = Vector2.zero;
+			rect.offsetMax = Vector2.zero;
+
+			Image overlay = overlayObject.GetComponent<Image>();
+			overlay.sprite = GetCooldownCircleSprite();
+			overlay.type = Image.Type.Filled;
+			overlay.fillMethod = Image.FillMethod.Radial360;
+			overlay.fillOrigin = (int)Image.Origin360.Top;
+			overlay.color = new Color(0f, 0f, 0f, 0.72f);
+			overlay.raycastTarget = false;
+			return overlay;
+		}
+
+		private static Text CreateCooldownText(Transform parent)
+		{
+			GameObject textObject = new GameObject("CooldownText", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+			RectTransform rect = textObject.GetComponent<RectTransform>();
+			rect.SetParent(parent, false);
+			rect.anchorMin = Vector2.zero;
+			rect.anchorMax = Vector2.one;
+			rect.offsetMin = Vector2.zero;
+			rect.offsetMax = Vector2.zero;
+
+			Text text = textObject.GetComponent<Text>();
+			text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+			text.fontSize = 20;
+			text.fontStyle = FontStyle.Bold;
+			text.alignment = TextAnchor.MiddleCenter;
+			text.color = Color.white;
+			text.raycastTarget = false;
+			return text;
+		}
+
+		private static Sprite GetCooldownCircleSprite()
+		{
+			if (cooldownCircleSprite != null) return cooldownCircleSprite;
+
+			const int size = 64;
+			Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+			texture.name = "CooldownCircle";
+			texture.filterMode = FilterMode.Bilinear;
+			Vector2 center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+			float radius = size * 0.5f - 1f;
+			for (int y = 0; y < size; y++)
+			{
+				for (int x = 0; x < size; x++)
+				{
+					float alpha = Mathf.Clamp01(radius + 0.5f - Vector2.Distance(new Vector2(x, y), center));
+					texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+				}
+			}
+			texture.Apply();
+			cooldownCircleSprite = Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f));
+			return cooldownCircleSprite;
 		}
 
 		private void RefreshSkillButtonStates()
 		{
 			foreach (SkillButtonView view in skillButtons)
 			{
-				if (view.Skill == null) continue;
+				if (view.Skill == null || view.Button == null) continue;
 				view.Button.interactable = view.Skill.CanExecute;
 				float cooldown = Mathf.Max(view.Skill.Cooldown, 0.01f);
 				float remaining = Mathf.Max(view.Skill.CooldownRemaining, 0f);
 				view.CooldownOverlay.fillAmount = Mathf.Clamp01(remaining / cooldown);
+				view.CooldownOverlay.enabled = remaining > 0f;
 				view.CooldownText.text = remaining > 0f
 					? Mathf.CeilToInt(remaining).ToString()
-					: GetSkillKey(skillButtons.IndexOf(view));
+					: skillKeys[view.Index];
 			}
-		}
-
-		private static string GetSkillKey(int index)
-		{
-			return index < skillKeys.Length ? skillKeys[index] : "";
 		}
 
 		private sealed class SkillButtonView
 		{
 			public readonly ISkill Skill;
-			public readonly GameObject Root;
 			public readonly Button Button;
-			public readonly Image Icon;
 			public readonly Image CooldownOverlay;
 			public readonly Text CooldownText;
+			public readonly int Index;
 
-			public SkillButtonView(ISkill skill, GameObject root, Button button, Image icon, Image cooldownOverlay, Text cooldownText)
+			public SkillButtonView(ISkill skill, Button button, Image overlay, Text cooldownText, int index)
 			{
 				Skill = skill;
-				Root = root;
 				Button = button;
-				Icon = icon;
-				CooldownOverlay = cooldownOverlay;
+				CooldownOverlay = overlay;
 				CooldownText = cooldownText;
+				Index = index;
 			}
-		}
-
-		private RectTransform BuildCanvas()
-		{
-			GameObject canvasObject = new GameObject("HUDCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-			canvasObject.transform.SetParent(transform, false);
-
-			Canvas canvas = canvasObject.GetComponent<Canvas>();
-			canvas.renderMode = RenderMode.ScreenSpaceCamera;
-			canvas.worldCamera = GetComponent<Camera>() != null ? GetComponent<Camera>() : Camera.main;
-			canvas.planeDistance = 1f;
-
-			CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-			scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-			scaler.referenceResolution = new Vector2(1920f, 1080f);
-			scaler.matchWidthOrHeight = 0.5f;
-
-			return canvasObject.GetComponent<RectTransform>();
-		}
-
-		private void BuildHud(RectTransform canvasRect)
-		{
-			GameObject panel = new GameObject("PlayerHUDPanel", typeof(RectTransform), typeof(Image));
-			RectTransform panelRect = panel.GetComponent<RectTransform>();
-			panelRect.SetParent(canvasRect, false);
-			panelRect.anchorMin = new Vector2(0.5f, 0f);
-			panelRect.anchorMax = new Vector2(0.5f, 0f);
-			panelRect.pivot = new Vector2(0.5f, 0f);
-			panelRect.anchoredPosition = bottomOffset;
-			panelRect.sizeDelta = panelSize;
-			panel.GetComponent<Image>().color = panelBackgroundColor;
-
-			BuildHealthBar(panelRect);
-			BuildExperienceBar(panelRect);
-			BuildLevelBadge(panelRect);
-
-			GameObject statsRow = new GameObject("StatsRow", typeof(RectTransform));
-			RectTransform statsRowRect = statsRow.GetComponent<RectTransform>();
-			statsRowRect.SetParent(panelRect, false);
-			statsRowRect.anchorMin = new Vector2(0f, 0f);
-			statsRowRect.anchorMax = new Vector2(1f, 0f);
-			statsRowRect.pivot = new Vector2(0.5f, 0f);
-			statsRowRect.anchoredPosition = new Vector2(0f, 8f);
-			statsRowRect.sizeDelta = new Vector2(-16f, 32f);
-
-			HorizontalLayoutGroup statsLayout = statsRow.AddComponent<HorizontalLayoutGroup>();
-			statsLayout.childAlignment = TextAnchor.MiddleCenter;
-			statsLayout.spacing = 14f;
-			statsLayout.childForceExpandWidth = false;
-			statsLayout.childForceExpandHeight = false;
-
-			pointText = CreateStatItem(statsRowRect, "Point", pointColor);
-			speedText = CreateStatItem(statsRowRect, "Speed", speedColor);
-			attackText = CreateStatItem(statsRowRect, "ATK", attackColor);
-			attackSpeedText = CreateStatItem(statsRowRect, "AS", attackSpeedColor);
-		}
-
-		private void BuildHealthBar(RectTransform panelRect)
-		{
-			GameObject healthContainer = new GameObject("HealthBar", typeof(RectTransform));
-			RectTransform healthRect = healthContainer.GetComponent<RectTransform>();
-			healthRect.SetParent(panelRect, false);
-			healthRect.anchorMin = new Vector2(0f, 1f);
-			healthRect.anchorMax = new Vector2(1f, 1f);
-			healthRect.pivot = new Vector2(0.5f, 1f);
-			healthRect.anchoredPosition = new Vector2(0f, -8f);
-			healthRect.sizeDelta = new Vector2(-16f, 26f);
-
-			CreateFullStretchImage(healthRect, "Background", healthBackgroundColor);
-			healthFillImage = CreateFullStretchImage(healthRect, "Fill", healthFillColor);
-			healthFillImage.sprite = GetFillSprite();
-			healthFillImage.type = Image.Type.Filled;
-			healthFillImage.fillMethod = Image.FillMethod.Horizontal;
-			healthFillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
-			healthFillImage.fillAmount = 1f;
-
-			GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(Text));
-			RectTransform textRect = textObject.GetComponent<RectTransform>();
-			textRect.SetParent(healthRect, false);
-			StretchFull(textRect);
-
-			healthText = textObject.GetComponent<Text>();
-			healthText.font = defaultFont;
-			healthText.fontSize = 16;
-			healthText.alignment = TextAnchor.MiddleCenter;
-			healthText.color = Color.white;
-		}
-
-		private void BuildExperienceBar(RectTransform panelRect)
-		{
-			GameObject expContainer = new GameObject("ExperienceBar", typeof(RectTransform));
-			RectTransform expRect = expContainer.GetComponent<RectTransform>();
-			expRect.SetParent(panelRect, false);
-			expRect.anchorMin = new Vector2(0f, 1f);
-			expRect.anchorMax = new Vector2(1f, 1f);
-			expRect.pivot = new Vector2(0.5f, 1f);
-			expRect.anchoredPosition = new Vector2(0f, -38f);
-			expRect.sizeDelta = new Vector2(-16f, 12f);
-
-			CreateFullStretchImage(expRect, "Background", expBackgroundColor);
-			expFillImage = CreateFullStretchImage(expRect, "Fill", expFillColor);
-			expFillImage.sprite = GetFillSprite();
-			expFillImage.type = Image.Type.Filled;
-			expFillImage.fillMethod = Image.FillMethod.Horizontal;
-			expFillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
-			expFillImage.fillAmount = 0f;
-
-			GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(Text));
-			RectTransform textRect = textObject.GetComponent<RectTransform>();
-			textRect.SetParent(expRect, false);
-			StretchFull(textRect);
-
-			expText = textObject.GetComponent<Text>();
-			expText.font = defaultFont;
-			expText.fontSize = 11;
-			expText.alignment = TextAnchor.MiddleCenter;
-			expText.color = Color.white;
-		}
-
-		private void BuildLevelBadge(RectTransform panelRect)
-		{
-			GameObject badge = new GameObject("LevelBadge", typeof(RectTransform), typeof(Image));
-			RectTransform badgeRect = badge.GetComponent<RectTransform>();
-			badgeRect.SetParent(panelRect, false);
-			badgeRect.anchorMin = new Vector2(0f, 1f);
-			badgeRect.anchorMax = new Vector2(0f, 1f);
-			badgeRect.pivot = new Vector2(0f, 1f);
-			badgeRect.anchoredPosition = new Vector2(8f, -8f);
-			badgeRect.sizeDelta = new Vector2(26f, 26f);
-			badge.GetComponent<Image>().color = expFillColor;
-
-			GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(Text));
-			RectTransform textRect = textObject.GetComponent<RectTransform>();
-			textRect.SetParent(badgeRect, false);
-			StretchFull(textRect);
-
-			levelText = textObject.GetComponent<Text>();
-			levelText.font = defaultFont;
-			levelText.fontSize = 13;
-			levelText.alignment = TextAnchor.MiddleCenter;
-			levelText.color = Color.white;
-			levelText.text = "1";
-		}
-
-		private Text CreateStatItem(Transform parent, string label, Color accentColor)
-		{
-			GameObject item = new GameObject(label + "Stat", typeof(RectTransform));
-			item.transform.SetParent(parent, false);
-
-			HorizontalLayoutGroup layout = item.AddComponent<HorizontalLayoutGroup>();
-			layout.spacing = 6f;
-			layout.childAlignment = TextAnchor.MiddleLeft;
-			layout.childForceExpandWidth = false;
-			layout.childForceExpandHeight = false;
-
-			LayoutElement itemLayoutElement = item.AddComponent<LayoutElement>();
-			itemLayoutElement.preferredWidth = 100f;
-			itemLayoutElement.preferredHeight = 28f;
-
-			GameObject icon = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-			icon.transform.SetParent(item.transform, false);
-			icon.GetComponent<Image>().color = accentColor;
-			LayoutElement iconLayoutElement = icon.AddComponent<LayoutElement>();
-			iconLayoutElement.preferredWidth = 16f;
-			iconLayoutElement.preferredHeight = 16f;
-
-			GameObject textObject = new GameObject("Value", typeof(RectTransform), typeof(Text));
-			textObject.transform.SetParent(item.transform, false);
-
-			Text text = textObject.GetComponent<Text>();
-			text.font = defaultFont;
-			text.fontSize = 16;
-			text.color = Color.white;
-			text.alignment = TextAnchor.MiddleLeft;
-			text.text = label;
-
-			LayoutElement textLayoutElement = textObject.AddComponent<LayoutElement>();
-			textLayoutElement.preferredWidth = 80f;
-			textLayoutElement.preferredHeight = 20f;
-
-			return text;
-		}
-
-		private Image CreateFullStretchImage(Transform parent, string objectName, Color color)
-		{
-			GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(Image));
-			imageObject.transform.SetParent(parent, false);
-			StretchFull(imageObject.GetComponent<RectTransform>());
-
-			Image image = imageObject.GetComponent<Image>();
-			image.color = color;
-			return image;
-		}
-
-		private static void StretchFull(RectTransform rectTransform)
-		{
-			rectTransform.anchorMin = Vector2.zero;
-			rectTransform.anchorMax = Vector2.one;
-			rectTransform.offsetMin = Vector2.zero;
-			rectTransform.offsetMax = Vector2.zero;
-		}
-
-		// Image.Type.Filled only clips correctly when a sprite is assigned - without one, Unity silently
-		// falls back to drawing an unclipped quad and fillAmount has no visible effect.
-		private static Sprite GetFillSprite()
-		{
-			if (fillSprite != null)
-			{
-				return fillSprite;
-			}
-
-			Texture2D texture = Texture2D.whiteTexture;
-			fillSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-			return fillSprite;
 		}
 
 		private void RefreshStats()
 		{
-			if (player == null)
-			{
-				return;
-			}
-
-			float fillAmount = player.maxHealth > 0
-				? Mathf.Clamp01((float)player.health / player.maxHealth)
-				: 0f;
-
+			if (player == null) return;
 			if (healthFillImage != null)
-			{
-				healthFillImage.fillAmount = fillAmount;
-			}
-
-			if (healthText != null)
-			{
-				healthText.text = $"{Mathf.Max(player.health, 0)} / {player.maxHealth}";
-			}
-
-			float expFillAmount = player.experienceToNextLevel > 0
-				? Mathf.Clamp01((float)player.experience / player.experienceToNextLevel)
-				: 0f;
-
+				healthFillImage.fillAmount = player.maxHealth > 0 ? Mathf.Clamp01((float)player.health / player.maxHealth) : 0f;
+			if (healthText != null) healthText.text = $"{Mathf.Max(player.health, 0)} / {player.maxHealth}";
 			if (expFillImage != null)
-			{
-				expFillImage.fillAmount = expFillAmount;
-			}
-
-			if (expText != null)
-			{
-				expText.text = $"{player.experience} / {player.experienceToNextLevel} XP";
-			}
-
-			if (levelText != null)
-			{
-				levelText.text = player.level.ToString();
-			}
-
-			if (pointText != null)
-			{
-				pointText.text = $"Point: {player.score}";
-			}
-
-			if (speedText != null)
-			{
-				speedText.text = $"Speed: {player.speed:0.0}";
-			}
-
-			if (attackText != null)
-			{
-				attackText.text = $"ATK: {player.attackDamage}";
-			}
-
+				expFillImage.fillAmount = player.experienceToNextLevel > 0 ? Mathf.Clamp01((float)player.experience / player.experienceToNextLevel) : 0f;
+			if (expText != null) expText.text = $"{player.experience} / {player.experienceToNextLevel} XP";
+			if (levelText != null) levelText.text = player.level.ToString();
+			if (pointText != null) pointText.text = $"Point: {player.score}";
+			if (speedText != null) speedText.text = $"Speed: {player.speed:0.0}";
+			if (attackText != null) attackText.text = $"ATK: {player.attackDamage}";
 			if (attackSpeedText != null)
-			{
-				float attacksPerSecond = basicAttack != null ? basicAttack.AttacksPerSecond : 0f;
-				attackSpeedText.text = $"AS: {attacksPerSecond:0.0}/s";
-			}
+				attackSpeedText.text = $"AS: {(basicAttack != null ? basicAttack.AttacksPerSecond : 0f):0.0}/s";
 		}
 	}
 }
