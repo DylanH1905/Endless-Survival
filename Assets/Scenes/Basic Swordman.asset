@@ -22,7 +22,11 @@ MonoBehaviour:
   attackRange: 1
   combat:
     basicAttack: {fileID: 11500000, guid: cd554af037492b44899429f6f455f4d2, type: 3}
-    skills: []
+    skills:
+    - {fileID: 11500000, guid: c65d6e110faa95a46a553fda2f88dc94, type: 3}
+    - {fileID: 11500000, guid: 84d7dc1879f543b44ac8c19dbe326324, type: 3}
+    - {fileID: 11500000, guid: 3e13e7b562e526b4ab61a0197d89ee87, type: 3}
+    - {fileID: 11500000, guid: 5bb7db93abec2a84e81127deae63e909, type: 3}
   visuals:
     flipHeadTowardTarget: 1
     weaponAimMode: 1

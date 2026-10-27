@@ -44,6 +44,7 @@ namespace ESS.Objects.Player
 		private CharacterWeaponAimMode weaponAimMode;
 		private float weaponAngleOffset;
 		public Transform CurrentAimTarget { get; private set; }
+		public Vector2 CurrentMoveDirection => movement;
 
 		private void Awake()
 		{
@@ -218,11 +219,28 @@ namespace ESS.Objects.Player
 
 		private void Update()
 		{
-			Debug.Log($"Keyboard: {Input.anyKey}");
+			CastSwordSkill(KeyCode.Q, "Q");
+			CastSwordSkill(KeyCode.W, "W");
+			CastSwordSkill(KeyCode.E, "E");
+			CastSwordSkill(KeyCode.R, "R");
+
 			Move();
 			RotateToClosestEnemy();
 			RotateHeadToMovement();
 			UpdateDash();
+		}
+
+		private void CastSwordSkill(KeyCode key, string skillName)
+		{
+			if (!Input.GetKeyDown(key)) return;
+			foreach (ISkill skill in GetComponentsInChildren<ISkill>(true))
+			{
+				if (skill != null && skill.GetType().Name == skillName)
+				{
+					skill.Execute();
+					return;
+				}
+			}
 		}
 
 		private void Move()
@@ -230,22 +248,22 @@ namespace ESS.Objects.Player
 			movement.x = 0f;
 			movement.y = 0f;
 
-			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+			if (Input.GetKey(KeyCode.LeftArrow))
 			{
 				movement.x -= 1f;
 			}
 
-			if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+			if (Input.GetKey(KeyCode.RightArrow))
 			{
 				movement.x += 1f;
 			}
 
-			if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+			if (Input.GetKey(KeyCode.UpArrow))
 			{
 				movement.y += 1f;
 			}
 
-			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+			if (Input.GetKey(KeyCode.DownArrow))
 			{
 				movement.y -= 1f;
 			}

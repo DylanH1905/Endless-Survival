@@ -1038,17 +1038,17 @@ MonoBehaviour:
   environmentObjects:
   - type: 1
     icon: {fileID: 638150435, guid: 4e48681432654fb46bc9a7085cfe3368, type: 3}
-    size: 1.5
+    size: 5
     minDistanceToSameType: 1.5
     maxCount: 20
   - type: 6
     icon: {fileID: 1976135845, guid: 4e48681432654fb46bc9a7085cfe3368, type: 3}
-    size: 0.5
+    size: 1.5
     minDistanceToSameType: 1.5
     maxCount: 15
   - type: 8
     icon: {fileID: -2023365826, guid: 4e48681432654fb46bc9a7085cfe3368, type: 3}
-    size: 0.5
+    size: 2
     minDistanceToSameType: 1.5
     maxCount: 10
   targetCamera: {fileID: 926672879}

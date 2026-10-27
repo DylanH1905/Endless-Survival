@@ -13,6 +13,9 @@ namespace ESS.Objects
         public bool IsDead { get; protected set; }
         public bool IsHidden { get; set; }
 
+        private int shieldHealth;
+        private Coroutine shieldRoutine;
+
         public virtual void TakeDamage(int damage)
         {
             if (IsDead || damage <= 0)
@@ -21,13 +24,39 @@ namespace ESS.Objects
                 return;
             }
 
-            health = Mathf.Max(health - damage, 0);
-            Info($"{name} took {damage} damage, remaining health: {health}");
+            int absorbedDamage = Mathf.Min(shieldHealth, damage);
+            shieldHealth -= absorbedDamage;
+            int remainingDamage = damage - absorbedDamage;
+            health = Mathf.Max(health - remainingDamage, 0);
+            Info($"{name} took {damage} damage ({absorbedDamage} absorbed), remaining health: {health}");
             if (health == 0)
             {
                 IsDead = true;
                 Info($"{name} has died.");
             }
+        }
+
+        public void GrantShield(int amount, float duration)
+        {
+            if (IsDead || amount <= 0 || duration <= 0f)
+            {
+                return;
+            }
+
+            shieldHealth = amount;
+            if (shieldRoutine != null)
+            {
+                StopCoroutine(shieldRoutine);
+            }
+
+            shieldRoutine = StartCoroutine(ShieldDuration(duration));
+        }
+
+        private IEnumerator ShieldDuration(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            shieldHealth = 0;
+            shieldRoutine = null;
         }
 
         public virtual void Heal(int amount)

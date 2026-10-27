@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace ESS.Objects.Player
 {
@@ -38,6 +39,9 @@ namespace ESS.Objects.Player
 		private Text speedText;
 		private Text attackText;
 		private Text attackSpeedText;
+		private RectTransform hudCanvasRect;
+		private readonly List<SkillButtonView> skillButtons = new List<SkillButtonView>();
+		private static readonly string[] skillKeys = { "Q", "W", "E", "R" };
 
 		private void Awake()
 		{
@@ -53,14 +57,171 @@ namespace ESS.Objects.Player
 
 			defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
-			RectTransform canvasRect = BuildCanvas();
-			BuildHud(canvasRect);
+			hudCanvasRect = BuildCanvas();
+			BuildHud(hudCanvasRect);
 			RefreshStats();
 		}
 
 		private void Update()
 		{
+			if (player == null)
+			{
+				player = FindObjectOfType<IPlayer>();
+			}
+
+			if (player != null && basicAttack == null)
+			{
+				basicAttack = player.GetComponent<IBasicAttack>();
+			}
+
+			RefreshSkillButtons();
+			RefreshSkillButtonStates();
 			RefreshStats();
+		}
+
+		private void RefreshSkillButtons()
+		{
+			if (player == null || hudCanvasRect == null)
+			{
+				return;
+			}
+
+			ISkill[] skills = player.GetComponents<ISkill>();
+			bool unchanged = skills.Length == skillButtons.Count;
+			for (int index = 0; unchanged && index < skills.Length; index++)
+			{
+				unchanged = skillButtons[index].Skill == skills[index];
+			}
+
+			if (unchanged)
+			{
+				return;
+			}
+
+			foreach (SkillButtonView view in skillButtons)
+			{
+				if (view.Root != null) Destroy(view.Root);
+			}
+			skillButtons.Clear();
+
+			for (int index = 0; index < skills.Length; index++)
+			{
+				ISkill skill = skills[index];
+				if (skill == null) continue;
+				skillButtons.Add(CreateSkillButton(skill, index));
+			}
+		}
+
+		private SkillButtonView CreateSkillButton(ISkill skill, int index)
+		{
+			GameObject root = new GameObject(
+				$"SkillButton_{index + 1}", typeof(RectTransform), typeof(Image), typeof(Button));
+			RectTransform rootRect = root.GetComponent<RectTransform>();
+			rootRect.SetParent(hudCanvasRect, false);
+			rootRect.anchorMin = new Vector2(1f, 0f);
+			rootRect.anchorMax = new Vector2(1f, 0f);
+			rootRect.pivot = new Vector2(1f, 0f);
+			rootRect.anchoredPosition = new Vector2(-24f - (3 - index) * 78f, 28f);
+			rootRect.sizeDelta = new Vector2(68f, 68f);
+
+			Image background = root.GetComponent<Image>();
+			background.color = new Color(0.08f, 0.1f, 0.14f, 0.95f);
+			Button button = root.GetComponent<Button>();
+			button.targetGraphic = background;
+			button.onClick.AddListener(skill.Execute);
+
+			GameObject iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+			RectTransform iconRect = iconObject.GetComponent<RectTransform>();
+			iconRect.SetParent(rootRect, false);
+			iconRect.anchorMin = new Vector2(0.08f, 0.22f);
+			iconRect.anchorMax = new Vector2(0.92f, 0.92f);
+			iconRect.offsetMin = Vector2.zero;
+			iconRect.offsetMax = Vector2.zero;
+			Image icon = iconObject.GetComponent<Image>();
+			icon.sprite = skill.SkillIcon != null ? skill.SkillIcon.sprite : null;
+			icon.color = icon.sprite != null ? Color.white : new Color(0.25f, 0.42f, 0.58f, 1f);
+			icon.preserveAspect = true;
+			icon.raycastTarget = false;
+
+			GameObject cooldownObject = new GameObject("CooldownOverlay", typeof(RectTransform), typeof(Image));
+			RectTransform cooldownRect = cooldownObject.GetComponent<RectTransform>();
+			cooldownRect.SetParent(rootRect, false);
+			StretchFull(cooldownRect);
+			Image cooldownOverlay = cooldownObject.GetComponent<Image>();
+			cooldownOverlay.color = new Color(0f, 0f, 0f, 0.7f);
+			cooldownOverlay.type = Image.Type.Filled;
+			cooldownOverlay.fillMethod = Image.FillMethod.Radial360;
+			cooldownOverlay.fillOrigin = (int)Image.Origin360.Top;
+			cooldownOverlay.raycastTarget = false;
+
+			GameObject labelObject = new GameObject("KeyLabel", typeof(RectTransform), typeof(Text));
+			RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+			labelRect.SetParent(rootRect, false);
+			labelRect.anchorMin = new Vector2(0f, 0f);
+			labelRect.anchorMax = new Vector2(1f, 0.34f);
+			labelRect.offsetMin = Vector2.zero;
+			labelRect.offsetMax = Vector2.zero;
+			Text label = labelObject.GetComponent<Text>();
+			label.font = defaultFont;
+			label.fontSize = 11;
+			label.alignment = TextAnchor.MiddleCenter;
+			label.color = Color.white;
+			label.text = $"{GetSkillKey(index)}  {skill.SkillName}";
+			label.raycastTarget = false;
+
+			GameObject cooldownTextObject = new GameObject("CooldownText", typeof(RectTransform), typeof(Text));
+			RectTransform cooldownTextRect = cooldownTextObject.GetComponent<RectTransform>();
+			cooldownTextRect.SetParent(rootRect, false);
+			StretchFull(cooldownTextRect);
+			Text cooldownText = cooldownTextObject.GetComponent<Text>();
+			cooldownText.font = defaultFont;
+			cooldownText.fontSize = 19;
+			cooldownText.fontStyle = FontStyle.Bold;
+			cooldownText.alignment = TextAnchor.MiddleCenter;
+			cooldownText.color = Color.white;
+			cooldownText.raycastTarget = false;
+
+			return new SkillButtonView(skill, root, button, icon, cooldownOverlay, cooldownText);
+		}
+
+		private void RefreshSkillButtonStates()
+		{
+			foreach (SkillButtonView view in skillButtons)
+			{
+				if (view.Skill == null) continue;
+				view.Button.interactable = view.Skill.CanExecute;
+				float cooldown = Mathf.Max(view.Skill.Cooldown, 0.01f);
+				float remaining = Mathf.Max(view.Skill.CooldownRemaining, 0f);
+				view.CooldownOverlay.fillAmount = Mathf.Clamp01(remaining / cooldown);
+				view.CooldownText.text = remaining > 0f
+					? Mathf.CeilToInt(remaining).ToString()
+					: GetSkillKey(skillButtons.IndexOf(view));
+			}
+		}
+
+		private static string GetSkillKey(int index)
+		{
+			return index < skillKeys.Length ? skillKeys[index] : "";
+		}
+
+		private sealed class SkillButtonView
+		{
+			public readonly ISkill Skill;
+			public readonly GameObject Root;
+			public readonly Button Button;
+			public readonly Image Icon;
+			public readonly Image CooldownOverlay;
+			public readonly Text CooldownText;
+
+			public SkillButtonView(ISkill skill, GameObject root, Button button, Image icon, Image cooldownOverlay, Text cooldownText)
+			{
+				Skill = skill;
+				Root = root;
+				Button = button;
+				Icon = icon;
+				CooldownOverlay = cooldownOverlay;
+				CooldownText = cooldownText;
+			}
 		}
 
 		private RectTransform BuildCanvas()
