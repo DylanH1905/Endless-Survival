@@ -15,6 +15,28 @@ namespace ESS.Objects
 
         private int shieldHealth;
         private Coroutine shieldRoutine;
+        private float slowMultiplier = 1f;
+        private float slowRemaining;
+        private float stunRemaining;
+
+        public float MovementSpeed => stunRemaining > 0f ? 0f : speed * slowMultiplier;
+        public bool IsStunned => stunRemaining > 0f;
+
+        protected virtual void Update()
+        {
+            if (slowRemaining > 0f)
+            {
+                slowRemaining -= Time.deltaTime;
+                if (slowRemaining <= 0f)
+                {
+                    slowRemaining = 0f;
+                    slowMultiplier = 1f;
+                }
+            }
+
+            if (stunRemaining > 0f)
+                stunRemaining = Mathf.Max(0f, stunRemaining - Time.deltaTime);
+        }
 
         public virtual void TakeDamage(int damage)
         {
@@ -72,23 +94,17 @@ namespace ESS.Objects
 
         public virtual void Stun(float duration)
         {
-            if (IsDead)
-            {
-                return;
-            }
-
-            // Implement stun logic here (e.g., disable movement for the duration)
-            StartCoroutine(StunCoroutine(duration));
+            if (!IsDead && duration > 0f)
+                stunRemaining = Mathf.Max(stunRemaining, duration);
         }
 
-        private IEnumerator StunCoroutine(float duration)
+        public virtual void ApplySlow(float duration, float speedMultiplier)
         {
-            // Disable movement or other actions here
-            float originalSpeed = speed;
-            speed = 0f;
-            yield return new WaitForSeconds(duration);
-            // Re-enable movement or other actions here
-            speed = originalSpeed;
+            if (IsDead || duration <= 0f)
+                return;
+
+            slowMultiplier = Mathf.Min(slowMultiplier, Mathf.Clamp01(speedMultiplier));
+            slowRemaining = Mathf.Max(slowRemaining, duration);
         }
     }
 }

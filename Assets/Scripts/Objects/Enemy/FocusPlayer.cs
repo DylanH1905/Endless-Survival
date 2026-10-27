@@ -78,6 +78,12 @@ namespace ESS.Objects.Enemy
                 return;
             }
 
+            if (enemy != null && enemy.IsStunned)
+            {
+                attackTimer -= Time.deltaTime;
+                return;
+            }
+
             float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
             bool canSeePlayer = !playerCharacter.IsHidden || distanceToPlayer <= hiddenDetectionRange;
             if (!canSeePlayer)
@@ -98,7 +104,7 @@ namespace ESS.Objects.Enemy
 
             if (distance > attackRange)
             {
-                float enemySpeed = enemy != null ? enemy.speed : 0f;
+                float enemySpeed = enemy != null ? enemy.MovementSpeed : 0f;
                 transform.position = Vector2.MoveTowards(
                     transform.position,
                     player.transform.position,
@@ -121,7 +127,7 @@ namespace ESS.Objects.Enemy
                 wanderTimer = Mathf.Max(wanderInterval, 0.1f);
             }
 
-            float enemySpeed = enemy != null ? enemy.speed : 0f;
+            float enemySpeed = enemy != null ? enemy.MovementSpeed : 0f;
             transform.position = (Vector2)transform.position + wanderDirection * enemySpeed * Time.deltaTime;
 
             if (spriteRenderer != null && Mathf.Abs(wanderDirection.x) > Mathf.Epsilon)

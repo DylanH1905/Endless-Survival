@@ -29,10 +29,13 @@ namespace ESS.Objects.Player.Archer
 		private Coroutine bowDrawRoutine;
 		private Vector3 arrowRestLocalPosition;
 		private bool hasArrowRestPosition;
+		private float defaultAttackCooldown;
+		private Coroutine attackSpeedBoostRoutine;
 
 		protected override void Awake()
 		{
 			base.Awake();
+			defaultAttackCooldown = attackCooldown;
 
 			headTransform = transform.Find("Head");
 
@@ -87,6 +90,22 @@ namespace ESS.Objects.Player.Archer
 		public void ConfigureAttackRange(float range)
 		{
 			attackRange = Mathf.Max(range, 0f);
+		}
+
+		public void ApplyAttackSpeedBoost(float multiplier, float duration)
+		{
+			if (attackSpeedBoostRoutine != null)
+				StopCoroutine(attackSpeedBoostRoutine);
+
+			attackCooldown = Mathf.Max(0.1f, defaultAttackCooldown / Mathf.Max(multiplier, 1f));
+			attackSpeedBoostRoutine = StartCoroutine(ResetAttackSpeedBoost(duration));
+		}
+
+		private IEnumerator ResetAttackSpeedBoost(float duration)
+		{
+			yield return new WaitForSeconds(Mathf.Max(duration, 0.1f));
+			attackCooldown = defaultAttackCooldown;
+			attackSpeedBoostRoutine = null;
 		}
 
 		private IEnumerator DrawAndFire(IEnemy enemy)
@@ -289,6 +308,12 @@ namespace ESS.Objects.Player.Archer
 		protected override void OnDisable()
 		{
 			base.OnDisable();
+			if (attackSpeedBoostRoutine != null)
+			{
+				StopCoroutine(attackSpeedBoostRoutine);
+				attackSpeedBoostRoutine = null;
+			}
+			attackCooldown = defaultAttackCooldown;
 
 			if (bowDrawRoutine != null)
 			{

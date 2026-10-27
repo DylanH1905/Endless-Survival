@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using ESS.Objects.Player.Archer.Skills;
 
 namespace ESS.Objects.Player
 {
@@ -188,7 +189,17 @@ namespace ESS.Objects.Player
 				if (skill == null || button == null) continue;
 
 				button.onClick.RemoveAllListeners();
-				button.onClick.AddListener(skill.Execute);
+				ChargeableSkillButton chargeButton = button.GetComponent<ChargeableSkillButton>();
+				if (skill is IChargeableSkill chargeableSkill)
+				{
+					if (chargeButton == null) chargeButton = button.gameObject.AddComponent<ChargeableSkillButton>();
+					chargeButton.Bind(chargeableSkill);
+				}
+				else
+				{
+					if (chargeButton != null) chargeButton.Bind(null);
+					button.onClick.AddListener(skill.Execute);
+				}
 				Image buttonImage = button.GetComponent<Image>();
 				Image icon = FindInChildren<Image>(button.transform, "Icon");
 				Image overlay = FindInChildren<Image>(button.transform, "CooldownOverlay");
@@ -289,11 +300,22 @@ namespace ESS.Objects.Player
 				view.Button.interactable = view.Skill.CanExecute;
 				float cooldown = Mathf.Max(view.Skill.Cooldown, 0.01f);
 				float remaining = Mathf.Max(view.Skill.CooldownRemaining, 0f);
-				view.CooldownOverlay.fillAmount = Mathf.Clamp01(remaining / cooldown);
-				view.CooldownOverlay.enabled = remaining > 0f;
-				view.CooldownText.text = remaining > 0f
-					? Mathf.CeilToInt(remaining).ToString()
-					: skillKeys[view.Index];
+				if (view.Skill is IChargeableSkill chargeable && chargeable.IsCharging)
+				{
+					view.CooldownOverlay.enabled = true;
+					view.CooldownOverlay.fillAmount = chargeable.ChargeProgress;
+					view.CooldownOverlay.color = new Color(0.2f, 0.75f, 1f, 0.72f);
+					view.CooldownText.text = $"{Mathf.RoundToInt(chargeable.ChargeProgress * 100f)}%";
+				}
+				else
+				{
+					view.CooldownOverlay.enabled = remaining > 0f;
+					view.CooldownOverlay.color = new Color(0f, 0f, 0f, 0.7f);
+					view.CooldownOverlay.fillAmount = Mathf.Clamp01(remaining / cooldown);
+					view.CooldownText.text = remaining > 0f
+						? Mathf.CeilToInt(remaining).ToString()
+						: skillKeys[view.Index];
+				}
 			}
 		}
 

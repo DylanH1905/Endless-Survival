@@ -142,7 +142,7 @@ namespace ESS.Objects.Player
 				}
 			}
 
-			activeMoveSpeed = player != null && player.speed > 0f ? player.speed : moveSpeed;
+			activeMoveSpeed = player != null && player.MovementSpeed > 0f ? player.MovementSpeed : moveSpeed;
 		}
 
 		public void OnClickDash()
@@ -219,10 +219,12 @@ namespace ESS.Objects.Player
 
 		private void Update()
 		{
-			CastSwordSkill(KeyCode.Q, "Q");
-			CastSwordSkill(KeyCode.W, "W");
-			CastSwordSkill(KeyCode.E, "E");
-			CastSwordSkill(KeyCode.R, "R");
+			HandleSkillInput(KeyCode.Q, "Q");
+			HandleSkillInput(KeyCode.W, "W");
+			HandleSkillInput(KeyCode.E, "E");
+			HandleSkillInput(KeyCode.R, "R");
+			if (dashCounter <= 0f && player != null)
+				activeMoveSpeed = player.MovementSpeed;
 
 			Move();
 			RotateToClosestEnemy();
@@ -230,14 +232,22 @@ namespace ESS.Objects.Player
 			UpdateDash();
 		}
 
-		private void CastSwordSkill(KeyCode key, string skillName)
+		private void HandleSkillInput(KeyCode key, string skillName)
 		{
-			if (!Input.GetKeyDown(key)) return;
+			if (!Input.GetKeyDown(key) && !Input.GetKeyUp(key)) return;
 			foreach (ISkill skill in GetComponentsInChildren<ISkill>(true))
 			{
 				if (skill != null && skill.GetType().Name == skillName)
 				{
-					skill.Execute();
+					if (skill is ESS.Objects.Player.Archer.Skills.IChargeableSkill chargeable)
+					{
+						if (Input.GetKeyDown(key)) chargeable.BeginCharge();
+						if (Input.GetKeyUp(key)) chargeable.ReleaseCharge();
+					}
+					else if (Input.GetKeyDown(key))
+					{
+						skill.Execute();
+					}
 					return;
 				}
 			}
@@ -352,7 +362,7 @@ namespace ESS.Objects.Player
 				dashCounter -= Time.deltaTime;
 				if (dashCounter <= 0f)
 				{
-					activeMoveSpeed = player != null && player.speed > 0f ? player.speed : moveSpeed;
+			activeMoveSpeed = player != null && player.MovementSpeed > 0f ? player.MovementSpeed : moveSpeed;
 					dashCooldownCounter = dashCooldown;
 				}
 			}

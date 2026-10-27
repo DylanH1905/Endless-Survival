@@ -23,7 +23,19 @@ MonoBehaviour:
   combat:
     basicAttack: {fileID: 11500000, guid: 235dc20cac3e9ae438f7516416bba789, type: 3}
     skills: []
-    skillConfigs: []
+    skillConfigs:
+    - skill: {fileID: 11500000, guid: 3c33309d23ee4d5d9918190240be3072, type: 3}
+      icon: {fileID: -1609503121, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
+      soundEffect: {fileID: 0}
+    - skill: {fileID: 11500000, guid: 4d444fe8ba654b89978a0f54892d1b76, type: 3}
+      icon: {fileID: -1256472710, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
+      soundEffect: {fileID: 0}
+    - skill: {fileID: 11500000, guid: 5e555dd8c8c849ca854190a52c60378a, type: 3}
+      icon: {fileID: 1464934986, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
+      soundEffect: {fileID: 0}
+    - skill: {fileID: 11500000, guid: 6f666858f2f54669b6c5cfb0c3322e27, type: 3}
+      icon: {fileID: 1569656654, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
+      soundEffect: {fileID: 0}
   visuals:
     flipHeadTowardTarget: 1
     weaponAimMode: 2
