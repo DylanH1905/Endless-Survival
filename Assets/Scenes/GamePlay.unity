@@ -2300,7 +2300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 0}
   player: {fileID: 1077313499}
-  moveSpeed: 5
+  moveSpeed: 50
   headRenderer: {fileID: 0}
   weaponRenderer: {fileID: 0}
   bowTransform: {fileID: 0}

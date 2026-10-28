@@ -92,6 +92,10 @@ namespace ESS.UI.GamePlay
                     if (skillComponent is ISkill skill)
                     {
                         skill.ConfigureCharacterPresentation(skillConfig.icon, skillConfig.soundEffect);
+                        if (skillComponent is ESS.Objects.Player.Archer.Skills.ArcherSkill archerSkill)
+                            archerSkill.ConfigureVisuals(skillConfig.visuals);
+                        if (skillComponent is ESS.Objects.Player.Sword.Skills.SwordSkill swordSkill)
+                            swordSkill.ConfigureVisuals(skillConfig.visuals);
                         activeSkills.Add(skillComponent);
                     }
                     else if (skillComponent != null)

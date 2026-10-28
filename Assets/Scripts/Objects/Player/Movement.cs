@@ -279,7 +279,6 @@ namespace ESS.Objects.Player
 			}
 
 			movement.Normalize();
-
 			if (rb != null)
 			{
 				rb.velocity = movement * activeMoveSpeed;

@@ -11,6 +11,7 @@ namespace ESS.Objects.Player.Sword.Skills
 		[SerializeField] private Image skillIcon;
 
 		private float cooldownRemaining;
+		private SkillVisualConfig visuals;
 		public override float Cooldown => cooldown;
 		public override float CooldownRemaining => cooldownRemaining;
 		public override float ManaCost => manaCost;
@@ -28,6 +29,11 @@ namespace ESS.Objects.Player.Sword.Skills
 			}
 		}
 
+		public void ConfigureVisuals(SkillVisualConfig config)
+		{
+			visuals = config;
+		}
+
 		protected bool TryBeginCast()
 		{
 			if (!CanExecute)
@@ -37,6 +43,8 @@ namespace ESS.Objects.Player.Sword.Skills
 
 			cooldownRemaining = cooldown;
 			PlayCharacterSkillSound();
+			if (visuals != null && visuals.castEffectPrefab != null)
+				Instantiate(visuals.castEffectPrefab, Owner.transform.position, Quaternion.identity);
 			return true;
 		}
 

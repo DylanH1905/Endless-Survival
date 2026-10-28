@@ -27,15 +27,51 @@ MonoBehaviour:
     - skill: {fileID: 11500000, guid: 3c33309d23ee4d5d9918190240be3072, type: 3}
       icon: {fileID: -1609503121, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 0}
+        projectileTint: {r: 1, g: 1, b: 1, a: 1}
+        projectileScale: 1
+        projectileRotationOffset: 0
+        useProjectileTrail: 1
     - skill: {fileID: 11500000, guid: 4d444fe8ba654b89978a0f54892d1b76, type: 3}
       icon: {fileID: -1256472710, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 2008791373, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
+        projectileTint: {r: 0.35, g: 0.85, b: 1, a: 1}
+        projectileScale: 0.4
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
     - skill: {fileID: 11500000, guid: 5e555dd8c8c849ca854190a52c60378a, type: 3}
       icon: {fileID: 1464934986, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 2008791373, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
+        projectileTint: {r: 0.89433956, g: 0.059060033, b: 0.059060033, a: 1}
+        projectileScale: 0.7
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
     - skill: {fileID: 11500000, guid: 6f666858f2f54669b6c5cfb0c3322e27, type: 3}
       icon: {fileID: 1569656654, guid: ef1af2b8d7ae70c4eac82dc305b03498, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 1265023908, guid: 136afa44f17e4aa439947041bec811f9, type: 3}
+        projectileTint: {r: 0.10720536, g: 0.67693585, b: 0.90188676, a: 1}
+        projectileScale: 0.3
+        projectileRotationOffset: -90
+        useProjectileTrail: 0
   visuals:
     flipHeadTowardTarget: 1
     weaponAimMode: 2

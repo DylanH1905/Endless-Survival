@@ -8,7 +8,7 @@ namespace ESS.Objects.Player.Archer
         {
             maxHealth = 1500;
             attackDamage = 8;
-            speed = 1.5f;
+            speed = 5f;
         }
     }
 }

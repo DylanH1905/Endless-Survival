@@ -87,9 +87,27 @@ namespace ESS.Objects.Player.Archer
 			arrowPullbackDistance = Mathf.Max(pullbackDistance, 0f);
 		}
 
+		public void SetChargeAnimation(bool isCharging)
+		{
+			if (bowRenderer != null)
+				bowRenderer.sprite = isCharging && drawingBowSprite != null
+					? drawingBowSprite
+					: defaultBowSprite;
+		}
+
 		public void ConfigureAttackRange(float range)
 		{
 			attackRange = Mathf.Max(range, 0f);
+		}
+
+		protected override void OnAttackSuppressed()
+		{
+			if (bowDrawRoutine != null)
+			{
+				StopCoroutine(bowDrawRoutine);
+				bowDrawRoutine = null;
+			}
+			ResetBow();
 		}
 
 		public void ApplyAttackSpeedBoost(float multiplier, float duration)

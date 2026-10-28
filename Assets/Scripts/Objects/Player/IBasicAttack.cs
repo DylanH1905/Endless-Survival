@@ -11,13 +11,27 @@ namespace ESS.Objects.Player
 		[SerializeField] protected float attackCooldown = 0.5f;
 
 		private float attackTimer;
+		private bool attackSuppressed;
+
+		public void SetAttackSuppressed(bool suppressed)
+		{
+			if (attackSuppressed == suppressed) return;
+			attackSuppressed = suppressed;
+			if (suppressed)
+			{
+				target = null;
+				OnAttackSuppressed();
+			}
+		}
+
+		protected virtual void OnAttackSuppressed() { }
 
 		public float AttacksPerSecond =>
 			attackCooldown > 0f ? 1f / attackCooldown : 0f;
 
 		protected virtual void Update()
 		{
-			if (!CanAttack)
+			if (!CanAttack || attackSuppressed)
 			{
 				target = null;
 				return;

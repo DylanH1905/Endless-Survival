@@ -12,6 +12,7 @@ namespace ESS.Objects.Player.Archer.Skills
 		[SerializeField] private Image skillIcon;
 
 		private float cooldownRemaining;
+		private SkillVisualConfig visuals;
 		protected IPlayer Owner => GetComponent<IPlayer>() ?? GetComponentInParent<IPlayer>();
 		public override float Cooldown => cooldown;
 		public override float CooldownRemaining => cooldownRemaining;
@@ -21,11 +22,18 @@ namespace ESS.Objects.Player.Archer.Skills
 		public override Image SkillIcon => skillIcon;
 		public override int Level { get; set; } = 1;
 
+		public void ConfigureVisuals(SkillVisualConfig config)
+		{
+			visuals = config;
+		}
+
 		protected bool TryBeginCast()
 		{
 			if (!CanExecute) return false;
 			cooldownRemaining = cooldown;
 			PlayCharacterSkillSound();
+			if (visuals != null && visuals.castEffectPrefab != null)
+				Instantiate(visuals.castEffectPrefab, Owner.transform.position, Quaternion.identity);
 			return true;
 		}
 
@@ -69,13 +77,15 @@ namespace ESS.Objects.Player.Archer.Skills
 
 		protected void FireArrow(Vector2 direction, int damage, float range, float projectileSpeed,
 			float collisionRadius, bool piercing, Color color,
-			float slowDuration = 0f, float slowMultiplier = 1f, float stunDuration = 0f)
+			float slowDuration = 0f, float slowMultiplier = 1f, float stunDuration = 0f,
+			SkillVisualConfig skillVisuals = null, bool destroysBossProjectiles = false)
 		{
 			GameObject arrowObject = new GameObject("ArcherSkillArrow");
 			arrowObject.transform.position = Owner.transform.position;
 			StraightArrowProjectile projectile = arrowObject.AddComponent<StraightArrowProjectile>();
 			projectile.Initialize(direction, damage, range, projectileSpeed, collisionRadius,
-				piercing, color, slowDuration, slowMultiplier, stunDuration);
+				piercing, color, slowDuration, slowMultiplier, stunDuration,
+				skillVisuals ?? visuals, destroysBossProjectiles);
 		}
 	}
 }

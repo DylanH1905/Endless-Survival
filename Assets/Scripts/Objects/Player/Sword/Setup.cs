@@ -8,7 +8,7 @@ namespace ESS.Objects.Player.Sword
 		{
 			maxHealth = 2500;
 			attackDamage = 40;
-			speed = 1f;
+			speed = 4f;
 		}
 	}
 }

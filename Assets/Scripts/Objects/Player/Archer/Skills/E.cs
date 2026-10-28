@@ -20,19 +20,23 @@ namespace ESS.Objects.Player.Archer.Skills
 			if (!CanExecute || IsCharging) return;
 			chargeTime = 0f;
 			IsCharging = true;
+			Owner.GetComponent<IBasicAttack>()?.SetAttackSuppressed(true);
+			Owner.GetComponent<ESS.Objects.Player.Archer.BasicAttack>()?.SetChargeAnimation(true);
 		}
 
 		public void ReleaseCharge()
 		{
 			if (!IsCharging) return;
 			IsCharging = false;
+			Owner.GetComponent<BasicAttack>()?.SetChargeAnimation(false);
+			Owner.GetComponent<IBasicAttack>()?.SetAttackSuppressed(false);
 			if (!TryBeginCast()) return;
 
 			float charge = ChargeProgress;
 			float range = Mathf.Lerp(minRange, maxRange, charge);
 			int damage = Mathf.Max(1, Mathf.RoundToInt(Owner.attackDamage * damageMultiplier * (0.5f + charge * 0.5f)));
 			FireArrow(GetAimDirection(), damage, range, projectileSpeed, 0.24f, true,
-				new Color(1f, 0.75f, 0.25f));
+				new Color(1f, 0.75f, 0.25f), destroysBossProjectiles: true);
 			chargeTime = 0f;
 		}
 
