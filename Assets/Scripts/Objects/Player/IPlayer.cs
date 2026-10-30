@@ -6,6 +6,7 @@ namespace ESS.Objects.Player
 	public class IPlayer : ObjectCharacter
 	{
 		public static event System.Action<IPlayer> OnDeath;
+		public static event System.Action<IPlayer> OnLevelUp;
 
 		[Header("Collider")]
 		[SerializeField] private float colliderRadius = 0.4f;
@@ -109,6 +110,7 @@ namespace ESS.Objects.Player
 			experienceToNextLevel = Mathf.RoundToInt(
 				experienceToNextLevel * experienceToNextLevelGrowth
 			);
+			OnLevelUp?.Invoke(this);
 		}
 
 		private void EnsureCollider()

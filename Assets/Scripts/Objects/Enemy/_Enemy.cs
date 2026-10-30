@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ESS;
 using UnityEngine;
 
 namespace ESS.Objects.Enemy
@@ -11,6 +12,10 @@ namespace ESS.Objects.Enemy
         public void Start()
         {
             InitializeStats();
+            if (!(this is Boss))
+            {
+                GamePlayManager.Instance?.ApplyEnemyLevelScaling(this);
+            }
         }
 
         public virtual void InitializeStats()

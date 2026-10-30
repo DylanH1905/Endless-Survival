@@ -90,5 +90,19 @@ namespace ESS.Objects.Enemy
             bodyRenderer.sprite = biteSprite;
             biteTimer = biteDuration;
         }
+
+        public void SetSprites(Sprite idleSprite, Sprite attackSprite)
+        {
+            if (idleSprite != null)
+            {
+                restBodySprite = idleSprite;
+                if (bodyRenderer != null && biteTimer <= 0f)
+                {
+                    bodyRenderer.sprite = idleSprite;
+                }
+            }
+
+            biteSprite = attackSprite;
+        }
     }
 }

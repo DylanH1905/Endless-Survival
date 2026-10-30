@@ -8,6 +8,7 @@ namespace ESS.Objects.Player.Sword.Skills
 		[SerializeField, Min(0.1f)] private float cooldown = 8f;
 		[SerializeField, Min(0f)] private float manaCost;
 		[SerializeField] private bool isUnlocked = true;
+		private int requiredPlayerLevel = 1;
 		[SerializeField] private Image skillIcon;
 
 		private float cooldownRemaining;
@@ -22,7 +23,9 @@ namespace ESS.Objects.Player.Sword.Skills
 			cooldownRemaining = Mathf.Min(cooldownRemaining, cooldown);
 		}
 		public override float ManaCost => manaCost;
-		public override bool IsUnlocked => isUnlocked;
+		public override bool IsUnlocked => isUnlocked && Owner != null && Owner.level >= requiredPlayerLevel;
+		public override int RequiredPlayerLevel => requiredPlayerLevel;
+		public override void ConfigureRequiredPlayerLevel(int level) => requiredPlayerLevel = Mathf.Max(1, level);
 		public override bool CanExecute => IsUnlocked && cooldownRemaining <= 0f && Owner != null && !Owner.IsDead;
 		public override Image SkillIcon => skillIcon;
 		public override int Level { get; set; } = 1;

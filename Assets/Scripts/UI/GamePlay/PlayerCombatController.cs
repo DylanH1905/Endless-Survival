@@ -96,6 +96,7 @@ namespace ESS.UI.GamePlay
                     if (skillComponent is ISkill skill)
                     {
                         skill.ConfigureCooldown(skillConfig.cooldown);
+                        skill.ConfigureRequiredPlayerLevel(skillConfig.minimumPlayerLevel);
                         skill.ConfigureCharacterPresentation(skillConfig.icon, skillConfig.soundEffect);
                         if (skillComponent is ESS.Objects.Player.Archer.Skills.ArcherSkill archerSkill)
                             archerSkill.ConfigureVisuals(skillConfig.visuals);

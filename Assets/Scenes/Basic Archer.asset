@@ -25,6 +25,7 @@ MonoBehaviour:
     skills: []
     skillConfigs:
     - skill: {fileID: 11500000, guid: 3c33309d23ee4d5d9918190240be3072, type: 3}
+      minimumPlayerLevel: 1
       skillName: Rapid Fire
       description: Temporarily increase your basic attack speed.
       cooldown: 10
@@ -40,6 +41,7 @@ MonoBehaviour:
         projectileRotationOffset: 0
         useProjectileTrail: 1
     - skill: {fileID: 11500000, guid: 4d444fe8ba654b89978a0f54892d1b76, type: 3}
+      minimumPlayerLevel: 3
       skillName: Frost Volley
       description: Fire three frost arrows in a spread, slowing enemies they hit.
       cooldown: 10
@@ -55,6 +57,7 @@ MonoBehaviour:
         projectileRotationOffset: 0
         useProjectileTrail: 0
     - skill: {fileID: 11500000, guid: 5e555dd8c8c849ca854190a52c60378a, type: 3}
+      minimumPlayerLevel: 5
       skillName: Piercing Draw
       description: Charge and release a piercing arrow; longer charge increases its
         range and damage.
@@ -71,6 +74,7 @@ MonoBehaviour:
         projectileRotationOffset: 0
         useProjectileTrail: 0
     - skill: {fileID: 11500000, guid: 6f666858f2f54669b6c5cfb0c3322e27, type: 3}
+      minimumPlayerLevel: 7
       skillName: Glacier Arrow
       description: Fire a heavy ice arrow that damages and stuns its target.
       cooldown: 10

@@ -298,6 +298,14 @@ namespace ESS.Objects.Player
 			{
 				if (view.Skill == null || view.Button == null) continue;
 				view.Button.interactable = view.Skill.CanExecute;
+				if (!view.Skill.IsUnlocked)
+				{
+					view.CooldownOverlay.enabled = true;
+					view.CooldownOverlay.fillAmount = 1f;
+					view.CooldownOverlay.color = new Color(0f, 0f, 0f, 0.82f);
+					view.CooldownText.text = $"Lv. {view.Skill.RequiredPlayerLevel}";
+					continue;
+				}
 				float cooldown = Mathf.Max(view.Skill.Cooldown, 0.01f);
 				float remaining = Mathf.Max(view.Skill.CooldownRemaining, 0f);
 				if (view.Skill is IChargeableSkill chargeable && chargeable.IsCharging)

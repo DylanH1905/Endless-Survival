@@ -14,6 +14,8 @@ namespace ESS.Objects.Player
 		public abstract void ConfigureCooldown(float cooldown);
 		public abstract float ManaCost { get; }
 		public abstract bool IsUnlocked { get; }
+		public virtual int RequiredPlayerLevel => 1;
+		public virtual void ConfigureRequiredPlayerLevel(int level) { }
 		public abstract bool CanExecute { get; }
 		public abstract Image SkillIcon { get; }
 		public Sprite CharacterIcon => characterIcon;

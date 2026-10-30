@@ -47,11 +47,16 @@ namespace ESS
 
         private void Update()
         {
-			IPlayer playerComponent = player.GetComponent<IPlayer>();
-			
-			Info($"Player is dead: {playerComponent.IsDead}");
+            if (player == null)
+            {
+                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject == null) return;
+                player = playerObject.transform;
+            }
 
-            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies || player == null || playerComponent.IsDead)
+            IPlayer playerComponent = player.GetComponent<IPlayer>();
+
+            if ((enemyPrefab == null && (minionObject == null || minionSprite == null)) || targetCamera == null || EnemyCount() >= maxEnemies || playerComponent == null || playerComponent.IsDead)
             {
                 return;
             }
@@ -92,6 +97,22 @@ namespace ESS
             {
                 focusPlayer.SetSprites(minionSprite, minionBiteSprite);
             }
+        }
+
+        public GameObject SpawnBossPrefab(GameObject bossPrefab)
+        {
+            if (bossPrefab == null || targetCamera == null)
+            {
+                return null;
+            }
+
+            Vector2 spawnPosition = GetSpawnPosition();
+            float zPosition = player != null ? player.position.z : 0f;
+            return Instantiate(
+                bossPrefab,
+                new Vector3(spawnPosition.x, spawnPosition.y, zPosition),
+                Quaternion.identity
+            );
         }
 
         private GameObject CreateMinion(Vector3 position)
