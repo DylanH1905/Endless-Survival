@@ -15,6 +15,8 @@ namespace ESS.Objects
 
         private int shieldHealth;
         private Coroutine shieldRoutine;
+        public bool HasActiveShield => shieldHealth > 0;
+        public float ShieldCollisionRadius { get; private set; }
         private float slowMultiplier = 1f;
         private float slowRemaining;
         private float stunRemaining;
@@ -58,7 +60,7 @@ namespace ESS.Objects
             }
         }
 
-        public void GrantShield(int amount, float duration)
+        public void GrantShield(int amount, float duration, float collisionRadius = 0f)
         {
             if (IsDead || amount <= 0 || duration <= 0f)
             {
@@ -66,6 +68,7 @@ namespace ESS.Objects
             }
 
             shieldHealth = amount;
+            ShieldCollisionRadius = Mathf.Max(collisionRadius, 0f);
             if (shieldRoutine != null)
             {
                 StopCoroutine(shieldRoutine);
@@ -78,6 +81,7 @@ namespace ESS.Objects
         {
             yield return new WaitForSeconds(duration);
             shieldHealth = 0;
+            ShieldCollisionRadius = 0f;
             shieldRoutine = null;
         }
 

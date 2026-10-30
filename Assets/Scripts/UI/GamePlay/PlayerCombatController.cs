@@ -69,10 +69,14 @@ namespace ESS.UI.GamePlay
                 ownsActiveBasicAttack = activeBasicAttack != null;
             }
 
-			if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack)
+            if (activeBasicAttack is IBasicAttack basicAttack)
             {
-				archerAttack.ConfigureAttackRange(character.attackRange);
+                basicAttack.ConfigureAttackRange(character.attackRange);
+                basicAttack.ConfigureAttacksPerSecond(character.attackSpeed);
+            }
 
+            if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack)
+            {
 				if (character.visuals != null)
 				{
 					archerAttack.ConfigureBowAnimation(
@@ -91,6 +95,7 @@ namespace ESS.UI.GamePlay
                     Component skillComponent = AddCombatComponent(skillConfig.skill);
                     if (skillComponent is ISkill skill)
                     {
+                        skill.ConfigureCooldown(skillConfig.cooldown);
                         skill.ConfigureCharacterPresentation(skillConfig.icon, skillConfig.soundEffect);
                         if (skillComponent is ESS.Objects.Player.Archer.Skills.ArcherSkill archerSkill)
                             archerSkill.ConfigureVisuals(skillConfig.visuals);

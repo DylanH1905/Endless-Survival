@@ -1,4 +1,5 @@
 using UnityEngine;
+using ESS.Objects;
 using ESS.Objects.Player;
 
 namespace ESS.Objects.Enemy
@@ -55,6 +56,16 @@ namespace ESS.Objects.Enemy
 
             Vector3 aimVector = target.transform.position - transform.position;
             float distance = aimVector.magnitude;
+            aimDirection = distance > Mathf.Epsilon ? aimVector / distance : aimDirection;
+            float travelDistance = speed * Time.deltaTime;
+            Vector3 nextPosition = transform.position
+                + aimDirection * Mathf.Min(travelDistance, distance);
+            if (IntersectsShield(transform.position, nextPosition))
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             if (distance <= hitDistance)
             {
                 target.TakeDamage(damage);
@@ -62,11 +73,9 @@ namespace ESS.Objects.Enemy
                 return;
             }
 
-            aimDirection = aimVector / distance;
             float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, aimAngle + spriteRotationOffset);
 
-            float travelDistance = speed * Time.deltaTime;
             if (distance <= travelDistance + hitDistance)
             {
                 target.TakeDamage(damage);
@@ -75,6 +84,28 @@ namespace ESS.Objects.Enemy
             }
 
             transform.position += aimDirection * travelDistance;
+        }
+
+        private bool IntersectsShield(Vector3 from, Vector3 to)
+        {
+            ObjectCharacter character = target as ObjectCharacter;
+            if (character == null
+                || !character.HasActiveShield
+                || character.ShieldCollisionRadius <= 0f)
+            {
+                return false;
+            }
+
+            Vector2 segment = (Vector2)(to - from);
+            Vector2 offset = (Vector2)character.transform.position - (Vector2)from;
+            float segmentLengthSquared = segment.sqrMagnitude;
+            float progress = segmentLengthSquared > Mathf.Epsilon
+                ? Mathf.Clamp01(Vector2.Dot(offset, segment) / segmentLengthSquared)
+                : 0f;
+            Vector2 closestPoint = (Vector2)from + segment * progress;
+            float radius = character.ShieldCollisionRadius + hitDistance;
+            return ((Vector2)character.transform.position - closestPoint).sqrMagnitude
+                <= radius * radius;
         }
 
         private void UpdateOpeningEffect()

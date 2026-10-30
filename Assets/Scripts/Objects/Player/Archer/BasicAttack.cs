@@ -95,9 +95,10 @@ namespace ESS.Objects.Player.Archer
 					: defaultBowSprite;
 		}
 
-		public void ConfigureAttackRange(float range)
+		public override void ConfigureAttacksPerSecond(float attacksPerSecond)
 		{
-			attackRange = Mathf.Max(range, 0f);
+			base.ConfigureAttacksPerSecond(attacksPerSecond);
+			defaultAttackCooldown = attackCooldown;
 		}
 
 		protected override void OnAttackSuppressed()

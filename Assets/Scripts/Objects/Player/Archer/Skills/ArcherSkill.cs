@@ -16,6 +16,11 @@ namespace ESS.Objects.Player.Archer.Skills
 		protected IPlayer Owner => GetComponent<IPlayer>() ?? GetComponentInParent<IPlayer>();
 		public override float Cooldown => cooldown;
 		public override float CooldownRemaining => cooldownRemaining;
+		public override void ConfigureCooldown(float value)
+		{
+			cooldown = Mathf.Max(0.1f, value);
+			cooldownRemaining = Mathf.Min(cooldownRemaining, cooldown);
+		}
 		public override float ManaCost => manaCost;
 		public override bool IsUnlocked => isUnlocked;
 		public override bool CanExecute => IsUnlocked && cooldownRemaining <= 0f && Owner != null && !Owner.IsDead;

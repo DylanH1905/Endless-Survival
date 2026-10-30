@@ -29,6 +29,17 @@ namespace ESS.Objects.Player
 		public float AttacksPerSecond =>
 			attackCooldown > 0f ? 1f / attackCooldown : 0f;
 
+		public void ConfigureAttackRange(float range)
+		{
+			attackRange = Mathf.Max(range, 0f);
+		}
+
+		public virtual void ConfigureAttacksPerSecond(float attacksPerSecond)
+		{
+			attackCooldown = 1f / Mathf.Max(attacksPerSecond, 0.1f);
+			attackTimer = 0f;
+		}
+
 		protected virtual void Update()
 		{
 			if (!CanAttack || attackSuppressed)

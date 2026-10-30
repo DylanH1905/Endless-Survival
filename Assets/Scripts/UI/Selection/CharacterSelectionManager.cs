@@ -1,6 +1,6 @@
 
+using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -14,7 +14,6 @@ namespace ESS.UI.Selection
 	{
 		[Header("Card UI")]
 		[SerializeField] private Sprite cardBackground;
-		[SerializeField] private Sprite cardDetailsBackground;
 
 		[Header("Character Data")]
 		[SerializeField] private List<CharacterData> characters = new();
@@ -22,17 +21,23 @@ namespace ESS.UI.Selection
 		[Header("UI")]
 		[SerializeField] private Button playButton;
 		[SerializeField] private string gameplaySceneName = "Gameplay";
+		[SerializeField] private Text nameText;
+		[SerializeField] private Text descriptionText;
+		[SerializeField] private Text healthText;
+		[SerializeField] private Text damageText;
+		[SerializeField] private Text speedText;
+		[SerializeField] private Text rangeText;
+		[SerializeField] private Text skillCountdownText;
+		[SerializeField] private SkillDetailView[] skillDetails =
+		{
+			new SkillDetailView(), new SkillDetailView(),
+			new SkillDetailView(), new SkillDetailView()
+		};
 
 		private readonly List<Button> cards = new();
 		private readonly List<CharacterData> cardData = new();
 
 		private Transform cardContainer;
-		private TextMeshProUGUI nameText;
-		private TextMeshProUGUI descriptionText;
-		private TextMeshProUGUI healthText;
-		private TextMeshProUGUI damageText;
-		private TextMeshProUGUI speedText;
-		private TextMeshProUGUI rangeText;
 
 		private CharacterData selectedCharacter;
 
@@ -91,15 +96,6 @@ namespace ESS.UI.Selection
 				new Color(0.10f, 0.12f, 0.18f, 0.0f)
 			);
 
-			GameObject detailPanel = CreatePanel(
-				"CharacterDetails", root,
-				new Vector2(0.45f, 0.10f),
-				new Vector2(0.95f, 0.95f),
-				new Color(1.0f, 1.0f, 1.0f, 1.0f)
-			);
-
-			detailPanel.GetComponent<Image>().sprite = cardDetailsBackground;
-
 			cardContainer = listPanel.transform;
 
 			GridLayoutGroup grid = listPanel.AddComponent<GridLayoutGroup>();
@@ -112,37 +108,6 @@ namespace ESS.UI.Selection
 			grid.startAxis = GridLayoutGroup.Axis.Vertical;
 			grid.constraintCount = 1;
 			grid.childAlignment = TextAnchor.MiddleLeft;
-
-			nameText = CreateText(
-				"CharacterName", detailPanel.transform,
-				new Vector2(0.08f, 0.71f),
-				new Vector2(0.92f, 0.86f),
-				72, FontStyles.Bold
-			);
-			nameText.alignment = TextAlignmentOptions.Center;
-
-			descriptionText = CreateText(
-				"Description", detailPanel.transform,
-				new Vector2(0.08f, 0.58f),
-				new Vector2(0.92f, 0.75f),
-				36, FontStyles.Normal
-			);
-
-			healthText = CreateText("Health", detailPanel.transform,
-				new Vector2(0.08f, 0.46f),
-				new Vector2(0.92f, 0.55f), 36, FontStyles.Normal);
-
-			damageText = CreateText("Damage", detailPanel.transform,
-				new Vector2(0.08f, 0.36f),
-				new Vector2(0.92f, 0.45f), 36, FontStyles.Normal);
-
-			speedText = CreateText("AttackSpeed", detailPanel.transform,
-				new Vector2(0.08f, 0.26f),
-				new Vector2(0.92f, 0.35f), 36, FontStyles.Normal);
-
-			rangeText = CreateText("AttackRange", detailPanel.transform,
-				new Vector2(0.08f, 0.16f),
-				new Vector2(0.92f, 0.25f), 36, FontStyles.Normal);
 
 			foreach (CharacterData character in characters)
 			{
@@ -175,38 +140,6 @@ namespace ESS.UI.Selection
 			panel.GetComponent<Image>().color = color;
 
 			return panel;
-		}
-
-		private TextMeshProUGUI CreateText(
-			string objectName,
-			Transform parent,
-			Vector2 anchorMin,
-			Vector2 anchorMax,
-			float fontSize,
-			FontStyles style)
-		{
-			GameObject obj = new GameObject(
-				objectName,
-				typeof(RectTransform),
-				typeof(CanvasRenderer),
-				typeof(TextMeshProUGUI));
-
-			obj.transform.SetParent(parent, false);
-
-			RectTransform rect = obj.GetComponent<RectTransform>();
-			rect.anchorMin = anchorMin;
-			rect.anchorMax = anchorMax;
-			rect.offsetMin = Vector2.zero;
-			rect.offsetMax = Vector2.zero;
-
-			TextMeshProUGUI text = obj.GetComponent<TextMeshProUGUI>();
-			text.fontSize = fontSize;
-			text.fontStyle = style;
-			text.color = Color.white;
-			text.alignment = TextAlignmentOptions.MidlineLeft;
-			// text.textWrappingMode = TextWrappingModes.Normal;
-
-			return text;
 		}
 
 		private void CreateCard(CharacterData character)
@@ -245,8 +178,7 @@ namespace ESS.UI.Selection
 
 			portrait.transform.SetParent(card.transform, false);
 
-			RectTransform portraitRect =
-				portrait.GetComponent<RectTransform>();
+			RectTransform portraitRect = portrait.GetComponent<RectTransform>();
 
 			portraitRect.anchorMin = new Vector2(0.055f, 0.23f);
 			portraitRect.anchorMax = new Vector2(0.285f, 0.87f);
@@ -263,28 +195,27 @@ namespace ESS.UI.Selection
 			GameObject label = new GameObject(
 				"Name",
 				typeof(RectTransform),
-				typeof(TextMeshProUGUI)
+				typeof(Text)
 			);
 
 			label.transform.SetParent(card.transform, false);
 
-			RectTransform labelRect =
-				label.GetComponent<RectTransform>();
+			RectTransform labelRect = label.GetComponent<RectTransform>();
 
 			labelRect.anchorMin = new Vector2(0.34f, 0.4f);
 			labelRect.anchorMax = new Vector2(0.88f, 0.75f);
 			labelRect.offsetMin = Vector2.zero;
 			labelRect.offsetMax = Vector2.zero;
 
-			TextMeshProUGUI labelText =
-				label.GetComponent<TextMeshProUGUI>();
+			Text labelText = label.GetComponent<Text>();
 
 			labelText.text = character.characterName;
+			labelText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 			labelText.fontSize = 36;
 			labelText.color = Color.white;
-			labelText.alignment = TextAlignmentOptions.Center;
-			labelText.enableWordWrapping = false;
-			labelText.overflowMode = TextOverflowModes.Ellipsis;
+			labelText.alignment = TextAnchor.MiddleCenter;
+			labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+			labelText.verticalOverflow = VerticalWrapMode.Truncate;
 			labelText.raycastTarget = false;
 
 			// Click Card
@@ -313,12 +244,66 @@ namespace ESS.UI.Selection
 					: new Color(0.22f, 0.25f, 0.34f);
 			}
 
-			nameText.text = character.characterName;
-			descriptionText.text = character.description;
-			healthText.text = $"Health: {character.maxHealth:0}";
-			damageText.text = $"Damage: {character.damage:0.##}";
-			speedText.text = $"Attack Speed: {character.attackSpeed:0.##}";
-			rangeText.text = $"Attack Range: {character.attackRange:0.##}";
+			if (nameText != null) nameText.text = character.characterName;
+			if (descriptionText != null) descriptionText.text = character.description;
+			if (healthText != null) healthText.text = $"{character.maxHealth:0}";
+			if (damageText != null) damageText.text = $"{character.damage:0.##}";
+			if (speedText != null) speedText.text = $"{character.attackSpeed:0.##}";
+			if (rangeText != null) rangeText.text = $"{character.attackRange:0.##}";
+
+			CharacterSkillConfig[] configs = character.combat?.skillConfigs;
+			for (int index = 0; index < skillDetails.Length; index++)
+			{
+				CharacterSkillConfig config = configs != null && index < configs.Length
+					? configs[index]
+					: null;
+				skillDetails[index].Set(config);
+			}
+
+			if (skillCountdownText != null)
+			{
+				List<string> cooldownLines = new();
+				if (configs != null)
+				{
+					foreach (CharacterSkillConfig config in configs)
+					{
+						if (config == null) continue;
+						string skillName = string.IsNullOrEmpty(config.skillName)
+							? config.skill?.name
+							: config.skillName;
+						cooldownLines.Add($"{skillName}: {config.cooldown:0.##}s");
+					}
+				}
+				skillCountdownText.text = string.Join("\n", cooldownLines);
+			}
+		}
+
+		[Serializable]
+		private class SkillDetailView
+		{
+			[SerializeField] private Transform group;
+			[SerializeField] private Image icon;
+			[SerializeField] private Text nameText;
+			[SerializeField] private Text descriptionText;
+			[SerializeField] private Text countdownText;
+
+			public void Set(CharacterSkillConfig config)
+			{
+				if (group != null) group.gameObject.SetActive(config != null);
+				if (config == null) return;
+
+				if (icon != null)
+				{
+					icon.sprite = config.icon;
+					icon.enabled = config.icon != null;
+				}
+				if (nameText != null)
+					nameText.text = string.IsNullOrEmpty(config.skillName) ? config.skill?.name : config.skillName;
+				if (descriptionText != null)
+					descriptionText.text = config.description;
+				if (countdownText != null)
+					countdownText.text = $"{config.cooldown:0.##}s";
+			}
 		}
 
 		private void PlayGame()

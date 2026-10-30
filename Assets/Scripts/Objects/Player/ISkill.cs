@@ -11,6 +11,7 @@ namespace ESS.Objects.Player
 		public abstract string SkillName { get; }
 		public abstract float Cooldown { get; }
 		public abstract float CooldownRemaining { get; }
+		public abstract void ConfigureCooldown(float cooldown);
 		public abstract float ManaCost { get; }
 		public abstract bool IsUnlocked { get; }
 		public abstract bool CanExecute { get; }

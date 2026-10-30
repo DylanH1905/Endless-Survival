@@ -16,9 +16,9 @@ MonoBehaviour:
   characterName: Swordman
   description: 
   portrait: {fileID: -125378704, guid: 8170d2b7411966a408527fe4f3c1cc41, type: 3}
-  maxHealth: 150
-  damage: 12
-  attackSpeed: 1
+  maxHealth: 1500
+  damage: 20
+  attackSpeed: 1.5
   attackRange: 1
   combat:
     basicAttack: {fileID: 11500000, guid: cd554af037492b44899429f6f455f4d2, type: 3}
@@ -29,17 +29,68 @@ MonoBehaviour:
     - {fileID: 11500000, guid: 5bb7db93abec2a84e81127deae63e909, type: 3}
     skillConfigs:
     - skill: {fileID: 11500000, guid: c65d6e110faa95a46a553fda2f88dc94, type: 3}
+      skillName: Lightning Chain
+      description: Chain lightning strikes up to four nearby enemies, jumping between
+        targets.
+      cooldown: 8
       icon: {fileID: -2012126932, guid: 884c7db769ed23a4e9ee081a6324f0b9, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: -756215021, guid: 8db7b52d9983f824888578a006487fb4, type: 3}
+        projectileTint: {r: 0.0127091, g: 0.53455025, b: 0.9622642, a: 1}
+        projectileScale: 5
+        projectileRotationOffset: 0
+        useProjectileTrail: 1
     - skill: {fileID: 11500000, guid: 84d7dc1879f543b44ac8c19dbe326324, type: 3}
+      skillName: Aegis Shield
+      description: Surround yourself with a protective shield that absorbs incoming
+        damage.
+      cooldown: 8
       icon: {fileID: 1217726708, guid: 884c7db769ed23a4e9ee081a6324f0b9, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: -1393728150, guid: 482041d6e138b0e4cb0fb57dba9edfb5, type: 3}
+        projectileTint: {r: 0.4943396, g: 0.37588462, b: 0.37588462, a: 1}
+        projectileScale: 0.2
+        projectileRotationOffset: 0
+        useProjectileTrail: 1
     - skill: {fileID: 11500000, guid: 3e13e7b562e526b4ab61a0197d89ee87, type: 3}
+      skillName: Quickstep
+      description: Dash quickly in your movement direction or toward the nearest
+        enemy.
+      cooldown: 8
       icon: {fileID: -234943882, guid: 884c7db769ed23a4e9ee081a6324f0b9, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 0}
+        projectileTint: {r: 1, g: 1, b: 1, a: 1}
+        projectileScale: 1
+        projectileRotationOffset: 0
+        useProjectileTrail: 1
     - skill: {fileID: 11500000, guid: 5bb7db93abec2a84e81127deae63e909, type: 3}
+      skillName: Heavy Cleave
+      description: Deliver a powerful sweeping strike to enemies in a wide cone.
+      cooldown: 8
       icon: {fileID: -207745961, guid: 884c7db769ed23a4e9ee081a6324f0b9, type: 3}
       soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 633726659, guid: 8170d2b7411966a408527fe4f3c1cc41, type: 3}
+        projectileTint: {r: 0.9924528, g: 0.9368031, b: 0, a: 1}
+        projectileScale: 1
+        projectileRotationOffset: 0
+        useProjectileTrail: 1
   visuals:
     flipHeadTowardTarget: 1
     weaponAimMode: 1

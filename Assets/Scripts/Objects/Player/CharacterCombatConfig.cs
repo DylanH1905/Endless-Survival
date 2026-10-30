@@ -19,6 +19,9 @@ namespace ESS.Objects.Player
 	{
 		[Tooltip("Concrete MonoBehaviour implementing ISkill.")]
 		public MonoScript skill;
+		public string skillName;
+		[TextArea(2, 4)] public string description;
+		[Min(0.1f)] public float cooldown = 8f;
 		public Sprite icon;
 		public AudioClip soundEffect;
 		[Tooltip("Optional per-skill effects and projectile appearance.")]

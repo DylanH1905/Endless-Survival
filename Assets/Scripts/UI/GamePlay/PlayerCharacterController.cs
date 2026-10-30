@@ -40,6 +40,14 @@ namespace ESS.UI.GamePlay
 			if (powerRenderer != null)
 				powerRenderer.sprite = character.power;
 
+			IPlayer player = GetComponent<IPlayer>();
+			if (player != null)
+			{
+				player.maxHealth = Mathf.Max(1, Mathf.RoundToInt(character.maxHealth));
+				player.health = player.maxHealth;
+				player.attackDamage = Mathf.Max(0, Mathf.RoundToInt(character.damage));
+			}
+
 			if (movementController == null)
 				movementController = GetComponent<Movement>();
 
