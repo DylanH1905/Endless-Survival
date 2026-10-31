@@ -2022,13 +2022,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c14b97831f0b3bc4ca185ebd42ce768a, type: 2}
   playButton: {fileID: 1225566933}
   gameplaySceneName: Gameplay
-  characterDetailPanel: {fileID: 0}
   nameText: {fileID: 1130999870}
   descriptionText: {fileID: 386808091}
   healthText: {fileID: 1147834933}
   damageText: {fileID: 1507909073}
   speedText: {fileID: 1383123054}
   rangeText: {fileID: 1742117925}
+  skillCountdownText: {fileID: 0}
   skillDetails:
   - group: {fileID: 1666177796}
     icon: {fileID: 1232624763}

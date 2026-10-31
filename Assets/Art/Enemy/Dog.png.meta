@@ -93,53 +93,53 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Dog
+      name: Dog_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 174
+        x: 29
+        y: 172
         width: 200
         height: 200
       alignment: 9
-      pivot: {x: 0.5215418, y: 0.30373108}
+      pivot: {x: 0.41143963, y: 0.32048568}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d8e67f6bafc60bc41b2f5f6304be6538
-      internalID: -1977850866
+      spriteID: 0ac679733deef8143856b0c0558ab46c
+      internalID: 457166097
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dog_Bitch
+      name: Dog_1
       rect:
         serializedVersion: 2
-        x: 250
-        y: 174
+        x: 231
+        y: 171
         width: 250
         height: 200
       alignment: 9
-      pivot: {x: 0.34107006, y: 0.29655045}
+      pivot: {x: 0.6359524, y: 0.3348468}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 398b9fe6754999b4da7c03436a42e987
-      internalID: 692249103
+      spriteID: d9141fb3e6f9397458c295786263837c
+      internalID: -2064060560
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dog_Power
+      name: Dog_4
       rect:
         serializedVersion: 2
-        x: 504
-        y: 203
+        x: 501
+        y: 205
         width: 100
         height: 100
       alignment: 0
@@ -149,50 +149,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 70c978401526dc348a69c2a0ed3bb93e
-      internalID: 562811004
+      spriteID: 4acfcf1438264a14ab3e240352181c5f
+      internalID: 1455326008
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dog_Wing_Left
+      name: Dog_15
       rect:
         serializedVersion: 2
-        x: 66
+        x: 71
         y: 29
-        width: 175
-        height: 125
-      alignment: 8
-      pivot: {x: 1, y: 0}
+        width: 169
+        height: 124
+      alignment: 9
+      pivot: {x: 0.92771846, y: 0.22976328}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: efba253b41bb2fe48809937116597af2
-      internalID: 100792251
+      spriteID: 8c18af9c2fd810540b60c5b5de7a5d88
+      internalID: 1833162455
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dog_Wing_Right
+      name: Dog_16
       rect:
         serializedVersion: 2
-        x: 362
-        y: 30
-        width: 175
-        height: 125
-      alignment: 6
-      pivot: {x: 0, y: 0}
+        x: 364
+        y: 29
+        width: 167
+        height: 124
+      alignment: 9
+      pivot: {x: 0.078625344, y: 0.26064757}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 51b59bde39019854ea456d9023484fef
-      internalID: -1488542442
+      spriteID: d906db88217c06e419c0441d53f5d873
+      internalID: 1737554771
       vertices: []
       indices: 
       edges: []
@@ -208,23 +208,23 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Dog: -1977850866
+      Dog_0: 457166097
+      Dog_1: -2064060560
       Dog_10: -1172357018
       Dog_11: -577947762
       Dog_12: 1898530340
       Dog_13: 1912887700
       Dog_14: -219800009
+      Dog_15: 1833162455
+      Dog_16: 1737554771
       Dog_2: 1198082453
       Dog_3: -2080302826
+      Dog_4: 1455326008
       Dog_5: 1417824949
       Dog_6: -2019847780
       Dog_7: -328037308
       Dog_8: -398936128
       Dog_9: 1388524970
-      Dog_Bitch: 692249103
-      Dog_Power: 562811004
-      Dog_Wing_Left: 100792251
-      Dog_Wing_Right: -1488542442
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

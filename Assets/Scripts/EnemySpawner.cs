@@ -22,6 +22,7 @@ namespace ESS
         [SerializeField] private int maxEnemies = 20;
         [SerializeField] private float screenMargin = 0.08f;
         [SerializeField] private float minimumDistanceFromPlayer = 2f;
+        [SerializeField] private float maxBossSpawnDistance = 4f;
         [SerializeField] private bool spawnOnStart = true;
 
         private float spawnTimer;
@@ -95,7 +96,13 @@ namespace ESS
             FocusPlayer focusPlayer = spawnedEnemy.GetComponentInChildren<FocusPlayer>(true);
             if (focusPlayer != null)
             {
-                focusPlayer.SetSprites(minionSprite, minionBiteSprite);
+                BiteSpriteAnimation biteAnimation = focusPlayer.GetComponent<BiteSpriteAnimation>();
+                if (biteAnimation == null)
+                {
+                    biteAnimation = focusPlayer.gameObject.AddComponent<BiteSpriteAnimation>();
+                }
+
+                biteAnimation.SetSprites(minionSprite, minionBiteSprite);
             }
         }
 
@@ -106,13 +113,47 @@ namespace ESS
                 return null;
             }
 
-            Vector2 spawnPosition = GetSpawnPosition();
+            Vector2 spawnPosition = GetBossSpawnPosition();
             float zPosition = player != null ? player.position.z : 0f;
             return Instantiate(
                 bossPrefab,
                 new Vector3(spawnPosition.x, spawnPosition.y, zPosition),
                 Quaternion.identity
             );
+        }
+
+        private Vector2 GetBossSpawnPosition()
+        {
+            float margin = Mathf.Clamp(screenMargin, 0f, 0.45f);
+            float viewportX;
+
+            if (player != null)
+            {
+                Vector3 playerViewportPosition = targetCamera.WorldToViewportPoint(player.position);
+                viewportX = Mathf.Clamp(playerViewportPosition.x, margin, 1f - margin);
+            }
+            else
+            {
+                viewportX = Random.value < 0.5f ? margin : 1f - margin;
+            }
+
+            float cameraDistance = Mathf.Abs(targetCamera.transform.position.z);
+            Vector3 worldPosition = targetCamera.ViewportToWorldPoint(
+                new Vector3(viewportX, 1f - margin, cameraDistance));
+            Vector2 spawnPosition = new Vector2(worldPosition.x, worldPosition.y);
+
+            if (player != null)
+            {
+                Vector2 playerPosition = new Vector2(player.position.x, player.position.y);
+                Vector2 offset = spawnPosition - playerPosition;
+                float maxDistance = Mathf.Max(maxBossSpawnDistance, 0.1f);
+                if (offset.magnitude > maxDistance)
+                {
+                    spawnPosition = playerPosition + offset.normalized * maxDistance;
+                }
+            }
+
+            return spawnPosition;
         }
 
         private GameObject CreateMinion(Vector3 position)

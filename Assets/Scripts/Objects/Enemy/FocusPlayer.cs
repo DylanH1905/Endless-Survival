@@ -10,29 +10,29 @@ namespace ESS.Objects.Enemy
         [SerializeField] private float attackCooldown = 1f;
         [SerializeField] private bool ignoreOtherEnemies = true;
         [SerializeField] private bool spriteFacesRight;
-        [SerializeField] private Sprite biteSprite;
-        [SerializeField] private float biteDuration = 0.2f;
         [SerializeField] private float powerProjectileSpeed = 8f;
         [SerializeField] private float wanderInterval = 1.5f;
         [SerializeField] private float hiddenDetectionRange = 1.5f;
 
         private IEnemy enemy;
         private SpriteRenderer spriteRenderer;
+        private Transform bodyTransform;
+        private Vector3 bodyBaseScale;
         private Transform powerTransform;
-        private BossWingFlap bossWingFlap;
-        private Sprite defaultSprite;
         private float attackTimer;
-        private float biteTimer;
         private Vector2 wanderDirection;
         private float wanderTimer;
+
+        public event System.Action AttackStarted;
 
         private void Awake()
         {
             enemy = GetComponent<IEnemy>();
-            bossWingFlap = GetComponent<BossWingFlap>();
             Transform body = transform.Find("Body");
             if (body != null)
             {
+                bodyTransform = body;
+                bodyBaseScale = body.localScale;
                 spriteRenderer = body.GetComponent<SpriteRenderer>();
                 powerTransform = body.Find("Power");
             }
@@ -49,11 +49,6 @@ namespace ESS.Objects.Enemy
                 spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
             }
 
-            if (spriteRenderer != null)
-            {
-                defaultSprite = spriteRenderer.sprite;
-            }
-
             FindPlayer();
 
             if (ignoreOtherEnemies)
@@ -64,8 +59,6 @@ namespace ESS.Objects.Enemy
 
         private void Update()
         {
-            UpdateBiteAnimation();
-
             if (player == null)
             {
                 FindPlayer();
@@ -97,10 +90,7 @@ namespace ESS.Objects.Enemy
             Vector2 direction = toPlayer.normalized;
             float distance = distanceToPlayer;
 
-            if (spriteRenderer != null && Mathf.Abs(toPlayer.x) > Mathf.Epsilon)
-            {
-                spriteRenderer.flipX = toPlayer.x < 0f ? spriteFacesRight : !spriteFacesRight;
-            }
+            FaceDirection(toPlayer.x);
 
             if (distance > attackRange)
             {
@@ -130,9 +120,31 @@ namespace ESS.Objects.Enemy
             float enemySpeed = enemy != null ? enemy.MovementSpeed : 0f;
             transform.position = (Vector2)transform.position + wanderDirection * enemySpeed * Time.deltaTime;
 
-            if (spriteRenderer != null && Mathf.Abs(wanderDirection.x) > Mathf.Epsilon)
+            FaceDirection(wanderDirection.x);
+        }
+
+        private void FaceDirection(float horizontalDirection)
+        {
+            if (Mathf.Abs(horizontalDirection) <= Mathf.Epsilon)
             {
-                spriteRenderer.flipX = wanderDirection.x < 0f ? spriteFacesRight : !spriteFacesRight;
+                return;
+            }
+
+            bool shouldFlip = horizontalDirection < 0f ? spriteFacesRight : !spriteFacesRight;
+            if (bodyTransform != null)
+            {
+                Vector3 scale = bodyBaseScale;
+                scale.x *= shouldFlip ? -1f : 1f;
+                bodyTransform.localScale = scale;
+
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.flipX = false;
+                }
+            }
+            else if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = shouldFlip;
             }
         }
 
@@ -144,10 +156,7 @@ namespace ESS.Objects.Enemy
             }
 
             attackTimer = Mathf.Max(attackCooldown, 0.1f);
-            if (bossWingFlap != null)
-            {
-                bossWingFlap.PlayBite();
-            }
+            AttackStarted?.Invoke();
 
             if (powerTransform != null)
             {
@@ -156,11 +165,6 @@ namespace ESS.Objects.Enemy
             }
 
             playerCharacter.TakeDamage(enemy.attackDamage);
-            if (spriteRenderer != null && biteSprite != null)
-            {
-                spriteRenderer.sprite = biteSprite;
-                biteTimer = biteDuration;
-            }
         }
 
         public void ConfigurePowerAttack(float range, float projectileSpeed)
@@ -196,33 +200,6 @@ namespace ESS.Objects.Enemy
             Vector3 aimVector = playerCharacter.transform.position - powerTransform.position;
             projectile.Initialize(playerCharacter, enemy.attackDamage, powerProjectileSpeed, aimVector);
             projectileObject.SetActive(true);
-        }
-
-        public void SetSprites(Sprite idleSprite, Sprite attackSprite)
-        {
-            biteSprite = attackSprite;
-            if (idleSprite != null)
-            {
-                defaultSprite = idleSprite;
-                if (spriteRenderer != null && biteTimer <= 0f)
-                {
-                    spriteRenderer.sprite = idleSprite;
-                }
-            }
-        }
-
-        private void UpdateBiteAnimation()
-        {
-            if (biteTimer <= 0f)
-            {
-                return;
-            }
-
-            biteTimer -= Time.deltaTime;
-            if (biteTimer <= 0f && spriteRenderer != null)
-            {
-                spriteRenderer.sprite = defaultSprite;
-            }
         }
 
         private void FindPlayer()
