@@ -262,36 +262,29 @@ namespace ESS.Objects.Player
 
 		private void Move()
 		{
-			if (joystick != null)
+			movement = joystick != null ? joystick.Direction : Vector2.zero;
+
+			if (Input.GetKey(KeyCode.LeftArrow))
 			{
-				movement = joystick.Direction;
+				movement.x -= 1f;
 			}
-			else
+
+			if (Input.GetKey(KeyCode.RightArrow))
 			{
-				movement = Vector2.zero;
-
-				if (Input.GetKey(KeyCode.LeftArrow))
-				{
-					movement.x -= 1f;
-				}
-
-				if (Input.GetKey(KeyCode.RightArrow))
-				{
-					movement.x += 1f;
-				}
-
-				if (Input.GetKey(KeyCode.UpArrow))
-				{
-					movement.y += 1f;
-				}
-
-				if (Input.GetKey(KeyCode.DownArrow))
-				{
-					movement.y -= 1f;
-				}
-
-				movement = Vector2.ClampMagnitude(movement, 1f);
+				movement.x += 1f;
 			}
+
+			if (Input.GetKey(KeyCode.UpArrow))
+			{
+				movement.y += 1f;
+			}
+
+			if (Input.GetKey(KeyCode.DownArrow))
+			{
+				movement.y -= 1f;
+			}
+
+			movement = Vector2.ClampMagnitude(movement, 1f);
 
 			if (rb != null)
 			{
