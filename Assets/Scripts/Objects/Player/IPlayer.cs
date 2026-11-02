@@ -105,7 +105,7 @@ namespace ESS.Objects.Player
 			attackDamage += 5;
 			speed += 0.2f;
 
-			health = maxHealth;
+			health = (maxHealth - health) / 2 + health;
 
 			experienceToNextLevel = Mathf.RoundToInt(
 				experienceToNextLevel * experienceToNextLevelGrowth
