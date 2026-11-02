@@ -13,6 +13,10 @@ namespace ESS.Objects
         public bool IsDead { get; protected set; }
         public bool IsHidden { get; set; }
 
+        [SerializeField] private Color freezeOverlayColor = new Color(0.45f, 0.82f, 1f, 0.5f);
+        [SerializeField, Min(0f)] private float freezePulseSpeed = 5f;
+        [SerializeField, Range(0f, 0.1f)] private float freezeScalePulse = 0.035f;
+
         private int shieldHealth;
         private Coroutine shieldRoutine;
         public bool HasActiveShield => shieldHealth > 0;
@@ -20,6 +24,9 @@ namespace ESS.Objects
         private float slowMultiplier = 1f;
         private float slowRemaining;
         private float stunRemaining;
+        private readonly List<SpriteRenderer> freezeSources = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> freezeOverlays = new List<SpriteRenderer>();
+        private bool freezeOverlayCreated;
 
         public float MovementSpeed => stunRemaining > 0f ? 0f : speed * slowMultiplier;
         public bool IsStunned => stunRemaining > 0f;
@@ -38,6 +45,8 @@ namespace ESS.Objects
 
             if (stunRemaining > 0f)
                 stunRemaining = Mathf.Max(0f, stunRemaining - Time.deltaTime);
+
+            UpdateFreezeOverlay();
         }
 
         public virtual void TakeDamage(int damage)
@@ -99,7 +108,10 @@ namespace ESS.Objects
         public virtual void Stun(float duration)
         {
             if (!IsDead && duration > 0f)
+            {
                 stunRemaining = Mathf.Max(stunRemaining, duration);
+                EnsureFreezeOverlay();
+            }
         }
 
         public virtual void ApplySlow(float duration, float speedMultiplier)
@@ -109,6 +121,68 @@ namespace ESS.Objects
 
             slowMultiplier = Mathf.Min(slowMultiplier, Mathf.Clamp01(speedMultiplier));
             slowRemaining = Mathf.Max(slowRemaining, duration);
+        }
+
+        private void EnsureFreezeOverlay()
+        {
+            if (freezeOverlayCreated)
+            {
+                return;
+            }
+
+            freezeOverlayCreated = true;
+            foreach (SpriteRenderer source in GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (source == null || source.sprite == null || !source.enabled
+                    || !source.gameObject.activeInHierarchy
+                    || source.transform.name == "Weapon"
+                    || source.transform.name == "Power")
+                {
+                    continue;
+                }
+
+                GameObject overlayObject = new GameObject("FreezeOverlay");
+                overlayObject.transform.SetParent(source.transform, false);
+                SpriteRenderer overlay = overlayObject.AddComponent<SpriteRenderer>();
+                overlay.sprite = source.sprite;
+                overlay.sortingLayerID = source.sortingLayerID;
+                overlay.sortingOrder = source.sortingOrder + 1;
+                overlay.maskInteraction = source.maskInteraction;
+                freezeSources.Add(source);
+                freezeOverlays.Add(overlay);
+            }
+        }
+
+        private void UpdateFreezeOverlay()
+        {
+            if (!freezeOverlayCreated)
+            {
+                return;
+            }
+
+            float pulse = (Mathf.Sin(Time.time * freezePulseSpeed) + 1f) * 0.5f;
+            Color overlayColor = freezeOverlayColor;
+            overlayColor.a *= 0.8f + pulse * 0.2f;
+            float scale = 1f + freezeScalePulse * pulse;
+
+            for (int index = 0; index < freezeOverlays.Count; index++)
+            {
+                SpriteRenderer source = freezeSources[index];
+                SpriteRenderer overlay = freezeOverlays[index];
+                if (source == null || overlay == null)
+                {
+                    continue;
+                }
+
+                overlay.enabled = IsStunned && source.enabled && source.gameObject.activeInHierarchy;
+                overlay.sprite = source.sprite;
+                overlay.flipX = source.flipX;
+                overlay.flipY = source.flipY;
+                overlay.sortingLayerID = source.sortingLayerID;
+                overlay.sortingOrder = source.sortingOrder + 1;
+                overlay.color = overlayColor;
+                overlay.transform.localScale = Vector3.one * scale;
+            }
         }
     }
 }

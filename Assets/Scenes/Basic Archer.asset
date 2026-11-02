@@ -91,8 +91,6 @@ MonoBehaviour:
         useProjectileTrail: 0
   visuals:
     flipHeadTowardTarget: 1
-    weaponAimMode: 2
-    weaponAngleOffset: 0
     weaponAttackSprite: {fileID: 791684174, guid: 64817a76329d14a49b95f8279409fa5b, type: 3}
     weaponDrawDuration: 0.15
     arrowPullbackDistance: 0.3
