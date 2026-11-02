@@ -1,4 +1,5 @@
 using ESS.Objects.Enemy;
+using ESS.UI.GamePlay;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ namespace ESS.Objects.Player
 		[Header("Movement")]
 		[SerializeField] private Rigidbody2D rb;
 		[SerializeField] private IPlayer player;
+		[SerializeField] private Joystick joystick;
 		[SerializeField] private float moveSpeed = 5f;
 
 		[Header("Visuals")]
@@ -56,6 +58,11 @@ namespace ESS.Objects.Player
 			if (player == null)
 			{
 				player = GetComponent<IPlayer>();
+			}
+
+			if (joystick == null)
+			{
+				joystick = FindObjectOfType<Joystick>();
 			}
 
 			if (skillHandler == null)
@@ -255,30 +262,37 @@ namespace ESS.Objects.Player
 
 		private void Move()
 		{
-			movement.x = 0f;
-			movement.y = 0f;
-
-			if (Input.GetKey(KeyCode.LeftArrow))
+			if (joystick != null)
 			{
-				movement.x -= 1f;
+				movement = joystick.Direction;
+			}
+			else
+			{
+				movement = Vector2.zero;
+
+				if (Input.GetKey(KeyCode.LeftArrow))
+				{
+					movement.x -= 1f;
+				}
+
+				if (Input.GetKey(KeyCode.RightArrow))
+				{
+					movement.x += 1f;
+				}
+
+				if (Input.GetKey(KeyCode.UpArrow))
+				{
+					movement.y += 1f;
+				}
+
+				if (Input.GetKey(KeyCode.DownArrow))
+				{
+					movement.y -= 1f;
+				}
+
+				movement = Vector2.ClampMagnitude(movement, 1f);
 			}
 
-			if (Input.GetKey(KeyCode.RightArrow))
-			{
-				movement.x += 1f;
-			}
-
-			if (Input.GetKey(KeyCode.UpArrow))
-			{
-				movement.y += 1f;
-			}
-
-			if (Input.GetKey(KeyCode.DownArrow))
-			{
-				movement.y -= 1f;
-			}
-
-			movement.Normalize();
 			if (rb != null)
 			{
 				rb.velocity = movement * activeMoveSpeed;
