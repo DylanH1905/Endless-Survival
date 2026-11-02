@@ -16,6 +16,8 @@ namespace ESS.UI.GamePlay
         private const string SelectionSceneName = "Selection";
 
         private GameObject popupRoot;
+        private GameObject pausePopupRoot;
+        private Button pauseButton;
 
         private static readonly Color Gold = new Color(0.91f, 0.69f, 0.35f);
         private static readonly Color DarkBrown = new Color(0.20f, 0.12f, 0.07f, 0.98f);
@@ -43,11 +45,14 @@ namespace ESS.UI.GamePlay
         private void OnEnable()
         {
             IPlayer.OnDeath += HandlePlayerDeath;
+            HookPauseButton();
         }
 
         private void OnDisable()
         {
             IPlayer.OnDeath -= HandlePlayerDeath;
+            if (pauseButton != null)
+                pauseButton.onClick.RemoveListener(ShowPausePopup);
         }
 
         private void HandlePlayerDeath(IPlayer player)
@@ -73,9 +78,113 @@ namespace ESS.UI.GamePlay
                 level
             );
 
+            ClosePausePopup();
             BuildPopup(characterName, score, level, duration);
 
             Time.timeScale = 0f;
+        }
+
+        private void HookPauseButton()
+        {
+            GameObject pauseButtonObject = GameObject.Find("PauseGame");
+            if (pauseButtonObject == null)
+                return;
+
+            pauseButton = pauseButtonObject.GetComponent<Button>();
+            if (pauseButton == null)
+                return;
+
+            pauseButton.onClick.RemoveListener(ShowPausePopup);
+            pauseButton.onClick.AddListener(ShowPausePopup);
+        }
+
+        private void ShowPausePopup()
+        {
+            if (pausePopupRoot != null || popupRoot != null)
+                return;
+
+            EnsureEventSystem();
+            Time.timeScale = 0f;
+
+            GameObject canvasObject = new GameObject(
+                "PauseCanvas",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster)
+            );
+            pausePopupRoot = canvasObject;
+            canvasObject.transform.SetParent(transform, false);
+
+            Canvas canvas = canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 900;
+
+            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            RectTransform canvasRect = canvasObject.GetComponent<RectTransform>();
+            GameObject overlay = CreateImage(
+                "PauseOverlay",
+                canvasRect,
+                new Color(0.02f, 0.015f, 0.01f, 0.82f),
+                Vector2.zero,
+                Vector2.one
+            );
+
+            RectTransform panel = CreateRect(
+                "PausePanel",
+                overlay.transform,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(700, 430)
+            );
+            panel.gameObject.AddComponent<Image>().color = DarkBrown;
+
+            CreateText(
+                panel, "PauseTitle", "PAUSED",
+                56, FontStyles.Bold,
+                new Vector2(0.05f, 0.62f),
+                new Vector2(0.95f, 0.9f),
+                Gold
+            );
+
+            CreateButton(
+                panel,
+                "ResumeButton",
+                "RESUME",
+                new Vector2(0.1f, 0.34f),
+                new Vector2(0.9f, 0.53f),
+                ResumeGame,
+                new Color(0.69f, 0.39f, 0.14f)
+            );
+
+            CreateButton(
+                panel,
+                "PauseBackButton",
+                "BACK TO SELECTION",
+                new Vector2(0.1f, 0.1f),
+                new Vector2(0.9f, 0.29f),
+                BackToSelection,
+                new Color(0.35f, 0.25f, 0.17f)
+            );
+        }
+
+        private void ResumeGame()
+        {
+            Time.timeScale = 1f;
+            ClosePausePopup();
+        }
+
+        private void ClosePausePopup()
+        {
+            if (pausePopupRoot == null)
+                return;
+
+            Destroy(pausePopupRoot);
+            pausePopupRoot = null;
         }
 
         private static void EnsureEventSystem()
