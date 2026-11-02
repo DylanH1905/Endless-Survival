@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using ESS;
 using ESS.Objects.Player;
 
 namespace ESS.UI.GamePlay
@@ -57,7 +58,13 @@ namespace ESS.UI.GamePlay
             }
 
             EnsureEventSystem();
-            BuildPopup(player != null ? player.score : 0);
+            string characterName = SelectedCharacter.Current != null
+                ? SelectedCharacter.Current.characterName
+                : "Unknown";
+            int score = player != null ? player.score : 0;
+            int level = player != null ? player.level : 1;
+            GameHistoryStore.RecordRun(characterName, score, level);
+            BuildPopup(score);
             Time.timeScale = 0f;
         }
 
@@ -103,19 +110,48 @@ namespace ESS.UI.GamePlay
 
             CreateText(
                 panel, "Title", "GAME OVER", 64, FontStyles.Bold,
-                new Vector2(0.06f, 0.68f), new Vector2(0.94f, 0.9f));
+                new Vector2(0.06f, 0.83f), new Vector2(0.94f, 0.96f));
 
             CreateText(
                 panel, "Score", $"Score: {score}", 40, FontStyles.Normal,
-                new Vector2(0.06f, 0.5f), new Vector2(0.94f, 0.65f));
+                new Vector2(0.06f, 0.73f), new Vector2(0.94f, 0.83f));
+
+            CreateText(
+                panel, "LeaderboardTitle", "LEADERBOARD", 28, FontStyles.Bold,
+                new Vector2(0.06f, 0.62f), new Vector2(0.94f, 0.72f));
+
+            CreateText(
+                panel, "LeaderboardEntries", FormatLeaderboard(), 18, FontStyles.Normal,
+                new Vector2(0.06f, 0.27f), new Vector2(0.94f, 0.62f));
 
             CreateButton(
                 panel, "RestartButton", "Restart",
-                new Vector2(0.1f, 0.14f), new Vector2(0.47f, 0.34f), RestartGame);
+                new Vector2(0.1f, 0.07f), new Vector2(0.47f, 0.22f), RestartGame);
 
             CreateButton(
                 panel, "BackButton", "New Character",
-                new Vector2(0.53f, 0.14f), new Vector2(0.9f, 0.34f), BackToSelection);
+                new Vector2(0.53f, 0.07f), new Vector2(0.9f, 0.22f), BackToSelection);
+        }
+
+        private static string FormatLeaderboard()
+        {
+            GameHistoryStore.GameHistoryEntry[] entries = GameHistoryStore.GetLeaderboard(5);
+            if (entries.Length == 0)
+            {
+                return "No games recorded yet";
+            }
+
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            for (int index = 0; index < entries.Length; index++)
+            {
+                GameHistoryStore.GameHistoryEntry entry = entries[index];
+                string characterName = string.IsNullOrEmpty(entry.characterName)
+                    ? "Unknown"
+                    : entry.characterName;
+                text.AppendLine($"{index + 1}.  {characterName}  |  {entry.score} pts  |  Lv {entry.level}");
+            }
+
+            return text.ToString();
         }
 
         private RectTransform CreatePanel(Transform parent)
@@ -128,7 +164,7 @@ namespace ESS.UI.GamePlay
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(720f, 420f);
+            rect.sizeDelta = new Vector2(720f, 620f);
 
             panel.GetComponent<Image>().color = new Color(0.08f, 0.08f, 0.1f, 0.95f);
 
