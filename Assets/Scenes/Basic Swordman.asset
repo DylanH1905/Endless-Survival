@@ -31,8 +31,9 @@ MonoBehaviour:
     - skill: {fileID: 11500000, guid: c65d6e110faa95a46a553fda2f88dc94, type: 3}
       minimumPlayerLevel: 1
       skillName: Lightning Chain
-      description: Chain lightning strikes up to four nearby enemies, jumping between
-        targets.
+      description: Chain lightning through up to four enemies. The first target must
+        be within 5 units, and each next target within 3 units. Each hit deals 150%
+        attack damage, increased by 15% per skill level above level 1.
       cooldown: 8
       icon: {fileID: -2012126932, guid: 884c7db769ed23a4e9ee081a6324f0b9, type: 3}
       soundEffect: {fileID: 0}

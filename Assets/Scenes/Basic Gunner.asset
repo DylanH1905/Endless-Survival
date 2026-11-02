@@ -27,7 +27,7 @@ MonoBehaviour:
     - skill: {fileID: 11500000, guid: 2bd2f6849fbf4a8f9b7c320428f44f11, type: 3}
       minimumPlayerLevel: 1
       skillName: Rapid Fire
-      description: Temporarily increase basic attack speed.
+      description: Increase basic attack speed by 75% for 5 seconds.
       cooldown: 10
       icon: {fileID: -25962495, guid: 590f560505c4cac49ae5f572221ac21f, type: 3}
       soundEffect: {fileID: 0}
