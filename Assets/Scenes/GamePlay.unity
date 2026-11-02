@@ -2570,21 +2570,25 @@ MonoBehaviour:
     size: 1
     minDistanceToSameType: 10
     maxCount: 20
+    healFraction: 0.1
   - type: 6
     icon: {fileID: -1942129691, guid: 969f30f037bb2fc4d92992112dd987f4, type: 3}
-    size: 0.1
+    size: 0.3
     minDistanceToSameType: 10
     maxCount: 15
+    healFraction: 0.1
   - type: 8
     icon: {fileID: -1607885886, guid: 969f30f037bb2fc4d92992112dd987f4, type: 3}
     size: 0.5
     minDistanceToSameType: 10
     maxCount: 10
+    healFraction: 0.1
   - type: 7
     icon: {fileID: -1659563664, guid: 969f30f037bb2fc4d92992112dd987f4, type: 3}
     size: 0.5
     minDistanceToSameType: 10
     maxCount: 10
+    healFraction: 0.1
   targetCamera: {fileID: 926672879}
   player: {fileID: 1077313501}
   spawnInterval: 1
