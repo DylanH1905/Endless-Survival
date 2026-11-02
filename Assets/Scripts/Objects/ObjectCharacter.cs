@@ -24,6 +24,7 @@ namespace ESS.Objects
         private float slowMultiplier = 1f;
         private float slowRemaining;
         private float stunRemaining;
+        private Coroutine knockbackRoutine;
         private readonly List<SpriteRenderer> freezeSources = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> freezeOverlays = new List<SpriteRenderer>();
         private bool freezeOverlayCreated;
@@ -121,6 +122,31 @@ namespace ESS.Objects
 
             slowMultiplier = Mathf.Min(slowMultiplier, Mathf.Clamp01(speedMultiplier));
             slowRemaining = Mathf.Max(slowRemaining, duration);
+        }
+
+        public void ApplyKnockback(Vector2 direction, float distance, float duration)
+        {
+            if (IsDead || direction.sqrMagnitude <= Mathf.Epsilon || distance <= 0f || duration <= 0f)
+                return;
+
+            if (knockbackRoutine != null)
+                StopCoroutine(knockbackRoutine);
+            knockbackRoutine = StartCoroutine(Knockback(direction.normalized, distance, duration));
+        }
+
+        private IEnumerator Knockback(Vector2 direction, float distance, float duration)
+        {
+            float elapsed = 0f;
+            float previousProgress = 0f;
+            while (elapsed < duration)
+            {
+                elapsed = Mathf.Min(elapsed + Time.deltaTime, duration);
+                float progress = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+                transform.position += (Vector3)(direction * (distance * (progress - previousProgress)));
+                previousProgress = progress;
+                yield return null;
+            }
+            knockbackRoutine = null;
         }
 
         private void EnsureFreezeOverlay()

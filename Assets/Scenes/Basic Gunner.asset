@@ -23,11 +23,76 @@ MonoBehaviour:
   combat:
     basicAttack: {fileID: 11500000, guid: 8a137470399c6414da9d7859c5aba364, type: 3}
     skills: []
-    skillConfigs: []
+    skillConfigs:
+    - skill: {fileID: 11500000, guid: 2bd2f6849fbf4a8f9b7c320428f44f11, type: 3}
+      minimumPlayerLevel: 1
+      skillName: Rapid Fire
+      description: Temporarily increase basic attack speed.
+      cooldown: 10
+      icon: {fileID: -25962495, guid: 590f560505c4cac49ae5f572221ac21f, type: 3}
+      soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: 0}
+        projectileTint: {r: 1, g: 1, b: 1, a: 1}
+        projectileScale: 1
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
+    - skill: {fileID: 11500000, guid: 3d67f5130dff46ab9e64d069b6710422, type: 3}
+      minimumPlayerLevel: 3
+      skillName: Mine Trap
+      description: Place a mine that damages and slows the first enemy entering its
+        radius.
+      cooldown: 10
+      icon: {fileID: -542507276, guid: 590f560505c4cac49ae5f572221ac21f, type: 3}
+      soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: -2025699940, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+        projectileTint: {r: 1, g: 0.55, b: 0.1, a: 1}
+        projectileScale: 0.55
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
+    - skill: {fileID: 11500000, guid: 5f080cb3a7e24cf3b6a5a123d8635003, type: 3}
+      minimumPlayerLevel: 5
+      skillName: Timed Bomb
+      description: Attach a bomb that grows with basic hits and explodes after five
+        seconds or five hits.
+      cooldown: 12
+      icon: {fileID: 345278893, guid: 590f560505c4cac49ae5f572221ac21f, type: 3}
+      soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: -2025699940, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+        projectileTint: {r: 1, g: 0.18, b: 0.12, a: 1}
+        projectileScale: 0.45
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
+    - skill: {fileID: 11500000, guid: e0a81ac9b83347fa853793dc17447804, type: 3}
+      minimumPlayerLevel: 7
+      skillName: Siege Bomb
+      description: Fire an explosive bomb that damages and knocks back nearby enemies
+        and destroys boss power projectiles.
+      cooldown: 15
+      icon: {fileID: 521268714, guid: 590f560505c4cac49ae5f572221ac21f, type: 3}
+      soundEffect: {fileID: 0}
+      visuals:
+        castEffectPrefab: {fileID: 0}
+        impactEffectPrefab: {fileID: 0}
+        projectilePrefab: {fileID: 0}
+        projectileSprite: {fileID: -2025699940, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+        projectileTint: {r: 1, g: 0.45, b: 0.08, a: 1}
+        projectileScale: 0.8
+        projectileRotationOffset: 0
+        useProjectileTrail: 0
   visuals:
     flipHeadTowardTarget: 1
-    weaponAimMode: 2
-    weaponAngleOffset: 0
     weaponAttackSprite: {fileID: -42260779, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
     weaponDrawDuration: 0.15
     arrowPullbackDistance: 0.3

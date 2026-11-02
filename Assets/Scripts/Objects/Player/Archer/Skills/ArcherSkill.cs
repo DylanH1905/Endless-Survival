@@ -14,6 +14,7 @@ namespace ESS.Objects.Player.Archer.Skills
 
 		private float cooldownRemaining;
 		private SkillVisualConfig visuals;
+		protected SkillVisualConfig Visuals => visuals;
 		protected IPlayer Owner => GetComponent<IPlayer>() ?? GetComponentInParent<IPlayer>();
 		public override float Cooldown => cooldown;
 		public override float CooldownRemaining => cooldownRemaining;

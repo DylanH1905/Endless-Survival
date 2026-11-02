@@ -16,10 +16,11 @@ namespace ESS.Objects.Player.Gunner
 		private Color projectileColor =
 			new Color(1f, 0.85f, 0.2f, 1f);
 		[SerializeField] private GameObject projectilePrefab;
-		[SerializeField] private Transform muzzleTransform;
+		[SerializeField, Min(0f)] private float bulletFadeInDuration = 0.12f;
 
 		[Header("Bullet Animation")]
 		[SerializeField] private Sprite weaponAttackSprite;
+		[SerializeField, Min(0f)] private float weaponAttackDelay = 0.08f;
 		[SerializeField] private float weaponAttackDuration = 0.15f;
 
 		private SpriteRenderer bulletRenderer;
@@ -49,17 +50,6 @@ namespace ESS.Objects.Player.Gunner
 				}
 			}
 
-			if (muzzleTransform == null)
-			{
-				foreach (Transform child in GetComponentsInChildren<Transform>(true))
-				{
-					if (child.name == "Muzzle")
-					{
-						muzzleTransform = child;
-						break;
-					}
-				}
-			}
 		}
 
 		protected override void Attack(IEnemy enemy)
@@ -130,13 +120,16 @@ namespace ESS.Objects.Player.Gunner
 
 		private IEnumerator DrawAndFire(IEnemy enemy)
 		{
+			if (enemy != null && !enemy.IsDead)
+				SpawnProjectile(enemy);
+
+			if (weaponAttackDelay > 0f)
+				yield return new WaitForSeconds(weaponAttackDelay);
+
 			if (bulletRenderer != null && weaponAttackSprite != null)
 				bulletRenderer.sprite = weaponAttackSprite;
 
 			yield return new WaitForSeconds(weaponAttackDuration);
-
-			if (enemy != null && !enemy.IsDead)
-				SpawnProjectile(enemy);
 
 			ResetBullet();
 			bulletDrawRoutine = null;
@@ -148,7 +141,9 @@ namespace ESS.Objects.Player.Gunner
 				? arrowTransform.gameObject
 				: projectilePrefab;
 
-			Vector3 spawnPosition = GetMuzzlePosition();
+			Vector3 spawnPosition = player != null
+				? player.transform.position
+				: transform.position;
 
 			Quaternion spawnRotation = arrowTransform != null
 				? arrowTransform.rotation
@@ -209,22 +204,10 @@ namespace ESS.Objects.Player.Gunner
 				enemy,
 				player.attackDamage,
 				projectileSpeed,
-				projectileColor);
-		}
-
-		private Vector3 GetMuzzlePosition()
-		{
-			if (muzzleTransform != null)
-				return muzzleTransform.position;
-
-			if (bulletRenderer != null && bulletRenderer.sprite != null)
-			{
-				Bounds weaponBounds = bulletRenderer.sprite.bounds;
-				return bulletRenderer.transform.TransformPoint(
-					new Vector3(weaponBounds.max.x, weaponBounds.center.y, 0f));
-			}
-
-			return transform.position;
+				projectileColor,
+				Vector3.zero,
+				bulletFadeInDuration,
+				true);
 		}
 
 		private void ResetBullet()

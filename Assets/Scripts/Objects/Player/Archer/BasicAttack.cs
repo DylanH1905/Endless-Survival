@@ -16,6 +16,7 @@ namespace ESS.Objects.Player.Archer
 		private Color projectileColor =
 			new Color(1f, 0.85f, 0.2f, 1f);
 		[SerializeField] private GameObject projectilePrefab;
+		[SerializeField, Min(0f)] private float arrowFadeInDuration = 0.12f;
 
 		[Header("Bow Animation")]
 		[SerializeField] private Sprite drawingBowSprite;
@@ -318,8 +319,8 @@ namespace ESS.Objects.Player.Archer
 				? arrowTransform.gameObject
 				: projectilePrefab;
 
-			Vector3 spawnPosition = arrowTransform != null
-				? arrowTransform.position
+			Vector3 spawnPosition = player != null
+				? player.transform.position
 				: transform.position;
 
 			Quaternion spawnRotation = arrowTransform != null
@@ -382,7 +383,8 @@ namespace ESS.Objects.Player.Archer
 				player.attackDamage,
 				projectileSpeed,
 				projectileColor,
-				enemy.transform.position - player.transform.position);
+				enemy.transform.position - player.transform.position,
+				arrowFadeInDuration);
 		}
 
 		private void ResetBow()

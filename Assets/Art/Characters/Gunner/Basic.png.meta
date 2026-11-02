@@ -159,12 +159,12 @@ TextureImporter:
       name: Basic_Gun
       rect:
         serializedVersion: 2
-        x: 260
+        x: 261
         y: 110
         width: 144
         height: 68
       alignment: 9
-      pivot: {x: 0.83925396, y: 0.6596494}
+      pivot: {x: 0.61308455, y: -0.0131574515}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -185,7 +185,7 @@ TextureImporter:
         width: 309
         height: 158
       alignment: 9
-      pivot: {x: 0.42220485, y: 0.42638212}
+      pivot: {x: 0.40714756, y: 0.14663532}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
