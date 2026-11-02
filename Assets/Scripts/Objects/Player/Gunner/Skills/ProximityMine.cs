@@ -41,7 +41,9 @@ namespace ESS.Objects.Player.Gunner.Skills
 				if (enemy == null || enemy.IsDead
 					|| ((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude > triggerRadius * triggerRadius)
 					continue;
-				enemy.TakeDamage(damage);
+				int nonlethalDamage = Mathf.Min(damage, Mathf.Max(enemy.health - 1, 0));
+				if (nonlethalDamage > 0)
+					enemy.TakeDamage(nonlethalDamage);
 				enemy.ApplySlow(slowDuration, slowMultiplier);
 				if (impactEffectPrefab != null) Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
 				Destroy(gameObject);
