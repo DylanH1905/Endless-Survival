@@ -40,22 +40,11 @@ namespace ESS.Objects.Player
 		public AudioClip ThirdSkill = null;
 	}
 
-	public enum CharacterWeaponAimMode
-	{
-		None,
-		MirrorAroundHead,
-		RotateAroundHead
-	}
-
 	[Serializable]
 	public class CharacterVisualConfig
 	{
 		[Tooltip("Flip the head sprite toward the current target.")]
 		public bool flipHeadTowardTarget = true;
-		[Tooltip("Choose whether the weapon mirrors or rotates around the Head pivot.")]
-		public CharacterWeaponAimMode weaponAimMode;
-		[Tooltip("Angle correction for weapon sprites whose forward axis is not right.")]
-		[Range(-180f, 180f)] public float weaponAngleOffset;
 		[Tooltip("Optional weapon sprite used while charging an attack, such as a drawn bow.")]
 		public Sprite weaponAttackSprite;
 		[Min(0.01f)] public float weaponDrawDuration = 0.15f;

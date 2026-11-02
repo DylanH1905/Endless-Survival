@@ -15,13 +15,7 @@ namespace ESS.Objects.Player
 
 		[Header("Visuals")]
 		[SerializeField] private SpriteRenderer headRenderer;
-		[SerializeField] private SpriteRenderer weaponRenderer;
-		[SerializeField] private Transform bowTransform;
-		[SerializeField] private Transform arrowTransform;
-		private Transform aimPivot;
 		private Transform headPivot;
-		private Transform weaponPivot;
-        private Transform powerTransform;
 
 		[Header("Dash")]
 		[SerializeField] private float dashSpeed = 12f;
@@ -38,14 +32,8 @@ namespace ESS.Objects.Player
 		private float dashCooldownCounter;
 		private bool dashRequested;
 		private bool headFacesLeftByDefault;
-		private Vector3 weaponBaseLocalPosition;
-		private bool weaponFlipXByDefault;
-		private bool weaponFlipYByDefault;
-		private Quaternion weaponPivotBaseLocalRotation;
-		private Quaternion arrowRestLocalRotation;
+		private Vector3 headBaseLocalScale;
 		private bool flipHeadTowardTarget = true;
-		private CharacterWeaponAimMode weaponAimMode;
-		private float weaponAngleOffset;
 		public Transform CurrentAimTarget { get; private set; }
 		public Vector2 CurrentMoveDirection => movement;
 
@@ -85,71 +73,14 @@ namespace ESS.Objects.Player
 			{
 				headPivot = headRenderer.transform;
 			}
-
-            powerTransform = transform.Find("Power");
-
+			headBaseLocalScale = headPivot != null ? headPivot.localScale : Vector3.one;
 			foreach (AimTarget aimTarget in GetComponentsInChildren<ESS.Objects.AimTarget>(true))
 			{
 				aimTarget.enabled = false;
 			}
 
-			if (bowTransform == null)
-			{
-				bowTransform = transform.Find("Bow");
-			}
-
-			if (arrowTransform == null)
-			{
-				arrowTransform = transform.Find("Arrow");
-			}
-
-			headFacesLeftByDefault = headRenderer != null && headRenderer.flipX;
-
-			if (weaponRenderer == null)
-			{
-				foreach (SpriteRenderer renderer
-						 in GetComponentsInChildren<SpriteRenderer>(true))
-				{
-					if (renderer.transform.name == "Weapon")
-					{
-						weaponRenderer = renderer;
-						break;
-					}
-				}
-			}
-
-			if (weaponRenderer != null)
-			{
-				weaponPivot = weaponRenderer.transform.parent;
-				weaponBaseLocalPosition = weaponRenderer.transform.localPosition;
-				weaponFlipXByDefault = weaponRenderer.flipX;
-				weaponFlipYByDefault = weaponRenderer.flipY;
-
-				if (weaponPivot != null && weaponPivot.name == "WeaponPivot")
-				{
-					weaponPivotBaseLocalRotation = weaponPivot.localRotation;
-				}
-			}
-
-			if (bowTransform != null || arrowTransform != null)
-			{
-				GameObject pivotObject = new GameObject("AimPivot");
-				aimPivot = pivotObject.transform;
-				aimPivot.SetParent(transform, false);
-				aimPivot.position = headPivot != null ? headPivot.position : transform.position;
-				aimPivot.rotation = transform.rotation;
-
-				if (bowTransform != null)
-				{
-					bowTransform.SetParent(aimPivot, true);
-				}
-
-				if (arrowTransform != null)
-				{
-					arrowTransform.SetParent(aimPivot, true);
-					arrowRestLocalRotation = arrowTransform.localRotation;
-				}
-			}
+			headFacesLeftByDefault = (headRenderer != null && headRenderer.flipX)
+				^ (headPivot != null && headPivot.lossyScale.x < 0f);
 
 			activeMoveSpeed = player != null && player.MovementSpeed > 0f ? player.MovementSpeed : moveSpeed;
 		}
@@ -168,31 +99,7 @@ namespace ESS.Objects.Player
 
 		public void ApplyVisualConfig(CharacterVisualConfig config)
 		{
-			if (config == null)
-			{
-				flipHeadTowardTarget = true;
-				weaponAimMode = CharacterWeaponAimMode.None;
-				weaponAngleOffset = 0f;
-				return;
-			}
-
-			flipHeadTowardTarget = config.flipHeadTowardTarget;
-			weaponAimMode = config.weaponAimMode;
-			weaponAngleOffset = config.weaponAngleOffset;
-
-			if (weaponAimMode != CharacterWeaponAimMode.None
-				&& weaponPivot != null && weaponPivot.name == "WeaponPivot"
-				&& headPivot != null)
-			{
-				weaponPivot.position = headPivot.position;
-			}
-
-            if (weaponAimMode == CharacterWeaponAimMode.RotateAroundHead
-                && weaponPivot != null && powerTransform != null
-                && powerTransform.parent != weaponPivot)
-            {
-                powerTransform.SetParent(weaponPivot, true);
-            }
+			flipHeadTowardTarget = config == null || config.flipHeadTowardTarget;
 		}
 
 		public void OnClickMultiple()
@@ -236,7 +143,7 @@ namespace ESS.Objects.Player
 				activeMoveSpeed = player.MovementSpeed;
 
 			Move();
-			RotateToClosestEnemy();
+			UpdateClosestEnemyTarget();
 			RotateHeadToMovement();
 			UpdateDash();
 		}
@@ -316,61 +223,13 @@ namespace ESS.Objects.Player
 			if (hasFacingDirection && Mathf.Abs(directionX) > Mathf.Epsilon)
 			{
 				bool facesLeft = directionX < 0f;
-				if (flipHeadTowardTarget && headRenderer != null)
+				if (flipHeadTowardTarget && headPivot != null)
 				{
-					headRenderer.flipX = headFacesLeftByDefault ^ facesLeft;
+					Vector3 headScale = headBaseLocalScale;
+					headScale.x *= headFacesLeftByDefault != facesLeft ? -1f : 1f;
+					headPivot.localScale = headScale;
 				}
 
-				if (weaponAimMode == CharacterWeaponAimMode.MirrorAroundHead
-					&& weaponRenderer != null && weaponPivot != null
-					&& weaponPivot.name == "WeaponPivot")
-				{
-					Vector3 weaponPosition = weaponBaseLocalPosition;
-					weaponPosition.x *= facesLeft ? -1f : 1f;
-					weaponRenderer.transform.localPosition = weaponPosition;
-					weaponRenderer.flipX = weaponFlipXByDefault ^ facesLeft;
-				}
-			}
-
-			if (weaponAimMode == CharacterWeaponAimMode.RotateAroundHead
-				&& weaponPivot != null && weaponPivot.name == "WeaponPivot")
-			{
-				if (CurrentAimTarget != null)
-				{
-					Vector2 aimOrigin = headPivot != null
-						? (Vector2)headPivot.position
-						: (Vector2)weaponPivot.position;
-					Vector2 aimDirection = (Vector2)CurrentAimTarget.position - aimOrigin;
-					if (aimDirection.sqrMagnitude > Mathf.Epsilon)
-					{
-						float angle = Mathf.Atan2(aimDirection.y, aimDirection.x)
-							* Mathf.Rad2Deg + weaponAngleOffset;
-						if (player is ESS.Objects.Player.Gunner.Setup)
-						{
-							if (weaponRenderer != null)
-								weaponRenderer.flipY = weaponFlipYByDefault
-									^ aimDirection.x < 0f;
-
-							float facingAngle = (aimDirection.x < 0f ? 180f : 0f)
-								+ weaponAngleOffset;
-							angle = facingAngle + Mathf.Clamp(
-								Mathf.DeltaAngle(facingAngle, angle),
-								-45f,
-								45f);
-						}
-
-						weaponPivot.rotation = Quaternion.Euler(0f, 0f, angle);
-					}
-				}
-				else
-				{
-					weaponPivot.localRotation = weaponPivotBaseLocalRotation;
-					if (player is ESS.Objects.Player.Gunner.Setup
-						&& weaponRenderer != null)
-					{
-						weaponRenderer.flipY = weaponFlipYByDefault;
-					}
-				}
 			}
 		}
 
@@ -400,7 +259,7 @@ namespace ESS.Objects.Player
 			}
 		}
 
-		private void RotateToClosestEnemy()
+		private void UpdateClosestEnemyTarget()
 		{
 			Vector3 aimOrigin = headRenderer != null ? headRenderer.bounds.center : transform.position;
 			IEnemy closestEnemy = null;
@@ -422,40 +281,6 @@ namespace ESS.Objects.Player
 			}
 
 			CurrentAimTarget = closestEnemy != null ? closestEnemy.transform : null;
-
-			if (closestEnemy == null)
-			{
-				if (aimPivot != null)
-				{
-					aimPivot.rotation = Quaternion.Slerp(
-						aimPivot.rotation,
-						transform.rotation,
-						Time.deltaTime * 10f);
-				}
-
-				if (arrowTransform != null)
-				{
-					arrowTransform.localRotation = arrowRestLocalRotation;
-				}
-
-				return;
-			}
-
-			Vector3 direction = closestEnemy.transform.position - aimOrigin;
-			float offset = weaponAimMode == CharacterWeaponAimMode.RotateAroundHead
-				? weaponAngleOffset
-				: -90f;
-			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + offset;
-			Quaternion aimRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-			if (aimPivot != null)
-			{
-				aimPivot.rotation = aimRotation;
-			}
-
-			if (arrowTransform != null)
-			{
-				arrowTransform.localRotation = Quaternion.identity;
-			}
 		}
 
 		public void AddSpeed()

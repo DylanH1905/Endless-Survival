@@ -2,6 +2,9 @@ using System;
 using ESS.Objects.Player;
 using UnityEditor;
 using UnityEngine;
+using ESS.Objects.Player.Archer; 
+using ESS.Objects.Player.Gunner; 
+using ESS.Objects.Player.Sword; 
 
 namespace ESS.UI.GamePlay
 {
@@ -89,6 +92,14 @@ namespace ESS.UI.GamePlay
 				&& character.visuals != null)
 			{
 				gunnerAttack.ConfigureWeaponAttackAnimation(character.visuals.weaponAttackSprite, character.visuals.weaponDrawDuration);
+			}
+
+			if (activeBasicAttack is ESS.Objects.Player.Sword.BasicAttack swordAttack
+				&& character.visuals != null)
+			{
+				swordAttack.ConfigureWeaponAttackAnimation(
+					character.visuals.weaponAttackSprite,
+					character.visuals.weaponDrawDuration);
 			}
 
 			CharacterSkillConfig[] configuredSkills = character.combat.skillConfigs;

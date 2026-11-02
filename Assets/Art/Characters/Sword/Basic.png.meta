@@ -96,10 +96,10 @@ TextureImporter:
       name: Basic_Head
       rect:
         serializedVersion: 2
-        x: 27
-        y: 133
-        width: 150
-        height: 150
+        x: 38
+        y: 145
+        width: 129
+        height: 127
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -107,8 +107,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0fe33b2552160c749b33c3c9875629b6
-      internalID: -125378704
+      spriteID: e070ab64d82c9a74a9ef7dfcd7034df7
+      internalID: -21728676
       vertices: []
       indices: 
       edges: []
@@ -122,25 +122,25 @@ TextureImporter:
         width: 93
         height: 272
       alignment: 9
-      pivot: {x: 0.50470597, y: 0.20073189}
+      pivot: {x: 1.2462748, y: 0.27534834}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e5f5276dd97e4a348a08600e398458cf
+      spriteID: 676408467a00d9b44a10244fc7b5e0d5
       internalID: -1747880104
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Basic_Sword_Marks
+      name: Basic_Slash
       rect:
         serializedVersion: 2
         x: 362
         y: 122
-        width: 177
+        width: 226
         height: 178
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -149,8 +149,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0484faa7fc2c81b4f93570e2f6d3ee47
-      internalID: 633726659
+      spriteID: 3a153d3ca18d18645a735f946bb72436
+      internalID: -120564518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Basic_Slashing_Sword
+      rect:
+        serializedVersion: 2
+        x: 649
+        y: 107
+        width: 285
+        height: 263
+      alignment: 9
+      pivot: {x: 0.4735312, y: 0.17874064}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f748677fc1db60447b3b55a14a3d37f5
+      internalID: -1550960149
       vertices: []
       indices: 
       edges: []
@@ -166,10 +187,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Basic_3: 1575711001
-      Basic_Head: -125378704
+      Basic_Head: -21728676
+      Basic_Slash: -120564518
+      Basic_Slashing_Sword: 1575711001
       Basic_Sword: -1747880104
-      Basic_Sword_Marks: 633726659
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

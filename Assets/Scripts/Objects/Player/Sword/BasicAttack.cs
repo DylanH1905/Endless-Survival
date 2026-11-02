@@ -6,17 +6,13 @@ namespace ESS.Objects.Player.Sword
 {
 	public class BasicAttack : IBasicAttack
 	{
-		[Header("Sword References")]
+		[Header("Attack Visuals")]
 		[SerializeField] private Transform weaponPivot;
-		[SerializeField] private GameObject attackEffect;
+		[SerializeField] private SpriteRenderer weaponRenderer;
+		[SerializeField] private Sprite weaponAttackSprite;
+		[SerializeField, Min(0.01f)] private float weaponAttackDuration = 0.15f;
 
-		[Header("Slash Settings")]
-		[SerializeField, Range(1f, 180f)]
-		private float slashAngle = 60f;
-
-		[SerializeField, Min(0.01f)]
-		private float slashDuration = 0.2f;
-
+		[Header("Attack Settings")]
 		[SerializeField, Min(0f)]
 		private float hitDelay = 0.08f;
 
@@ -26,9 +22,8 @@ namespace ESS.Objects.Player.Sword
 		[SerializeField, Range(0f, 360f)]
 		private float hitAngle = 120f;
 
-		private Quaternion weaponRestRotation;
-		private Coroutine slashRoutine;
-		private bool hasWeaponRestRotation;
+		private Sprite defaultWeaponSprite;
+		private Coroutine attackRoutine;
 
 		protected override void Awake()
 		{
@@ -43,24 +38,22 @@ namespace ESS.Objects.Player.Sword
 				weaponPivot = characterRoot.Find("WeaponPivot");
 			}
 
-			Transform headPivot = characterRoot != null
-				? characterRoot.Find("Head")
-				: null;
-
-			if (weaponPivot != null && headPivot != null)
+			if (weaponRenderer == null)
 			{
-				weaponPivot.position = headPivot.position;
+				foreach (SpriteRenderer spriteRenderer
+						 in GetComponentsInChildren<SpriteRenderer>(true))
+				{
+					if (spriteRenderer.transform.name == "Weapon")
+					{
+						weaponRenderer = spriteRenderer;
+						break;
+					}
+				}
 			}
 
-			if (weaponPivot != null)
+			if (weaponRenderer != null)
 			{
-				weaponRestRotation = weaponPivot.localRotation;
-				hasWeaponRestRotation = true;
-			}
-
-			if (attackEffect != null)
-			{
-				attackEffect.SetActive(false);
+				defaultWeaponSprite = weaponRenderer.sprite;
 			}
 		}
 
@@ -74,15 +67,24 @@ namespace ESS.Objects.Player.Sword
 				return;
 			}
 
-			if (slashRoutine != null)
+			if (attackRoutine != null)
 			{
-				StopCoroutine(slashRoutine);
-				slashRoutine = null;
+				StopCoroutine(attackRoutine);
+				attackRoutine = null;
 			}
 
-			ResetSlash();
+			ResetWeaponSprite();
+			attackRoutine = StartCoroutine(WeaponAttackRoutine(enemy));
+		}
 
-			slashRoutine = StartCoroutine(SlashRoutine(enemy));
+		public void ConfigureWeaponAttackAnimation(Sprite attackSprite, float duration)
+		{
+			weaponAttackSprite = attackSprite;
+			weaponAttackDuration = Mathf.Max(duration, 0.01f);
+			if (weaponRenderer != null)
+			{
+				defaultWeaponSprite = weaponRenderer.sprite;
+			}
 		}
 
 		private bool IsNearbyEnemy(IEnemy enemy)
@@ -97,65 +99,28 @@ namespace ESS.Objects.Player.Sword
 				<= effectiveRange * effectiveRange;
 		}
 
-		private IEnumerator SlashRoutine(IEnemy initialTarget)
+		private IEnumerator WeaponAttackRoutine(IEnemy initialTarget)
 		{
-			if (weaponPivot == null)
+			Vector2 direction = GetAttackDirection(initialTarget);
+			if (weaponRenderer != null && weaponAttackSprite != null)
 			{
-				Error("BasicAttack: WeaponPivot chưa được gán trong Inspector.");
-				slashRoutine = null;
-				yield break;
+				weaponRenderer.sprite = weaponAttackSprite;
 			}
 
-			Vector2 direction = GetAttackDirection(initialTarget);
-
-			float worldAngle = Mathf.Atan2(
-				direction.y,
-				direction.x
-			) * Mathf.Rad2Deg;
-
-			float parentAngle = weaponPivot.parent != null
-				? weaponPivot.parent.eulerAngles.z
-				: 0f;
-
-			float baseLocalAngle = worldAngle - parentAngle;
-
-			float halfAngle = slashAngle * 0.5f;
-			float duration = Mathf.Max(slashDuration, 0.01f);
+			float duration = Mathf.Max(weaponAttackDuration, 0.01f);
 			float elapsed = 0f;
 			bool hasHit = false;
-
-			if (attackEffect != null)
-			{
-				attackEffect.SetActive(true);
-			}
 
 			while (elapsed < duration)
 			{
 				if (!IsNearbyEnemy(initialTarget))
 				{
-					ResetSlash();
-					slashRoutine = null;
+					ResetWeaponSprite();
+					attackRoutine = null;
 					yield break;
 				}
 
 				elapsed += Time.deltaTime;
-
-				float progress = Mathf.Clamp01(elapsed / duration);
-				float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
-
-				float currentAngle = Mathf.Lerp(
-					-halfAngle,
-					halfAngle,
-					easedProgress
-				);
-
-				float localAngle = baseLocalAngle + currentAngle;
-
-				weaponPivot.localRotation = Quaternion.Euler(
-					0f,
-					0f,
-					localAngle
-				);
 
 				if (!hasHit && elapsed >= hitDelay)
 				{
@@ -166,8 +131,8 @@ namespace ESS.Objects.Player.Sword
 				yield return null;
 			}
 
-			ResetSlash();
-			slashRoutine = null;
+			ResetWeaponSprite();
+			attackRoutine = null;
 		}
 
 		private Vector2 GetAttackDirection(IEnemy target)
@@ -229,30 +194,36 @@ namespace ESS.Objects.Player.Sword
 			}
 		}
 
-		private void ResetSlash()
+		private void ResetWeaponSprite()
 		{
-			if (attackEffect != null)
+			if (weaponRenderer != null)
 			{
-				attackEffect.SetActive(false);
+				weaponRenderer.sprite = defaultWeaponSprite;
+			}
+		}
+
+		protected override void OnAttackSuppressed()
+		{
+			if (attackRoutine != null)
+			{
+				StopCoroutine(attackRoutine);
+				attackRoutine = null;
 			}
 
-			if (weaponPivot != null && hasWeaponRestRotation)
-			{
-				weaponPivot.localRotation = weaponRestRotation;
-			}
+			ResetWeaponSprite();
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
 
-			if (slashRoutine != null)
+			if (attackRoutine != null)
 			{
-				StopCoroutine(slashRoutine);
-				slashRoutine = null;
+				StopCoroutine(attackRoutine);
+				attackRoutine = null;
 			}
 
-			ResetSlash();
+			ResetWeaponSprite();
 		}
 
 		private void OnDrawGizmosSelected()
