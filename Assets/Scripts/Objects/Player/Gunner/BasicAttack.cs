@@ -25,7 +25,13 @@ namespace ESS.Objects.Player.Gunner
 
 		private SpriteRenderer bulletRenderer;
 		private Sprite defaultBulletSprite;
+		private Transform weaponTransform;
 		private Transform arrowTransform;
+		private Vector3 weaponRestLocalPosition;
+		private Quaternion weaponRestLocalRotation;
+		private Vector3 weaponRestPlayerOffset;
+		private bool defaultWeaponFlipY;
+		private float weaponRotationOffset;
 		private Coroutine bulletDrawRoutine;
 		private float defaultAttackCooldown;
 		private Coroutine attackSpeedBoostRoutine;
@@ -41,7 +47,9 @@ namespace ESS.Objects.Player.Gunner
 				if (spriteRenderer.transform.name == "Weapon")
 				{
 					bulletRenderer = spriteRenderer;
+					weaponTransform = spriteRenderer.transform;
 					defaultBulletSprite = bulletRenderer.sprite;
+					defaultWeaponFlipY = bulletRenderer.flipY;
 				}
 
 				if (spriteRenderer.transform.name == "Power")
@@ -50,6 +58,34 @@ namespace ESS.Objects.Player.Gunner
 				}
 			}
 
+			if (weaponTransform != null && player != null)
+			{
+				if (weaponTransform.parent != player.transform)
+				{
+					weaponTransform.SetParent(player.transform, true);
+				}
+
+				weaponRestLocalPosition = weaponTransform.localPosition;
+				weaponRestLocalRotation = weaponTransform.localRotation;
+				weaponRestPlayerOffset = player.transform.InverseTransformPoint(
+					weaponTransform.position);
+
+				float restPositionAngle = Mathf.Atan2(
+					weaponRestPlayerOffset.y,
+					weaponRestPlayerOffset.x) * Mathf.Rad2Deg;
+				float restRotationAngle = (
+					Quaternion.Inverse(player.transform.rotation)
+					* weaponTransform.rotation).eulerAngles.z;
+				weaponRotationOffset = Mathf.DeltaAngle(
+					restPositionAngle,
+					restRotationAngle);
+			}
+		}
+
+		protected override void Update()
+		{
+			base.Update();
+			UpdateWeaponAim();
 		}
 
 		protected override void Attack(IEnemy enemy)
@@ -109,6 +145,46 @@ namespace ESS.Objects.Player.Gunner
 
 			attackCooldown = Mathf.Max(0.1f, defaultAttackCooldown / Mathf.Max(multiplier, 1f));
 			attackSpeedBoostRoutine = StartCoroutine(ResetAttackSpeedBoost(duration));
+		}
+
+		private void UpdateWeaponAim()
+		{
+			if (weaponTransform == null || player == null)
+			{
+				return;
+			}
+
+			IEnemy aimTarget = target;
+			if (aimTarget == null || aimTarget.IsDead)
+			{
+				aimTarget = FindClosestEnemyInRange();
+			}
+
+			if (aimTarget == null || aimTarget.IsDead)
+			{
+				weaponTransform.localPosition = weaponRestLocalPosition;
+				weaponTransform.localRotation = weaponRestLocalRotation;
+				bulletRenderer.flipY = defaultWeaponFlipY;
+				return;
+			}
+
+			Vector3 targetOffset = player.transform.InverseTransformPoint(
+				aimTarget.transform.position);
+			bool aimingLeft = targetOffset.x < 0f;
+			float aimAngle = Mathf.Atan2(targetOffset.y, targetOffset.x)
+				* Mathf.Rad2Deg;
+			bulletRenderer.flipY = defaultWeaponFlipY ^ aimingLeft;
+
+			float restAngle = Mathf.Atan2(
+				weaponRestPlayerOffset.y,
+				weaponRestPlayerOffset.x) * Mathf.Rad2Deg;
+			float orbitAngle = aimAngle - restAngle;
+			Vector3 rotatedOffset = Quaternion.Euler(0f, 0f, orbitAngle)
+				* weaponRestPlayerOffset;
+
+			weaponTransform.position = player.transform.TransformPoint(rotatedOffset);
+			weaponTransform.rotation = player.transform.rotation
+				* Quaternion.Euler(0f, 0f, aimAngle + weaponRotationOffset);
 		}
 
 		private IEnumerator ResetAttackSpeedBoost(float duration)
