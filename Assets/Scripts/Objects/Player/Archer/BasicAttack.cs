@@ -78,10 +78,12 @@ namespace ESS.Objects.Player.Archer
 		}
 
 		public void ConfigureBowAnimation(
+			Sprite baseWeaponSprite,
 			Sprite attackSprite,
 			float drawDuration,
 			float pullbackDistance)
 		{
+			defaultBowSprite = baseWeaponSprite;
 			drawingBowSprite = attackSprite;
 			bowDrawDuration = Mathf.Max(drawDuration, 0.01f);
 			arrowPullbackDistance = Mathf.Max(pullbackDistance, 0f);

@@ -79,9 +79,11 @@ namespace ESS.Objects.Player.Gunner
 		}
 
 		public void ConfigureWeaponAttackAnimation(
+			Sprite baseWeaponSprite,
 			Sprite attackSprite,
 			float duration)
 		{
+			defaultBulletSprite = baseWeaponSprite;
 			weaponAttackSprite = attackSprite;
 			weaponAttackDuration = Mathf.Max(duration, 0.01f);
 		}

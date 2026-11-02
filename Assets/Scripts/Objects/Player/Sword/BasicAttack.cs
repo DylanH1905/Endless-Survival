@@ -77,14 +77,14 @@ namespace ESS.Objects.Player.Sword
 			attackRoutine = StartCoroutine(WeaponAttackRoutine(enemy));
 		}
 
-		public void ConfigureWeaponAttackAnimation(Sprite attackSprite, float duration)
+		public void ConfigureWeaponAttackAnimation(
+			Sprite baseWeaponSprite,
+			Sprite attackSprite,
+			float duration)
 		{
+			defaultWeaponSprite = baseWeaponSprite;
 			weaponAttackSprite = attackSprite;
 			weaponAttackDuration = Mathf.Max(duration, 0.01f);
-			if (weaponRenderer != null)
-			{
-				defaultWeaponSprite = weaponRenderer.sprite;
-			}
 		}
 
 		private bool IsNearbyEnemy(IEnemy enemy)

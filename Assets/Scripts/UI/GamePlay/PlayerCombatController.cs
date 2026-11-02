@@ -79,27 +79,27 @@ namespace ESS.UI.GamePlay
 
 			if (activeBasicAttack is ESS.Objects.Player.Archer.BasicAttack archerAttack)
 			{
-				if (character.visuals != null)
-				{
-					archerAttack.ConfigureBowAnimation(
-						character.visuals.weaponAttackSprite,
-						character.visuals.weaponDrawDuration,
-						character.visuals.arrowPullbackDistance);
-				}
+				archerAttack.ConfigureBowAnimation(
+					character.weapon,
+					character.visuals != null ? character.visuals.weaponAttackSprite : null,
+					character.visuals != null ? character.visuals.weaponDrawDuration : 0.15f,
+					character.visuals != null ? character.visuals.arrowPullbackDistance : 0.3f);
 			}
 
-			if (activeBasicAttack is ESS.Objects.Player.Gunner.BasicAttack gunnerAttack
-				&& character.visuals != null)
+			if (activeBasicAttack is ESS.Objects.Player.Gunner.BasicAttack gunnerAttack)
 			{
-				gunnerAttack.ConfigureWeaponAttackAnimation(character.visuals.weaponAttackSprite, character.visuals.weaponDrawDuration);
+				gunnerAttack.ConfigureWeaponAttackAnimation(
+					character.weapon,
+					character.visuals != null ? character.visuals.weaponAttackSprite : null,
+					character.visuals != null ? character.visuals.weaponDrawDuration : 0.15f);
 			}
 
-			if (activeBasicAttack is ESS.Objects.Player.Sword.BasicAttack swordAttack
-				&& character.visuals != null)
+			if (activeBasicAttack is ESS.Objects.Player.Sword.BasicAttack swordAttack)
 			{
 				swordAttack.ConfigureWeaponAttackAnimation(
-					character.visuals.weaponAttackSprite,
-					character.visuals.weaponDrawDuration);
+					character.weapon,
+					character.visuals != null ? character.visuals.weaponAttackSprite : null,
+					character.visuals != null ? character.visuals.weaponDrawDuration : 0.15f);
 			}
 
 			CharacterSkillConfig[] configuredSkills = character.combat.skillConfigs;
