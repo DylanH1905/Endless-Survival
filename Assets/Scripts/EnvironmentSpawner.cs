@@ -131,6 +131,11 @@ namespace ESS
             float zPosition = player != null ? player.position.z : 0f;
             Vector3 worldPosition = new Vector3(spawnPosition.Value.x, spawnPosition.Value.y, zPosition);
             GameObject spawned = CreateEnvironmentObject(handle, worldPosition);
+            if (spawned == null)
+            {
+                return;
+            }
+
             spawned.transform.localScale = Vector3.one * handle.size;
             spawnedObjects.Add(new SpawnedObject(spawned.transform, handle.type));
 
@@ -169,6 +174,25 @@ namespace ESS
 
         private GameObject CreateEnvironmentObject(EnvironmentObjectHandle handle, Vector3 position)
         {
+            EnvironmentObjectHandle bushHandle = null;
+            if (handle.type == EnvironmentObjectType.Trap)
+            {
+                foreach (EnvironmentObjectHandle candidate in environmentObjects)
+                {
+                    if (candidate.type == EnvironmentObjectType.Bush && candidate.icon != null)
+                    {
+                        bushHandle = candidate;
+                        break;
+                    }
+                }
+
+                if (bushHandle == null)
+                {
+                    Warning("Trap requires a Bush environment object with an icon assigned.");
+                    return null;
+                }
+            }
+
             GameObject spawned = new GameObject(handle.type.ToString());
             spawned.transform.position = position;
 
@@ -178,8 +202,16 @@ namespace ESS
             spriteRenderer.sortingLayerName = "Environment";
 
             BoxCollider2D collider = spawned.AddComponent<BoxCollider2D>();
-            collider.size = handle.icon.bounds.size;
-            collider.isTrigger = handle.type == EnvironmentObjectType.Bush || handle.type == EnvironmentObjectType.Shoes;
+            float bushScaleRatio = bushHandle != null
+                ? bushHandle.size / Mathf.Max(handle.size, 0.0001f)
+                : 1f;
+            collider.size = bushHandle != null
+                ? bushHandle.icon.bounds.size * bushScaleRatio
+                : handle.icon.bounds.size;
+            collider.isTrigger = handle.type == EnvironmentObjectType.Bush
+                || handle.type == EnvironmentObjectType.Shoes
+                || handle.type == EnvironmentObjectType.Trap
+                || handle.type == EnvironmentObjectType.Food;
 
             EnvironmentCharacter environmentCharacter;
             if (handle.type == EnvironmentObjectType.Bush)
@@ -189,6 +221,30 @@ namespace ESS
             else if (handle.type == EnvironmentObjectType.Shoes)
             {
                 environmentCharacter = spawned.AddComponent<Shoes>();
+            }
+            else if (handle.type == EnvironmentObjectType.Food)
+            {
+                Food food = spawned.AddComponent<Food>();
+                food.ConfigureHealFraction(handle.healFraction);
+                environmentCharacter = food;
+            }
+            else if (handle.type == EnvironmentObjectType.Trap)
+            {
+                environmentCharacter = spawned.AddComponent<Trap>();
+
+                GameObject bushCover = new GameObject("BushCover");
+                bushCover.transform.SetParent(spawned.transform, false);
+                bushCover.transform.localScale = Vector3.one * bushScaleRatio;
+
+                SpriteRenderer bushRenderer = bushCover.AddComponent<SpriteRenderer>();
+                bushRenderer.sprite = bushHandle.icon;
+                bushRenderer.sortingLayerName = "Environment";
+                bushRenderer.sortingOrder = 1;
+
+                BoxCollider2D bushCollider = bushCover.AddComponent<BoxCollider2D>();
+                bushCollider.size = bushHandle.icon.bounds.size;
+                bushCollider.isTrigger = true;
+                bushCover.AddComponent<Bush>();
             }
             else
             {

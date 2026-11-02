@@ -111,6 +111,8 @@ namespace ESS.Objects
         public float minDistanceToSameType = 1.5f;
         [Tooltip("Maximum number of this type allowed on the map at once. 0 or less means unlimited")]
         public int maxCount = 0;
+        [Tooltip("Fraction of max health restored when Food is collected")]
+        [Range(0f, 1f)] public float healFraction = 0.3f;
     }
 
     public class EnvironmentCharacter : SystemMonoBehaviour
