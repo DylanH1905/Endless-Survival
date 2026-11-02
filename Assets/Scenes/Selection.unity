@@ -2020,6 +2020,7 @@ MonoBehaviour:
   characters:
   - {fileID: 11400000, guid: ba248dbec33f375499d6232b96886c2a, type: 2}
   - {fileID: 11400000, guid: c14b97831f0b3bc4ca185ebd42ce768a, type: 2}
+  - {fileID: 11400000, guid: 2e6300dc24d20b04294f6bfcc2c9ab9f, type: 2}
   playButton: {fileID: 1225566933}
   gameplaySceneName: Gameplay
   nameText: {fileID: 1130999870}

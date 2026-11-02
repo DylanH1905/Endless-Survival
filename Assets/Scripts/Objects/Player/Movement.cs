@@ -40,6 +40,7 @@ namespace ESS.Objects.Player
 		private bool headFacesLeftByDefault;
 		private Vector3 weaponBaseLocalPosition;
 		private bool weaponFlipXByDefault;
+		private bool weaponFlipYByDefault;
 		private Quaternion weaponPivotBaseLocalRotation;
 		private Quaternion arrowRestLocalRotation;
 		private bool flipHeadTowardTarget = true;
@@ -122,6 +123,7 @@ namespace ESS.Objects.Player
 				weaponPivot = weaponRenderer.transform.parent;
 				weaponBaseLocalPosition = weaponRenderer.transform.localPosition;
 				weaponFlipXByDefault = weaponRenderer.flipX;
+				weaponFlipYByDefault = weaponRenderer.flipY;
 
 				if (weaponPivot != null && weaponPivot.name == "WeaponPivot")
 				{
@@ -343,12 +345,31 @@ namespace ESS.Objects.Player
 					{
 						float angle = Mathf.Atan2(aimDirection.y, aimDirection.x)
 							* Mathf.Rad2Deg + weaponAngleOffset;
+						if (player is ESS.Objects.Player.Gunner.Setup)
+						{
+							if (weaponRenderer != null)
+								weaponRenderer.flipY = weaponFlipYByDefault
+									^ aimDirection.x < 0f;
+
+							float facingAngle = (aimDirection.x < 0f ? 180f : 0f)
+								+ weaponAngleOffset;
+							angle = facingAngle + Mathf.Clamp(
+								Mathf.DeltaAngle(facingAngle, angle),
+								-45f,
+								45f);
+						}
+
 						weaponPivot.rotation = Quaternion.Euler(0f, 0f, angle);
 					}
 				}
 				else
 				{
 					weaponPivot.localRotation = weaponPivotBaseLocalRotation;
+					if (player is ESS.Objects.Player.Gunner.Setup
+						&& weaponRenderer != null)
+					{
+						weaponRenderer.flipY = weaponFlipYByDefault;
+					}
 				}
 			}
 		}

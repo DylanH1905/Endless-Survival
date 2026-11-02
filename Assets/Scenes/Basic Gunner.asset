@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab9b4c943d6b77142b395ddeb6cc1326, type: 3}
+  m_Name: Basic Gunner
+  m_EditorClassIdentifier: 
+  characterId: basic_gunner
+  characterName: Gunner
+  description: 
+  portrait: {fileID: -1539838214, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+  maxHealth: 1000
+  damage: 30
+  attackSpeed: 1
+  attackRange: 10
+  combat:
+    basicAttack: {fileID: 11500000, guid: 8a137470399c6414da9d7859c5aba364, type: 3}
+    skills: []
+    skillConfigs: []
+  visuals:
+    flipHeadTowardTarget: 1
+    weaponAimMode: 2
+    weaponAngleOffset: 0
+    weaponAttackSprite: {fileID: -42260779, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+    weaponDrawDuration: 0.15
+    arrowPullbackDistance: 0.3
+  head: {fileID: -1539838214, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+  power: {fileID: -2025699940, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+  weapon: {fileID: 44143392, guid: 0666f318e2912cb4c835fe4d30c739a2, type: 3}
+  baseAttack: {fileID: 0}
+  FistSkill: {fileID: 0}
+  SecondSkill: {fileID: 0}
+  ThirdSkill: {fileID: 0}
