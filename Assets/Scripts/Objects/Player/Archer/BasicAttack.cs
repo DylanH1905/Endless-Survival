@@ -25,9 +25,14 @@ namespace ESS.Objects.Player.Archer
 		private SpriteRenderer bowRenderer;
 		private Sprite defaultBowSprite;
 		private Transform headTransform;
+		private Transform weaponTransform;
 		private Transform arrowTransform;
 		private Coroutine bowDrawRoutine;
 		private Vector3 arrowRestLocalPosition;
+		private Vector3 weaponRestLocalPosition;
+		private Quaternion weaponRestLocalRotation;
+		private Vector3 weaponRestPlayerOffset;
+		private float weaponRotationOffset;
 		private bool hasArrowRestPosition;
 		private float defaultAttackCooldown;
 		private Coroutine attackSpeedBoostRoutine;
@@ -45,6 +50,7 @@ namespace ESS.Objects.Player.Archer
 				if (spriteRenderer.transform.name == "Weapon")
 				{
 					bowRenderer = spriteRenderer;
+					weaponTransform = spriteRenderer.transform;
 					defaultBowSprite = bowRenderer.sprite;
 				}
 
@@ -53,6 +59,35 @@ namespace ESS.Objects.Player.Archer
 					arrowTransform = spriteRenderer.transform;
 				}
 			}
+
+			if (weaponTransform != null && player != null)
+			{
+				if (weaponTransform.parent != player.transform)
+				{
+					weaponTransform.SetParent(player.transform, true);
+				}
+
+				weaponRestLocalPosition = weaponTransform.localPosition;
+				weaponRestLocalRotation = weaponTransform.localRotation;
+				weaponRestPlayerOffset = player.transform.InverseTransformPoint(
+					weaponTransform.position);
+
+				float restPositionAngle = Mathf.Atan2(
+					weaponRestPlayerOffset.y,
+					weaponRestPlayerOffset.x) * Mathf.Rad2Deg;
+				float restRotationAngle = (
+					Quaternion.Inverse(player.transform.rotation)
+					* weaponTransform.rotation).eulerAngles.z;
+				weaponRotationOffset = Mathf.DeltaAngle(
+					restPositionAngle,
+					restRotationAngle);
+			}
+		}
+
+		protected override void Update()
+		{
+			base.Update();
+			UpdateWeaponAim();
 		}
 
 		protected override void Attack(IEnemy enemy)
@@ -127,6 +162,42 @@ namespace ESS.Objects.Player.Archer
 			yield return new WaitForSeconds(Mathf.Max(duration, 0.1f));
 			attackCooldown = defaultAttackCooldown;
 			attackSpeedBoostRoutine = null;
+		}
+
+		private void UpdateWeaponAim()
+		{
+			if (weaponTransform == null || player == null)
+			{
+				return;
+			}
+
+			IEnemy aimTarget = target;
+			if (aimTarget == null || aimTarget.IsDead)
+			{
+				aimTarget = FindClosestEnemyInRange();
+			}
+
+			if (aimTarget == null || aimTarget.IsDead)
+			{
+				weaponTransform.localPosition = weaponRestLocalPosition;
+				weaponTransform.localRotation = weaponRestLocalRotation;
+				return;
+			}
+
+			Vector3 targetOffset = player.transform.InverseTransformPoint(
+				aimTarget.transform.position);
+			float aimAngle = Mathf.Atan2(targetOffset.y, targetOffset.x)
+				* Mathf.Rad2Deg;
+			float restAngle = Mathf.Atan2(
+				weaponRestPlayerOffset.y,
+				weaponRestPlayerOffset.x) * Mathf.Rad2Deg;
+			float orbitAngle = aimAngle - restAngle;
+			Vector3 rotatedOffset = Quaternion.Euler(0f, 0f, orbitAngle)
+				* weaponRestPlayerOffset;
+
+			weaponTransform.position = player.transform.TransformPoint(rotatedOffset);
+			weaponTransform.rotation = player.transform.rotation
+				* Quaternion.Euler(0f, 0f, aimAngle + weaponRotationOffset);
 		}
 
 		private IEnumerator DrawAndFire(IEnemy enemy)
@@ -310,7 +381,8 @@ namespace ESS.Objects.Player.Archer
 				enemy,
 				player.attackDamage,
 				projectileSpeed,
-				projectileColor);
+				projectileColor,
+				enemy.transform.position - player.transform.position);
 		}
 
 		private void ResetBow()

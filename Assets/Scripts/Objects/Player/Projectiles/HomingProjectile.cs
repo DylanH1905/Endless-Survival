@@ -12,13 +12,31 @@ namespace ESS.Objects.Player.Projectiles
         private LineRenderer lineRenderer;
         private SpriteRenderer spriteRenderer;
         private Vector3 aimDirection;
-        private float spriteRotationOffset;
+        private bool useInitialDirection;
 
         public void Initialize(IEnemy newTarget, int newDamage, float newSpeed, Color color)
+        {
+            Initialize(newTarget, newDamage, newSpeed, color, Vector3.zero);
+        }
+
+        public void Initialize(
+            IEnemy newTarget,
+            int newDamage,
+            float newSpeed,
+            Color color,
+            Vector3 initialDirection)
         {
             target = newTarget;
             damage = newDamage;
             speed = newSpeed;
+            useInitialDirection = initialDirection.sqrMagnitude > Mathf.Epsilon;
+
+            Vector3 aimVector = useInitialDirection
+                ? initialDirection
+                : target.transform.position - transform.position;
+            aimDirection = aimVector.sqrMagnitude > Mathf.Epsilon
+                ? aimVector.normalized
+                : Vector3.up;
 
             if (spriteRenderer == null)
             {
@@ -26,10 +44,6 @@ namespace ESS.Objects.Player.Projectiles
             }
             else
             {
-                Vector3 aimVector = target.transform.position - transform.position;
-                aimDirection = aimVector.sqrMagnitude > Mathf.Epsilon ? aimVector.normalized : Vector3.up;
-                float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-                spriteRotationOffset = transform.eulerAngles.z - aimAngle;
                 RotateArrowAlong(aimDirection);
             }
         }
@@ -61,7 +75,16 @@ namespace ESS.Objects.Player.Projectiles
                 return;
             }
 
-            aimDirection = aimVector / distance;
+            bool isUsingInitialDirection = useInitialDirection;
+            if (isUsingInitialDirection)
+            {
+                useInitialDirection = false;
+            }
+            else
+            {
+                aimDirection = aimVector / distance;
+            }
+
             float travelDistance = speed * Time.deltaTime;
             Vector3 nextPosition = transform.position + aimDirection * Mathf.Min(travelDistance, distance);
 
@@ -76,7 +99,7 @@ namespace ESS.Objects.Player.Projectiles
             }
 
             transform.position = nextPosition;
-            if (distance <= travelDistance + 0.05f)
+            if (!isUsingInitialDirection && distance <= travelDistance + 0.05f)
             {
                 target.TakeDamage(damage);
                 Destroy(gameObject);
@@ -86,7 +109,7 @@ namespace ESS.Objects.Player.Projectiles
         private void RotateArrowAlong(Vector3 direction)
         {
             float directionAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, 0f, directionAngle + spriteRotationOffset);
+            transform.rotation = Quaternion.Euler(0f, 0f, directionAngle - 90f);
         }
 
         private void SetupLineRenderer(Color color)
